@@ -2,6 +2,11 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
 export const API_ENDPOINTS = {
+  // Auth
+  AUTH_LOGIN: `${API_BASE_URL}/api/auth/login/`,
+  AUTH_REGISTER: `${API_BASE_URL}/api/auth/register/`,
+  AUTH_REFRESH: `${API_BASE_URL}/api/auth/refresh/`,
+  
   // Gastos
   GASTOS_LIST: `${API_BASE_URL}/api/gastos/`,
   GASTO_DETAIL: (id) => `${API_BASE_URL}/api/gastos/${id}/`,
@@ -10,29 +15,101 @@ export const API_ENDPOINTS = {
   PREVER_GASTO: `${API_BASE_URL}/api/prever/`,
 }
 
+// Token storage keys
+const TOKEN_KEY = 'sa_access_token'
+const REFRESH_KEY = 'sa_refresh_token'
+
+export function setTokens(access, refresh) {
+  localStorage.setItem(TOKEN_KEY, access)
+  localStorage.setItem(REFRESH_KEY, refresh)
+}
+
+export function getAccessToken() {
+  return localStorage.getItem(TOKEN_KEY)
+}
+
+export function getRefreshToken() {
+  return localStorage.getItem(REFRESH_KEY)
+}
+
+export function clearTokens() {
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(REFRESH_KEY)
+}
+
+export function isAuthenticated() {
+  return !!getAccessToken()
+}
+
 // Headers padrão
 export const API_HEADERS = {
   'Content-Type': 'application/json',
 }
 
-// Função helper para requests
+// Função helper para requests (sem refresh automático — o executor decide)
 export async function apiRequest(url, options = {}) {
+  const token = getAccessToken()
+  const headers = { ...API_HEADERS, ...options.headers }
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
   const config = {
-    headers: { ...API_HEADERS, ...options.headers },
+    headers,
     ...options,
   }
 
   try {
-    const response = await fetch(url, config)
+    let response = await fetch(url, config)
+    
+    // Se 401 e tem refresh token, tenta refresh
+    if (response.status === 401 && getRefreshToken()) {
+      const refreshed = await tryRefreshToken()
+      if (refreshed) {
+        // Refaz o request original com novo token
+        headers['Authorization'] = `Bearer ${getAccessToken()}`
+        response = await fetch(url, { ...config, headers })
+      }
+    }
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.erro || `HTTP ${response.status}`)
+      throw new Error(errorData.erro || errorData.detail || `HTTP ${response.status}`)
     }
     
     return await response.json()
   } catch (error) {
     console.error('API Error:', error)
     throw error
+  }
+}
+
+async function tryRefreshToken() {
+  const refreshToken = getRefreshToken()
+  if (!refreshToken) return false
+  
+  try {
+    const response = await fetch(API_ENDPOINTS.AUTH_REFRESH, {
+      method: 'POST',
+      headers: API_HEADERS,
+      body: JSON.stringify({ refresh: refreshToken })
+    })
+    
+    if (!response.ok) {
+      clearTokens()
+      return false
+    }
+    
+    const data = await response.json()
+    if (data.access) {
+      setTokens(data.access, data.refresh || refreshToken)
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error('Refresh token failed:', error)
+    clearTokens()
+    return false
   }
 }

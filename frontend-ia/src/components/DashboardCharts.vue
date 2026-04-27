@@ -182,20 +182,45 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.initCharts()
+      if (this.gastos && this.gastos.length > 0) {
+        this.initCharts()
+      }
     })
   },
   watch: {
-    gastos() {
-      this.$nextTick(() => {
-        this.updateCharts()
-      })
+    gastos: {
+      deep: true,
+      handler(newVal, oldVal) {
+        this.$nextTick(() => {
+          if (!newVal || newVal.length === 0) {
+            this.destroyCharts()
+            return
+          }
+          if (!this.categoriaChart) {
+            this.initCharts()
+          } else {
+            this.updateCharts()
+          }
+        })
+      }
     }
   },
   methods: {
     initCharts() {
+      if (!this.gastos || this.gastos.length === 0) return
       this.initCategoriaChart()
       this.initEvolucaoChart()
+    },
+
+    destroyCharts() {
+      if (this.categoriaChart) {
+        this.categoriaChart.destroy()
+        this.categoriaChart = null
+      }
+      if (this.evolucaoChart) {
+        this.evolucaoChart.destroy()
+        this.evolucaoChart = null
+      }
     },
 
     initCategoriaChart() {
@@ -209,7 +234,7 @@ export default {
           this.categoriaChart = null
         }
 
-        const dados = this.dadosPorCategoria
+        const dados = JSON.parse(JSON.stringify(this.dadosPorCategoria))
         if (!dados || dados.length === 0) return
 
         const cores = [
@@ -269,7 +294,7 @@ export default {
           this.evolucaoChart = null
         }
 
-        const { meses, dados } = this.dadosEvolucaoMensal
+        const { meses, dados } = JSON.parse(JSON.stringify(this.dadosEvolucaoMensal))
 
         this.evolucaoChart = new Chart(ctx, {
           type: 'line',
@@ -333,8 +358,12 @@ export default {
     },
 
     updateCharts() {
+      if (!this.gastos || this.gastos.length === 0) {
+        this.destroyCharts()
+        return
+      }
       if (this.categoriaChart) {
-        const dados = this.dadosPorCategoria
+        const dados = JSON.parse(JSON.stringify(this.dadosPorCategoria))
         const cores = [
           '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4',
           '#ec4899', '#6b7280', '#10b981', '#f97316', '#6366f1'
@@ -347,7 +376,7 @@ export default {
       }
 
       if (this.evolucaoChart) {
-        const { dados } = this.dadosEvolucaoMensal
+        const { dados } = JSON.parse(JSON.stringify(this.dadosEvolucaoMensal))
         this.evolucaoChart.data.datasets[0].data = dados
         this.evolucaoChart.update()
       }

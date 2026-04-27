@@ -1,6 +1,11 @@
 <template>
   <div class="page">
 
+    <!-- AUTH VIEW -->
+    <AuthView v-if="!isAuth" @authenticated="handleLoginSuccess" />
+
+    <!-- APP CONTENT -->
+    <template v-else>
     <!-- HEADER -->
     <header class="header">
       <div class="header-content">
@@ -9,6 +14,7 @@
           <h1 class="brand">Sem Aperreio</h1>
         </div>
         
+        <div class="header-right">
         <nav class="nav-menu">
           <button 
             :class="['nav-item', { active: activeTab === 'dashboard' }]"
@@ -29,6 +35,10 @@
             Novo
           </button>
         </nav>
+        <button @click="handleLogout" class="logout-btn">
+          <i class="pi pi-sign-out"></i> Sair
+        </button>
+        </div>
       </div>
     </header>
 
@@ -157,6 +167,7 @@
 
     </main>
 
+    </template>
   </div>
 </template>
 
@@ -165,20 +176,23 @@ import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import DashboardCharts from './components/DashboardCharts.vue'
+import AuthView from './components/AuthView.vue'
 import logo from './assets/logo.png'
-import { API_ENDPOINTS, apiRequest } from './config/api.js'
+import { API_ENDPOINTS, apiRequest, isAuthenticated, clearTokens } from './config/api.js'
 
 export default {
   components: {
     Button,
     InputNumber,
     InputText,
-    DashboardCharts
+    DashboardCharts,
+    AuthView
   },
 
   data() {
     return {
       logo,
+      isAuth: false,
       activeTab: 'dashboard',
       gastos: [],
       novo: {
@@ -227,7 +241,10 @@ export default {
   },
 
   mounted() {
-    this.carregarGastos()
+    this.isAuth = isAuthenticated()
+    if (this.isAuth) {
+      this.carregarGastos()
+    }
   },
 
   methods: {
@@ -404,6 +421,19 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+
+    handleLoginSuccess() {
+      this.isAuth = true
+      this.activeTab = 'dashboard'
+      this.carregarGastos()
+    },
+
+    handleLogout() {
+      clearTokens()
+      this.isAuth = false
+      this.gastos = []
+      this.activeTab = 'dashboard'
     }
   }
 }
@@ -921,6 +951,36 @@ export default {
   }
 }
 
+/* HEADER RIGHT */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.logout-btn i {
+  font-size: 14px;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .header-content {
@@ -936,9 +996,19 @@ export default {
     font-size: 18px;
   }
 
+  .header-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .nav-item {
     padding: 6px 12px;
     font-size: 13px;
+  }
+
+  .logout-btn {
+    padding: 6px 10px;
+    font-size: 12px;
   }
 
   .main-content {
