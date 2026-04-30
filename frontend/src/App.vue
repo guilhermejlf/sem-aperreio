@@ -332,6 +332,7 @@ export default {
     AuthView,
     FamilyView,
     ReceitasView,
+    BudgetView,
     BaseCard,
     Toast,
     ConfirmDialog
