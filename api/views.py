@@ -1,16 +1,14 @@
-import pickle
 import pandas as pd
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ValidationError
-import os
 import logging
 from calendar import monthrange
 
 from django.db import models
 from django.db.models import Q, Sum, Count, Max
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, TruncMonth
 from decimal import Decimal
 from .models import Gasto, FamilyMembership, Receita
 from .serializers import GastoSerializer, ReceitaSerializer
@@ -19,77 +17,160 @@ from .permissions import GastoPermission
 logger = logging.getLogger(__name__)
 
 # -------------------------
-# MODELO IA (Lazy Loading)
+# IA - PREVISÃO COM DADOS REAIS (por categoria)
 # -------------------------
-_modelo_ia = None
+from sklearn.linear_model import LinearRegression
+import numpy as np
+from collections import defaultdict
 
-def get_modelo_ia():
-    global _modelo_ia
-    if _modelo_ia is None:
-        try:
-            caminho_modelo = os.path.join(os.path.dirname(__file__), "modelo.pkl")
-            with open(caminho_modelo, "rb") as f:
-                _modelo_ia = pickle.load(f)
-            logger.info("Modelo IA carregado com sucesso")
-        except Exception as e:
-            logger.error(f"Erro ao carregar modelo IA: {e}")
-            _modelo_ia = None
-    return _modelo_ia
 
-# -------------------------
-# IA - PREVISÃO
-# -------------------------
+def _treinar_modelo_temporal(totais_por_mes):
+    """
+    Treina LinearRegression com índice temporal como feature.
+    totais_por_mes: lista ordenada de floats (total do mês)
+    Retorna modelo treinado ou None se insuficiente.
+    """
+    n = len(totais_por_mes)
+    if n < 2:
+        return None
+    X = np.arange(n).reshape(-1, 1)
+    y = np.array([float(v) for v in totais_por_mes])
+    modelo = LinearRegression()
+    modelo.fit(X, y)
+    return modelo
+
+
+def _prever_serie(serie, mes_alvo_idx):
+    """
+    Prevê valor para um índice temporal alvo dado uma série histórica.
+    Fallback: < 3 meses -> média simples.
+    Retorna (valor, modo).
+    """
+    n = len(serie)
+    if n == 0:
+        return 0.0, "sem_dados"
+    if n < 3:
+        media = sum(float(v) for v in serie) / n
+        return media, "media"
+    modelo = _treinar_modelo_temporal(serie)
+    if modelo is None:
+        return 0.0, "sem_dados"
+    valor = max(0.0, float(modelo.predict(np.array([[mes_alvo_idx]]))[0]))
+    return valor, "modelo"
+
+
+def _construir_serie_categoria(meses_unicos, dados_categoria):
+    """
+    Constrói série temporal completa (meses faltantes = 0) para uma categoria.
+    """
+    return [dados_categoria.get(m, 0.0) for m in meses_unicos]
+
+
 @api_view(["POST"])
 def prever_gasto(request):
     try:
         mes = request.data.get("mes")
-        
-        # Validação do mês
-        if mes is None:
+        ano = request.data.get("ano")
+
+        queryset = get_user_gastos_queryset(request.user)
+
+        # Agrupar por (ano, mes, categoria)
+        categoria_map = defaultdict(lambda: defaultdict(float))
+        for g in queryset:
+            data = g.data_efetiva
+            if data:
+                categoria_map[g.categoria][(data.year, data.month)] += float(g.valor)
+
+        if not categoria_map:
             return Response(
-                {"erro": "Informe o mês (1-12)", "campo": "mes"}, 
+                {"erro": "Nenhum gasto encontrado para previsão. Cadastre gastos e tente novamente."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        try:
-            mes_int = int(mes)
-            if mes_int < 1 or mes_int > 12:
+
+        # Meses únicos ordenados (união de todos os meses de todas as categorias)
+        meses_unicos = sorted({
+            (ano, mes)
+            for cat_dict in categoria_map.values()
+            for (ano, mes) in cat_dict.keys()
+        })
+
+        n_meses = len(meses_unicos)
+        if n_meses < 1:
+            return Response(
+                {"erro": "Nenhum gasto encontrado para previsão. Cadastre gastos e tente novamente."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Determinar mês alvo
+        ultimo_ano, ultimo_mes = meses_unicos[-1]
+        if ano is not None and mes is not None:
+            try:
+                mes_alvo = int(mes)
+                ano_alvo = int(ano)
+            except (ValueError, TypeError):
                 return Response(
-                    {"erro": "Mês deve estar entre 1 e 12", "campo": "mes"}, 
+                    {"erro": "Mês e ano devem ser números válidos"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        except (ValueError, TypeError):
-            return Response(
-                {"erro": "Mês deve ser um número válido", "campo": "mes"}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        else:
+            if ultimo_mes == 12:
+                mes_alvo = 1
+                ano_alvo = ultimo_ano + 1
+            else:
+                mes_alvo = ultimo_mes + 1
+                ano_alvo = ultimo_ano
 
-        # Carregar modelo e fazer previsão
-        modelo = get_modelo_ia()
-        if modelo is None:
-            return Response(
-                {"erro": "Serviço de previsão indisponível no momento"}, 
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
-            )
+        # Índice do mês alvo no eixo temporal (após o último mês conhecido)
+        distancia = (ano_alvo - ultimo_ano) * 12 + (mes_alvo - ultimo_mes)
+        mes_alvo_idx = n_meses - 1 + distancia
 
-        entrada = pd.DataFrame({"mes": [mes_int]})
-        previsao = modelo.predict(entrada)
-        
-        # Limitar previsão a valores razoáveis
-        previsao_valor = max(0, min(float(previsao[0]), 100000))
+        # Prever por categoria
+        categorias_labels = dict(Gasto.CATEGORIAS_CHOICES)
+        previsao_por_categoria = {}
+        total_previsto = 0.0
+        modos_usados = set()
+
+        for cat_key, cat_dict in categoria_map.items():
+            serie = _construir_serie_categoria(meses_unicos, cat_dict)
+            valor, modo = _prever_serie(serie, mes_alvo_idx)
+            previsao_por_categoria[categorias_labels.get(cat_key, cat_key)] = round(valor, 2)
+            total_previsto += valor
+            if modo != "sem_dados":
+                modos_usados.add(modo)
+
+        # Determinar modo geral
+        modo_geral = "modelo" if "modelo" in modos_usados else "media"
+
+        # Dados históricos para contexto (total por mês, últimos 6)
+        historico = []
+        for (a, m) in meses_unicos[-6:]:
+            total_mes = sum(cat_dict.get((a, m), 0.0) for cat_dict in categoria_map.values())
+            historico.append({"ano": a, "mes": m, "total": round(total_mes, 2)})
+
+        total_previsto = max(0, min(total_previsto, 1000000))
 
         return Response({
-            "mes": mes_int,
-            "previsao": round(previsao_valor, 2),
-            "moeda": "BRL"
+            "previsao": round(total_previsto, 2),
+            "mes": mes_alvo,
+            "ano": ano_alvo,
+            "moeda": "BRL",
+            "modo": modo_geral,
+            "por_categoria": previsao_por_categoria,
+            "dados_historicos": historico,
+            "meses_de_dados": n_meses,
+            "mensagem": (
+                "Previsão baseada em média simples (poucos dados)." if modo_geral == "media"
+                else "Previsão baseada em tendência dos últimos meses por categoria."
+            )
         })
 
     except Exception as e:
         logger.error(f"Erro na previsão: {e}")
         return Response(
-            {"erro": "Erro interno no servidor"}, 
+            {"erro": "Erro interno no servidor"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
 
 # -------------------------
 # GASTOS CRUD
@@ -288,6 +369,72 @@ def gasto_detail(request, pk):
         )
 
 
+@api_view(['GET', 'PUT', 'DELETE'])
+def receita_detail(request, pk):
+    try:
+        receita = Receita.objects.get(pk=pk)
+    except Receita.DoesNotExist:
+        return Response(
+            {"erro": "Receita não encontrada"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Check permission - same logic as gasto
+    permission = GastoPermission()
+    if not permission.has_object_permission(request, None, receita):
+        return Response(
+            {"erro": "Você não tem permissão para acessar esta receita."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    try:
+        if request.method == 'GET':
+            serializer = ReceitaSerializer(receita)
+            return Response(serializer.data)
+
+        elif request.method == 'PUT':
+            dados = request.data.copy()
+            serializer = ReceitaSerializer(receita, data=dados)
+            if serializer.is_valid():
+                if receita.user != request.user:
+                    user_membership = get_user_membership(request.user)
+                    if not user_membership or user_membership.role != 'admin':
+                        return Response(
+                            {"erro": "Você não tem permissão para editar esta receita."},
+                            status=status.HTTP_403_FORBIDDEN
+                        )
+
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"erro": "Dados inválidos", "detalhes": serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        elif request.method == 'DELETE':
+            if receita.user != request.user:
+                user_membership = get_user_membership(request.user)
+                if not user_membership or user_membership.role != 'admin':
+                    return Response(
+                        {"erro": "Você não tem permissão para excluir esta receita."},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+
+            receita.delete()
+            return Response(
+                {"mensagem": "Receita excluída com sucesso"}, 
+                status=status.HTTP_204_NO_CONTENT
+            )
+
+    except Exception as e:
+        logger.error(f"Erro no detalhe da receita: {e}")
+        return Response(
+            {"erro": "Erro interno no servidor"}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
 # -------------------------
 # DASHBOARD
 # -------------------------
@@ -373,8 +520,26 @@ def dashboard(request):
         ).aggregate(total=Sum('valor'))
         total_gastos_pagos = gastos_pagos_agg['total'] or Decimal('0.00')
 
+        # Total a pagar (gastos não pagos do período atual)
+        pendentes_agg = queryset_atual.filter(pago=False).aggregate(
+            total=Sum('valor'),
+            quantidade=Count('id')
+        )
+        total_a_pagar = pendentes_agg['total'] or Decimal('0.00')
+        quantidade_pendentes = pendentes_agg['quantidade'] or 0
+
         # Saldo
         saldo = total_receitas - total_gastos_pagos
+
+        # Previsão de saldo até o fim do mês
+        saldo_projetado = saldo - total_a_pagar
+        if total_a_pagar > 0:
+            if saldo_projetado < 0:
+                previsao_mensagem = f"Se você não tiver novas receitas, seu saldo ficará negativo em R$ {float(abs(saldo_projetado)):.2f}"
+            else:
+                previsao_mensagem = f"Mesmo com as contas pendentes, você ainda terá R$ {float(saldo_projetado):.2f} disponíveis"
+        else:
+            previsao_mensagem = None
 
         # Variacao
         if total_anterior > 0:
@@ -469,7 +634,11 @@ def dashboard(request):
             "evolucao_mensal": evolucao_mensal,
             "total_receitas": float(total_receitas),
             "total_gastos_pagos": float(total_gastos_pagos),
-            "saldo": float(saldo)
+            "total_a_pagar": float(total_a_pagar),
+            "quantidade_pendentes": quantidade_pendentes,
+            "saldo": float(saldo),
+            "saldo_projetado": float(saldo_projetado),
+            "previsao_mensagem": previsao_mensagem
         })
 
     except Exception as e:
@@ -535,13 +704,145 @@ def receitas(request):
             for field, messages in serializer.errors.items():
                 errors[field] = messages[0] if isinstance(messages, list) else str(messages)
 
-            return Response(
-                {"erro": "Dados inválidos", "detalhes": errors},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
     except Exception as e:
         logger.error(f"Erro na API de receitas: {e}")
+        return Response(
+            {"erro": "Erro interno no servidor"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+# -------------------------
+# EXPORTAÇÃO CSV / XLSX
+# -------------------------
+import csv
+import io
+from django.http import StreamingHttpResponse, HttpResponse
+
+try:
+    from openpyxl import Workbook
+    _HAS_OPENPYXL = True
+except ImportError:
+    _HAS_OPENPYXL = False
+
+
+def _get_gastos_filtrados(request):
+    """Retorna queryset de gastos do usuário/família com os mesmos filtros de /api/gastos/."""
+    queryset = get_user_gastos_queryset(request.user)
+
+    categoria = request.query_params.get('categoria')
+    if categoria:
+        queryset = queryset.filter(categoria=categoria)
+
+    data_inicio = request.query_params.get('data_inicio')
+    data_fim = request.query_params.get('data_fim')
+    if data_inicio:
+        queryset = queryset.filter(data_efetiva__gte=data_inicio)
+    if data_fim:
+        queryset = queryset.filter(data_efetiva__lte=data_fim)
+
+    competencia_inicio = request.query_params.get('competencia_inicio')
+    competencia_fim = request.query_params.get('competencia_fim')
+    if competencia_inicio:
+        queryset = queryset.filter(data_competencia__gte=competencia_inicio)
+    if competencia_fim:
+        queryset = queryset.filter(data_competencia__lte=competencia_fim)
+
+    pagamento_inicio = request.query_params.get('pagamento_inicio')
+    pagamento_fim = request.query_params.get('pagamento_fim')
+    if pagamento_inicio:
+        queryset = queryset.filter(data_pagamento__gte=pagamento_inicio)
+    if pagamento_fim:
+        queryset = queryset.filter(data_pagamento__lte=pagamento_fim)
+
+    pago = request.query_params.get('pago')
+    if pago is not None:
+        queryset = queryset.filter(pago=pago.lower() in ('true', '1', 'yes', 'sim'))
+
+    return queryset.order_by('-data_efetiva', '-criado_em')
+
+
+@api_view(['GET'])
+def exportar_csv(request):
+    try:
+        queryset = _get_gastos_filtrados(request)
+
+        def stream_csv():
+            buffer = io.StringIO()
+            writer = csv.writer(buffer)
+            writer.writerow(['data', 'categoria', 'valor', 'descricao', 'pago', 'data_competencia', 'data_pagamento', 'criado_por'])
+            yield buffer.getvalue()
+            buffer.seek(0)
+            buffer.truncate(0)
+
+            for g in queryset.iterator():
+                writer.writerow([
+                    g.data,
+                    g.get_categoria_display(),
+                    str(g.valor).replace('.', ','),
+                    g.descricao or '',
+                    'Sim' if g.pago else 'Não',
+                    g.data_competencia or '',
+                    g.data_pagamento or '',
+                    g.user.username
+                ])
+                yield buffer.getvalue()
+                buffer.seek(0)
+                buffer.truncate(0)
+
+        response = StreamingHttpResponse(stream_csv(), content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="gastos.csv"'
+        return response
+
+    except Exception as e:
+        logger.error(f"Erro na exportação CSV: {e}")
+        return Response(
+            {"erro": "Erro interno no servidor"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+def exportar_xlsx(request):
+    try:
+        if not _HAS_OPENPYXL:
+            return Response(
+                {"erro": "Biblioteca openpyxl não instalada. Contate o administrador."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+
+        queryset = _get_gastos_filtrados(request)
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Gastos"
+
+        headers = ['Data', 'Categoria', 'Valor', 'Descrição', 'Pago', 'Mês Competência', 'Data Pagamento', 'Criado por']
+        ws.append(headers)
+
+        for g in queryset.iterator():
+            ws.append([
+                g.data,
+                g.get_categoria_display(),
+                float(g.valor),
+                g.descricao or '',
+                'Sim' if g.pago else 'Não',
+                g.data_competencia or '',
+                g.data_pagamento or '',
+                g.user.username
+            ])
+
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+
+        response = HttpResponse(buffer.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="gastos.xlsx"'
+        return response
+
+    except Exception as e:
+        logger.error(f"Erro na exportação XLSX: {e}")
         return Response(
             {"erro": "Erro interno no servidor"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR

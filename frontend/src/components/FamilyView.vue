@@ -98,14 +98,13 @@
         <label class="section-label">Código de Convite</label>
         <div class="code-box">
           <span class="code-text">{{ familyData.code }}</span>
-          <Button
-            icon="pi pi-copy"
-            severity="success"
-            text
-            size="small"
+          <button
+            class="edit-btn"
             @click="copyCode"
             title="Copiar"
-          />
+          >
+            <i class="pi pi-copy"></i>
+          </button>
         </div>
         <p class="expiration-text" :class="codeExpiringSoon ? 'expiring' : ''">
           {{ expirationText }}
@@ -126,32 +125,32 @@
       <div class="section">
         <label class="section-label">Membros ({{ members.length }})</label>
         <div class="members-list">
-          <div
+          <BaseCard
             v-for="member in members"
             :key="member.id"
-            class="member-row"
+            :title="member.user.first_name || member.user.username"
+            :subtitle="'@' + member.user.username"
           >
-            <div class="member-avatar" :style="{ backgroundColor: getAvatarColor(member.user.username) }">
-              {{ getInitials(member.user.first_name || member.user.username) }}
-            </div>
-            <div class="member-info">
-              <span class="member-name">
-                {{ member.user.first_name || member.user.username }}
-                <span v-if="isCurrentUser(member)" class="badge you">Você</span>
-                <span v-if="member.role === 'admin'" class="badge admin">Admin</span>
-              </span>
-              <span class="member-username">@{{ member.user.username }}</span>
-            </div>
-            <Button
-              v-if="isAdmin && !isCurrentUser(member)"
-              icon="pi pi-trash"
-              severity="danger"
-              text
-              size="small"
-              title="Expulsar"
-              @click="confirmExpel(member)"
-            />
-          </div>
+            <template #icon>
+              <div class="member-avatar" :style="{ backgroundColor: getAvatarColor(member.user.username) }">
+                {{ getInitials(member.user.first_name || member.user.username) }}
+              </div>
+            </template>
+            <template #header-badge>
+              <span v-if="isCurrentUser(member)" class="badge you">Você</span>
+              <span v-if="member.role === 'admin'" class="badge admin">Admin</span>
+            </template>
+            <template #actions>
+              <button
+                v-if="isAdmin && !isCurrentUser(member)"
+                class="delete-btn"
+                title="Expulsar"
+                @click="confirmExpel(member)"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </template>
+          </BaseCard>
         </div>
       </div>
 
@@ -184,6 +183,7 @@
 import Button from 'primevue/button'
 import ConfirmDialog from 'primevue/confirmdialog'
 import Toast from 'primevue/toast'
+import BaseCard from './BaseCard.vue'
 import {
   createFamily,
   joinFamily,
@@ -198,7 +198,8 @@ export default {
   components: {
     Button,
     ConfirmDialog,
-    Toast
+    Toast,
+    BaseCard
   },
   props: {
     family: {
@@ -580,17 +581,7 @@ export default {
 .members-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.member-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: #1f2937;
-  border: 1px solid #374151;
-  border-radius: 0.5rem;
+  gap: 12px;
 }
 
 .member-avatar {
@@ -604,28 +595,6 @@ export default {
   font-weight: 600;
   font-size: 0.875rem;
   flex-shrink: 0;
-}
-
-.member-info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-}
-
-.member-name {
-  color: #ffffff;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.member-username {
-  color: #6b7280;
-  font-size: 0.75rem;
 }
 
 .badge {

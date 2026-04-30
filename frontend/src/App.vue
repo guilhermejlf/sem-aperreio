@@ -139,40 +139,45 @@
               <div v-if="gastosFiltrados.length === 0" class="empty-filter">
                 <p>Nenhum gasto nesta categoria.</p>
               </div>
-              <div
+              <BaseCard
                 v-for="g in gastosFiltrados"
                 :key="g.id"
-                class="gasto-item"
-                :class="{ 'gasto-group': g.is_group }"
+                :icon="getCategoriaIcon(g.categoria)"
+                :title="getCategoriaLabel(g.categoria)"
+                :subtitle="formatarData(g.data)"
+                :value="formatarValor(g.valor)"
+                :isGroup="g.is_group"
               >
-                <div class="gasto-info">
-                  <div class="gasto-header-row">
-                    <h4>{{ getCategoriaLabel(g.categoria) }}</h4>
-                    <span v-if="g.is_group" class="group-badge">Grupo</span>
-                  </div>
-                  <p class="gasto-date">{{ formatarData(g.data) }}</p>
+                <template #header-badge>
+                  <span v-if="g.is_group" class="group-badge">Grupo</span>
+                </template>
+                <template #extras>
                   <small v-if="g.data_competencia && g.data_competencia !== g.data" class="gasto-desc">
-                    Competência: {{ formatarData(g.data_competencia) }}
+                    Mês do gasto: {{ formatarData(g.data_competencia) }}
                   </small>
                   <small v-if="g.data_pagamento" class="gasto-desc">
-                    Pago em: {{ formatarData(g.data_pagamento) }}
+                    Quando foi pago: {{ formatarData(g.data_pagamento) }}
                   </small>
                   <small v-if="g.descricao" class="gasto-desc">{{ g.descricao }}</small>
+                </template>
+                <template #meta>
                   <small v-if="g.user_name" class="gasto-user">@{{ g.user_name }}</small>
-                </div>
-                <div class="gasto-right">
-                  <div class="gasto-value">{{ formatarValor(g.valor) }}</div>
+                </template>
+                <template #badges>
                   <span v-if="g.pago" class="pago-badge">Pago</span>
-                  <div v-if="podeEditarGasto(g)" class="gasto-actions">
+                  <span v-else class="pendente-badge">Pendente</span>
+                </template>
+                <template #actions>
+                  <template v-if="podeEditarGasto(g)">
                     <button @click="abrirEdicao(g)" class="edit-btn" title="Editar">
                       <i class="pi pi-pencil"></i>
                     </button>
                     <button @click="excluirGasto(g.id)" class="delete-btn" title="Excluir">
                       <i class="pi pi-trash"></i>
                     </button>
-                  </div>
-                </div>
-              </div>
+                  </template>
+                </template>
+              </BaseCard>
             </div>
           </div>
         </div>
@@ -200,7 +205,7 @@
     <div v-if="showAddModal" class="modal-overlay" @click.self="fecharModal">
       <div class="modal-card">
         <div class="modal-header">
-          <h2>{{ editingGasto ? 'Editar Gasto' : 'Adicionar Novo Gasto' }}</h2>
+          <h2>{{ editingGasto ? 'Editar gasto' : 'Adicionar Novo Gasto' }}</h2>
           <button @click="fecharModal" class="modal-close">×</button>
         </div>
 
@@ -209,18 +214,20 @@
             <label class="form-label">Valor</label>
             <InputNumber
               v-model="novo.valor"
-              placeholder="0,00"
+              placeholder="R$ 0,00"
               mode="currency"
               currency="BRL"
               locale="pt-BR"
               :min="0.01"
               :maxFractionDigits="2"
               class="form-input"
+              ref="inputValor"
+              autofocus
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Categoria</label>
+            <label class="form-label">Onde você gastou?</label>
             <select v-model="novo.categoria" class="form-select">
               <option value="">Selecione uma categoria</option>
               <option v-for="cat in categorias" :key="cat.value" :value="cat.value">
@@ -233,34 +240,16 @@
             <label class="form-label">Descrição</label>
             <InputText
               v-model="novo.descricao"
-              placeholder="Opcional"
+              placeholder="Ex: Mercado, Uber, McDonald's..."
               class="form-input"
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Data</label>
-            <input
-              type="date"
-              v-model="novo.data"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Data de Competência</label>
+            <label class="form-label">Mês do gasto</label>
             <input
               type="date"
               v-model="novo.data_competencia"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Data de Pagamento</label>
-            <input
-              type="date"
-              v-model="novo.data_pagamento"
               class="form-input"
             />
           </div>
@@ -271,13 +260,22 @@
                 type="checkbox"
                 v-model="novo.pago"
               />
-              <span>Pago</span>
+              <span>Já paguei esse gasto</span>
             </label>
+          </div>
+
+          <div class="form-group" v-if="novo.pago">
+            <label class="form-label">Quando foi pago</label>
+            <input
+              type="date"
+              v-model="novo.data_pagamento"
+              class="form-input"
+            />
           </div>
 
           <Button
             type="submit"
-            :label="editingGasto ? 'Salvar Alterações' : 'Adicionar Gasto'"
+            :label="editingGasto ? 'Salvar alterações' : 'Salvar gasto'"
             :icon="editingGasto ? 'pi pi-check' : 'pi pi-plus'"
             class="btn-submit"
             :disabled="loading || !formValido" />
@@ -285,10 +283,9 @@
       </div>
     </div>
 
-    </template>
-
     <Toast position="top-right" />
     <ConfirmDialog />
+  </template>
   </div>
 </template>
 
@@ -300,6 +297,7 @@ import DashboardCharts from './components/DashboardCharts.vue'
 import AuthView from './components/AuthView.vue'
 import FamilyView from './components/FamilyView.vue'
 import ReceitasView from './components/ReceitasView.vue'
+import BaseCard from './components/BaseCard.vue'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
 import logo from './assets/logo.png'
@@ -321,6 +319,7 @@ export default {
     AuthView,
     FamilyView,
     ReceitasView,
+    BaseCard,
     Toast,
     ConfirmDialog
   },
@@ -350,12 +349,15 @@ export default {
       showAddModal: false,
       editingGasto: null,
       categorias: [
-        { value: 'alimentacao', label: 'Alimentação' },
-        { value: 'transporte', label: 'Transporte' },
         { value: 'moradia', label: 'Moradia' },
+        { value: 'mercado', label: 'Mercado' },
+        { value: 'restaurantes', label: 'Restaurantes / Delivery' },
+        { value: 'transporte', label: 'Transporte' },
         { value: 'saude', label: 'Saúde' },
         { value: 'educacao', label: 'Educação' },
         { value: 'lazer', label: 'Lazer' },
+        { value: 'contas', label: 'Contas e serviços' },
+        { value: 'compras', label: 'Compras' },
         { value: 'outros', label: 'Outros' }
       ]
     }
@@ -382,7 +384,7 @@ export default {
       return this.novo.valor && 
              this.novo.valor > 0 && 
              this.novo.categoria && 
-             this.novo.data
+             this.novo.data_competencia
     },
 
     gastosGrupo() {
@@ -429,8 +431,7 @@ export default {
         valor: parseFloat(gasto.valor),
         categoria: gasto.categoria,
         descricao: gasto.descricao || '',
-        data: gasto.data,
-        data_competencia: gasto.data_competencia || gasto.data || '',
+        data_competencia: gasto.data_competencia || '',
         data_pagamento: gasto.data_pagamento || '',
         pago: gasto.pago || false
       }
@@ -445,7 +446,6 @@ export default {
         valor: null,
         categoria: '',
         descricao: '',
-        data: new Date().toISOString().split('T')[0],
         data_competencia: '',
         data_pagamento: '',
         pago: false
@@ -463,14 +463,15 @@ export default {
           return
         }
         
-        if (!this.novo.data) {
-          this.error = 'Informe a data do gasto'
+        if (!this.novo.data_competencia) {
+          this.error = 'Informe o mês do gasto'
           return
         }
 
+        const payload = { ...this.novo, data: this.novo.data_competencia || this.novo.data }
         await apiRequest(API_ENDPOINTS.GASTOS_LIST, {
           method: 'POST',
-          body: JSON.stringify(this.novo)
+          body: JSON.stringify(payload)
         })
 
         this.$toast.add({
@@ -503,14 +504,15 @@ export default {
           return
         }
 
-        if (!this.novo.data) {
-          this.error = 'Informe a data do gasto'
+        if (!this.novo.data_competencia) {
+          this.error = 'Informe o mês do gasto'
           return
         }
 
+        const payload = { ...this.novo, data: this.novo.data_competencia || this.novo.data }
         await apiRequest(API_ENDPOINTS.GASTO_DETAIL(this.editingGasto), {
           method: 'PUT',
-          body: JSON.stringify(this.novo)
+          body: JSON.stringify(payload)
         })
 
         this.$toast.add({
@@ -601,12 +603,15 @@ export default {
 
     getCategoriaIcon(categoria) {
       const icons = {
-        alimentacao: '🍔',
-        transporte: '🚗',
         moradia: '🏠',
+        mercado: '🛒',
+        restaurantes: '🍔',
+        transporte: '🚗',
         saude: '🏥',
         educacao: '📚',
         lazer: '🎮',
+        contas: '💡',
+        compras: '🛍️',
         outros: '📦'
       }
       return icons[categoria] || '💳'
@@ -972,6 +977,12 @@ export default {
 }
 
 /* GASTOS CONTAINER */
+.gastos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .gastos-container {
   background: rgba(30, 41, 59, 0.3);
   backdrop-filter: blur(10px);
@@ -1079,34 +1090,6 @@ export default {
   margin-left: auto;
 }
 
-.gasto-item {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.gasto-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.gasto-info h4 {
-  margin: 0 0 4px 0;
-  color: #e5e7eb;
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.gasto-date {
-  margin: 0 0 4px 0;
-  color: #94a3b8;
-  font-size: 13px;
-}
-
 .gasto-desc {
   color: #64748b;
   font-style: italic;
@@ -1118,19 +1101,6 @@ export default {
 .gasto-time {
   color: #64748b;
   font-size: 11px;
-}
-
-.gasto-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.gasto-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #22c55e;
 }
 
 .delete-btn {
@@ -1146,12 +1116,6 @@ export default {
 
 .delete-btn:hover {
   color: #3b82f6;
-}
-
-.gasto-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
 .edit-btn {
@@ -1356,13 +1320,6 @@ export default {
   color: #22c55e;
 }
 
-.gasto-header-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
 .group-badge {
   font-size: 10px;
   padding: 2px 8px;
@@ -1372,10 +1329,6 @@ export default {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.gasto-group {
-  border-left: 3px solid #22c55e;
 }
 
 .gasto-user {
@@ -1391,6 +1344,17 @@ export default {
   padding: 2px 8px;
   background: linear-gradient(90deg, #22c55e, #4ade80);
   color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.pendente-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  color: #ffffff;
   font-size: 11px;
   font-weight: 600;
   border-radius: 6px;
@@ -1637,21 +1601,6 @@ export default {
 
   .gastos-header {
     flex-direction: column;
-    text-align: center;
-  }
-
-  .gasto-item {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
-
-  .gasto-left {
-    justify-content: center;
-  }
-
-  .gasto-right {
-    align-items: center;
     text-align: center;
   }
 }

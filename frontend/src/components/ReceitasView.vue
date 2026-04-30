@@ -30,75 +30,85 @@
       </div>
 
       <div v-else class="receitas-list">
-        <div
+        <BaseCard
           v-for="r in receitas"
           :key="r.id"
-          class="receita-item"
+          :title="r.descricao || 'Receita'"
+          :subtitle="formatarData(r.data)"
+          :value="formatarValor(r.valor)"
+          valueColor="#22c55e"
         >
-          <div class="receita-info">
-            <div class="receita-header-row">
-              <h4>{{ r.descricao || 'Receita' }}</h4>
-            </div>
-            <p class="receita-date">{{ formatarData(r.data) }}</p>
+          <template #meta>
             <small v-if="r.user_name" class="receita-user">@{{ r.user_name }}</small>
-          </div>
-          <div class="receita-right">
-            <div class="receita-value">{{ formatarValor(r.valor) }}</div>
-          </div>
-        </div>
+          </template>
+          <template #actions>
+            <template v-if="podeEditarReceita(r)">
+              <button @click="abrirEdicao(r)" class="edit-btn" title="Editar">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button @click="excluirReceita(r.id)" class="delete-btn" title="Excluir">
+                <i class="pi pi-trash"></i>
+              </button>
+            </template>
+          </template>
+        </BaseCard>
       </div>
     </template>
 
-    <!-- Modal Add Receita -->
-    <div v-if="showModal" class="modal-overlay" @click.self="fecharModal">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h2>Nova Receita</h2>
-          <button @click="fecharModal" class="modal-close">×</button>
+    <Toast position="top-right" />
+
+    <!-- Modal Add/Edit Receita -->
+    <Teleport to="body">
+      <div v-if="showModal" class="modal-overlay" @click.self="fecharModal">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2>{{ editingReceita ? 'Editar receita' : 'Nova Receita' }}</h2>
+            <button @click="fecharModal" class="modal-close">×</button>
+          </div>
+
+          <form @submit.prevent="editingReceita ? salvarEdicao() : salvarReceita()" class="receita-form">
+            <div class="form-group">
+              <label class="form-label">Valor</label>
+              <InputNumber
+                v-model="nova.valor"
+                placeholder="0,00"
+                mode="currency"
+                currency="BRL"
+                locale="pt-BR"
+                :min="0.01"
+                :maxFractionDigits="2"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Descrição</label>
+              <InputText
+                v-model="nova.descricao"
+                placeholder="Ex: Salário, Freelance..."
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Data</label>
+              <input
+                type="date"
+                v-model="nova.data"
+                class="form-input"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              :label="editingReceita ? 'Salvar alterações' : 'Adicionar Receita'"
+              :icon="editingReceita ? 'pi pi-check' : 'pi pi-plus'"
+              class="btn-submit"
+              :disabled="loadingForm || !formValido" />
+          </form>
         </div>
-
-        <form @submit.prevent="salvarReceita" class="receita-form">
-          <div class="form-group">
-            <label class="form-label">Valor</label>
-            <InputNumber
-              v-model="nova.valor"
-              placeholder="0,00"
-              mode="currency"
-              currency="BRL"
-              locale="pt-BR"
-              :min="0.01"
-              :maxFractionDigits="2"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Descrição</label>
-            <InputText
-              v-model="nova.descricao"
-              placeholder="Ex: Salário, Freelance..."
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Data</label>
-            <input
-              type="date"
-              v-model="nova.data"
-              class="form-input"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            label="Adicionar Receita"
-            icon="pi pi-plus"
-            class="btn-submit"
-            :disabled="loadingForm || !formValido" />
-        </form>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
@@ -106,14 +116,18 @@
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
-import { fetchReceitas, addReceita } from '../config/api.js'
+import Toast from 'primevue/toast'
+import BaseCard from './BaseCard.vue'
+import { fetchReceitas, addReceita, updateReceita, deleteReceita } from '../config/api.js'
 
 export default {
   name: 'ReceitasView',
   components: {
     Button,
     InputNumber,
-    InputText
+    InputText,
+    Toast,
+    BaseCard
   },
   data() {
     return {
@@ -121,6 +135,7 @@ export default {
       loading: false,
       loadingForm: false,
       showModal: false,
+      editingReceita: null,
       nova: {
         valor: null,
         descricao: '',
@@ -162,14 +177,55 @@ export default {
         })
         this.fecharModal()
         await this.carregarReceitas()
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Receita adicionada!',
+          life: 3000
+        })
       } catch (error) {
         console.error('Erro ao adicionar receita:', error)
-        alert('Erro ao adicionar receita: ' + error.message)
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao adicionar receita: ' + error.message,
+          life: 5000
+        })
+      } finally {
+        this.loadingForm = false
+      }
+    },
+    async salvarEdicao() {
+      if (!this.formValido) return
+      try {
+        this.loadingForm = true
+        await updateReceita(this.editingReceita, {
+          valor: this.nova.valor,
+          descricao: this.nova.descricao,
+          data: this.nova.data
+        })
+        this.fecharModal()
+        await this.carregarReceitas()
+        this.$toast.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Receita atualizada!',
+          life: 3000
+        })
+      } catch (error) {
+        console.error('Erro ao editar receita:', error)
+        this.$toast.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Erro ao editar receita: ' + error.message,
+          life: 5000
+        })
       } finally {
         this.loadingForm = false
       }
     },
     abrirModal() {
+      this.editingReceita = null
       this.nova = {
         valor: null,
         descricao: '',
@@ -177,8 +233,53 @@ export default {
       }
       this.showModal = true
     },
+    abrirEdicao(receita) {
+      this.nova = {
+        valor: parseFloat(receita.valor),
+        descricao: receita.descricao || '',
+        data: receita.data
+      }
+      this.editingReceita = receita.id
+      this.showModal = true
+    },
     fecharModal() {
       this.showModal = false
+      this.editingReceita = null
+    },
+    podeEditarReceita(receita) {
+      // Simples: todas as receitas são editáveis pelo usuário logado
+      // (receitas não têm family filter complexo como gastos)
+      return true
+    },
+    excluirReceita(id) {
+      this.$confirm.require({
+        message: 'Tem certeza que deseja excluir esta receita?',
+        header: 'Excluir Receita',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sim, excluir',
+        rejectLabel: 'Cancelar',
+        acceptClass: 'p-button-danger',
+        accept: async () => {
+          try {
+            await deleteReceita(id)
+            this.receitas = this.receitas.filter(r => r.id !== id)
+            this.$toast.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Receita excluída!',
+              life: 3000
+            })
+          } catch (error) {
+            console.error('Erro ao excluir receita:', error)
+            this.$toast.add({
+              severity: 'error',
+              summary: 'Erro',
+              detail: 'Erro ao excluir receita: ' + error.message,
+              life: 5000
+            })
+          }
+        }
+      })
     },
     formatarValor(valor) {
       return parseFloat(valor).toLocaleString('pt-BR', {
@@ -201,7 +302,6 @@ export default {
 
 <style scoped>
 .receitas-page {
-  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -219,7 +319,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -247,51 +347,37 @@ export default {
   gap: 12px;
 }
 
-.receita-item {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.receita-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.receita-info h4 {
-  margin: 0 0 4px 0;
-  color: #e5e7eb;
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.receita-date {
-  margin: 0 0 4px 0;
-  color: #94a3b8;
-  font-size: 13px;
-}
-
 .receita-user {
   color: #64748b;
   font-size: 11px;
   display: block;
 }
 
-.receita-right {
+.edit-btn,
+.delete-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.receita-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #10b981;
+.edit-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
 }
 
 /* Empty State */
@@ -319,7 +405,7 @@ export default {
   line-height: 1.6;
 }
 
-/* Modal */
+/* MODAL */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -333,6 +419,7 @@ export default {
   justify-content: center;
   z-index: 2000;
   padding: 20px;
+  animation: fadeIn 0.2s ease;
 }
 
 .modal-card {
@@ -343,6 +430,7 @@ export default {
   max-width: 480px;
   width: 100%;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
 }
 
 .modal-header {
@@ -355,8 +443,9 @@ export default {
 .modal-header h2 {
   margin: 0;
   font-size: 22px;
-  color: white;
-  font-weight: 600;
+  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .modal-close {
@@ -377,6 +466,23 @@ export default {
 .modal-close:hover {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-card {
+    padding: 20px;
+  }
 }
 
 .receita-form {
@@ -469,14 +575,5 @@ export default {
     align-items: stretch;
   }
 
-  .receita-item {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-  }
-
-  .receita-right {
-    align-items: center;
-  }
 }
 </style>

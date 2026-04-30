@@ -56,12 +56,15 @@ class Gasto(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='gastos')
     family = models.ForeignKey(Family, on_delete=models.SET_NULL, null=True, blank=True, related_name='gastos')
     CATEGORIAS_CHOICES = [
-        ('alimentacao', 'Alimentação'),
-        ('transporte', 'Transporte'),
         ('moradia', 'Moradia'),
+        ('mercado', 'Mercado'),
+        ('restaurantes', 'Restaurantes / Delivery'),
+        ('transporte', 'Transporte'),
         ('saude', 'Saúde'),
         ('educacao', 'Educação'),
         ('lazer', 'Lazer'),
+        ('contas', 'Contas e serviços'),
+        ('compras', 'Compras'),
         ('outros', 'Outros'),
     ]
 

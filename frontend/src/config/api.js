@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
 
   // Receitas
   RECEITAS_LIST: `${API_BASE_URL}/api/receitas/`,
+  RECEITA_DETAIL: (id) => `${API_BASE_URL}/api/receitas/${id}/`,
 
   // Family
   FAMILY: `${API_BASE_URL}/api/family/`,
@@ -118,6 +119,19 @@ export async function addReceita(data) {
   return await apiRequest(API_ENDPOINTS.RECEITAS_LIST, {
     method: 'POST',
     body: JSON.stringify(data)
+  })
+}
+
+export async function updateReceita(id, data) {
+  return await apiRequest(`${API_ENDPOINTS.RECEITAS_LIST}${id}/`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+}
+
+export async function deleteReceita(id) {
+  return await apiRequest(`${API_ENDPOINTS.RECEITAS_LIST}${id}/`, {
+    method: 'DELETE'
   })
 }
 
