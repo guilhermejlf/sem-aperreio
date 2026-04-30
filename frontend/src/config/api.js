@@ -28,6 +28,12 @@ export const API_ENDPOINTS = {
   FAMILY_JOIN: `${API_BASE_URL}/api/family/join/`,
   FAMILY_LEAVE: `${API_BASE_URL}/api/family/leave/`,
   FAMILY_REGENERATE_CODE: `${API_BASE_URL}/api/family/regenerate-code/`,
+
+  // Metas de Gasto
+  METAS: (mes, ano) => `${API_BASE_URL}/api/metas/?mes=${mes}&ano=${ano}`,
+  META_CREATE: `${API_BASE_URL}/api/metas/criar/`,
+  META_UPDATE: (id) => `${API_BASE_URL}/api/metas/${id}/`,
+  META_DELETE: (id) => `${API_BASE_URL}/api/metas/${id}/deletar/`,
 }
 
 // Token storage keys
@@ -180,6 +186,31 @@ export async function removeFamilyMember(userId) {
 
 export async function deleteFamily() {
   return await apiRequest(API_ENDPOINTS.FAMILY, {
+    method: 'DELETE'
+  })
+}
+
+// Metas de Gasto
+export async function fetchMetas(mes, ano) {
+  return await apiRequest(API_ENDPOINTS.METAS(mes, ano))
+}
+
+export async function createMeta(data) {
+  return await apiRequest(API_ENDPOINTS.META_CREATE, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+
+export async function updateMeta(id, data) {
+  return await apiRequest(API_ENDPOINTS.META_UPDATE(id), {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+}
+
+export async function deleteMeta(id) {
+  return await apiRequest(API_ENDPOINTS.META_DELETE(id), {
     method: 'DELETE'
   })
 }

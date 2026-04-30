@@ -115,6 +115,28 @@
         </div>
       </div>
 
+      <!-- BLOCO 3 — METAS DO MÊS -->
+      <div v-if="metasPorCategoria.length" class="block-title">Metas do Mês</div>
+      <div v-if="metasPorCategoria.length" class="budget-mini-grid">
+        <div
+          v-for="meta in metasPorCategoria"
+          :key="meta.id"
+          class="budget-mini-card"
+          :class="meta.status"
+        >
+          <div class="budget-mini-header">
+            <span class="budget-categoria">{{ meta.categoria_nome }}</span>
+            <span class="budget-pct" :class="meta.status">{{ meta.percentual_usado }}%</span>
+          </div>
+          <div class="budget-mini-bar">
+            <div class="budget-mini-fill" :class="meta.status" :style="{width: Math.min(meta.percentual_usado, 100) + '%'}"></div>
+          </div>
+          <div class="budget-mini-values">
+            {{ formatarValor(meta.gasto_realizado) }} / {{ formatarValor(meta.valor_meta) }}
+          </div>
+        </div>
+      </div>
+
       <!-- Gráficos -->
       <div class="charts-grid">
         <div class="chart-container">
@@ -201,6 +223,11 @@ export default {
       if (!this.dashboardData) return false
       const abs = Math.abs(this.dashboardData.variacao_absoluta || 0)
       return abs > 0.01
+    },
+    metasPorCategoria() {
+      if (!this.dashboardData || !this.dashboardData.metas) return []
+      const metas = this.dashboardData.metas.por_categoria || []
+      return [...metas].sort((a, b) => b.percentual_usado - a.percentual_usado)
     },
     insights() {
       if (!this.dashboardData) return []
@@ -853,6 +880,86 @@ export default {
 
   .period-select {
     width: 100%;
+  }
+}
+
+/* Budget Mini Block */
+.budget-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.budget-mini-card {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 3px solid #10b981;
+}
+
+.budget-mini-card.ok { border-left-color: #10b981; }
+.budget-mini-card.warning { border-left-color: #f59e0b; }
+.budget-mini-card.danger { border-left-color: #ef4444; }
+.budget-mini-card.critical { border-left-color: #dc2626; }
+
+.budget-mini-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.budget-categoria {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.budget-pct {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.budget-pct.ok { color: #10b981; }
+.budget-pct.warning { color: #f59e0b; }
+.budget-pct.danger { color: #ef4444; }
+.budget-pct.critical { color: #dc2626; }
+
+.budget-mini-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.budget-mini-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease-out;
+}
+
+.budget-mini-fill.ok { background: #10b981; }
+.budget-mini-fill.warning { background: #f59e0b; }
+.budget-mini-fill.danger { background: #ef4444; }
+.budget-mini-fill.critical { background: #dc2626; }
+
+.budget-mini-values {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  .budget-mini-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .budget-mini-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

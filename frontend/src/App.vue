@@ -23,6 +23,13 @@
             Dashboard
           </button>
           <button 
+            :class="['nav-item', { active: activeTab === 'metas' }]"
+            @click="activeTab = 'metas'"
+          >
+            <i class="pi pi-bullseye"></i>
+            Metas
+          </button>
+          <button 
             :class="['nav-item', { active: activeTab === 'gastos' }]"
             @click="activeTab = 'gastos'"
           >
@@ -94,6 +101,11 @@
       <!-- DASHBOARD TAB -->
       <div v-if="activeTab === 'dashboard'" class="tab-content">
         <DashboardCharts />
+      </div>
+
+      <!-- METAS TAB -->
+      <div v-if="activeTab === 'metas'" class="tab-content">
+        <BudgetView />
       </div>
 
       <!-- GASTOS TAB -->
@@ -297,6 +309,7 @@ import DashboardCharts from './components/DashboardCharts.vue'
 import AuthView from './components/AuthView.vue'
 import FamilyView from './components/FamilyView.vue'
 import ReceitasView from './components/ReceitasView.vue'
+import BudgetView from './components/BudgetView.vue'
 import BaseCard from './components/BaseCard.vue'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
