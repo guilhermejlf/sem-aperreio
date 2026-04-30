@@ -36,8 +36,8 @@ Milestone v2.0 — Planejamento em andamento:
 
 ## Active TODOs
 
-- [ ] Criar REQUIREMENTS.md para v2.0
-- [ ] Criar ROADMAP.md para v2.0 (Phases 5–6)
+- [x] Criar REQUIREMENTS.md para v2.0
+- [x] Criar ROADMAP.md para v2.0 (Phases 5–6)
 - [ ] Phase 5 — Budget goals backend + frontend
 - [ ] Phase 6 — Notifications (email/push) + PostgreSQL + CI/CD + deploy
 
