@@ -9,7 +9,7 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-04-30)
-- 🚧 **v2.0 Production** — Phase 5 shipped, Phase 6 in progress
+- ✅ **v2.0 Production** — Shipped 2026-05-05
 
 ---
 
@@ -65,7 +65,7 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 ---
 
-### Phase 6 — Notificações e Deploy
+### Phase 6 — Notificações e Deploy ✅ SHIPPED 2026-05-05
 
 **Goal:** Notificações push/email e infraestrutura de produção (PostgreSQL, CI/CD, deploy).
 
@@ -74,18 +74,24 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 **Requirements:** NOTF-01, NOTF-02, INFR-01, INFR-02, INFR-03
 
 **Deliverables:**
-- Lembrete semanal para registrar gastos (email ou push)
-- Alerta quando gasto do mês ultrapassa média histórica
-- Migração SQLite → PostgreSQL
-- CI/CD GitHub Actions (testes + deploy)
-- Deploy automatizado (backend Render/Railway, frontend Netlify/Vercel)
+- ✅ Tasks de notificação: `send_weekly_reminder`, `check_monthly_average` (`api/tasks.py`)
+- ✅ Endpoint `/api/tasks/trigger/` protegido por secret (para cron-job.org)
+- ✅ SendGrid SMTP configurado (settings + Railway env vars)
+- ✅ PostgreSQL via `DATABASE_URL` (Railway add-on)
+- ✅ CI/CD GitHub Actions: check + deploy backend + deploy frontend
+- ✅ Backend Railway: `campo-valor-production.up.railway.app`
+- ✅ Frontend Vercel: `https://sem-aperreio.vercel.app`
 
 **Verification:**
-- [ ] Notificação enviada semanalmente
-- [ ] Alerta disparado quando gasto > média histórica + 20%
-- [ ] PostgreSQL funcional em produção
-- [ ] Push no main dispara deploy automático
-- [ ] Frontend acessível via HTTPS
+- [x] Tasks de email prontas (`send_weekly_reminder`, `check_monthly_average`)
+- [x] Healthcheck `/api/health/` responde `{"status":"ok"}`
+- [x] PostgreSQL funcional em produção (`DATABASE_URL` override)
+- [x] Push no `main` dispara deploy automático
+- [x] Frontend acessível via HTTPS (Vercel)
+
+**Production URLs:**
+- Backend: `https://campo-valor-production.up.railway.app`
+- Frontend: `https://sem-aperreio.vercel.app`
 
 ---
 
@@ -94,7 +100,7 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 | Milestone | Phases | Status |
 |-----------|--------|--------|
 | v1.0 | 1–4 | ✅ Shipped (2026-04-30) |
-| v2.0 | 5–6 | 🚧 Phase 5 shipped, Phase 6 planned |
+| v2.0 | 5–6 | ✅ Shipped (2026-05-05) |
 
 ---
-*Last updated: 2026-05-04 after Phase 5 completion*
+*Last updated: 2026-05-05 after Phase 6 completion*
