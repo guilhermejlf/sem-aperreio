@@ -31,6 +31,7 @@ export const API_ENDPOINTS = {
   FAMILY_LEAVE: `${API_BASE_URL}/api/family/leave/`,
   FAMILY_REGENERATE_CODE: `${API_BASE_URL}/api/family/regenerate-code/`,
   FAMILY_DELETE: `${API_BASE_URL}/api/family/delete/`,
+  FAMILY_MEMBER: (id) => `${API_BASE_URL}/api/family/members/${id}/`,
 
   // Metas de Gasto
   METAS: (mes, ano) => `${API_BASE_URL}/api/metas/?mes=${mes}&ano=${ano}`,
@@ -132,14 +133,14 @@ export async function addReceita(data) {
 }
 
 export async function updateReceita(id, data) {
-  return await apiRequest(`${API_ENDPOINTS.RECEITAS_LIST}${id}/`, {
+  return await apiRequest(API_ENDPOINTS.RECEITA_DETAIL(id), {
     method: 'PUT',
     body: JSON.stringify(data)
   })
 }
 
 export async function deleteReceita(id) {
-  return await apiRequest(`${API_ENDPOINTS.RECEITAS_LIST}${id}/`, {
+  return await apiRequest(API_ENDPOINTS.RECEITA_DETAIL(id), {
     method: 'DELETE'
   })
 }
@@ -182,7 +183,7 @@ export async function regenerateFamilyCode() {
 }
 
 export async function removeFamilyMember(userId) {
-  return await apiRequest(`${API_BASE_URL}/api/family/members/${userId}/`, {
+  return await apiRequest(API_ENDPOINTS.FAMILY_MEMBER(userId), {
     method: 'DELETE'
   })
 }
