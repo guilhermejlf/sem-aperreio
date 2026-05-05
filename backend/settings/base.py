@@ -55,6 +55,11 @@ if DEBUG:
 else:
     _raw_cors = config('CORS_ALLOWED_ORIGINS', default='').split(',')
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors if origin.strip()]
+    # Fallback: se CORS_ALLOWED_ORIGINS vazio, adiciona FRONTEND_URL
+    if not CORS_ALLOWED_ORIGINS:
+        _frontend = os.environ.get('FRONTEND_URL', '')
+        if _frontend:
+            CORS_ALLOWED_ORIGINS.append(_frontend)
     CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------
