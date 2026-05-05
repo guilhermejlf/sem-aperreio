@@ -95,7 +95,7 @@ DATABASES = {
     }
 }
 
-# Override com PostgreSQL em produo (Railway, Render, etc.)
+# Override com PostgreSQL em produção (Railway, Render, etc.)
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
