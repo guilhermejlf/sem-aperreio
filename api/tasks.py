@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 from .models import Gasto, MetaGasto
 from datetime import timedelta
+from decimal import Decimal
 
 
 @shared_task
@@ -123,7 +124,7 @@ def check_monthly_average():
         ).aggregate(total=Sum('valor'))['total'] or 0
 
         # Verificar se ultrapassou 120% da média
-        if gasto_atual > media * 1.2:
+        if gasto_atual > media * Decimal('1.2'):
             pct_acima = ((gasto_atual - media) / media) * 100
 
             # Identificar categoria que mais subiu
