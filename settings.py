@@ -1,6 +1,8 @@
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
+import dj_database_url
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,7 +26,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_simplejwt',
-    'corsheaders',   # 👈 CORS
+    'corsheaders',   # 
     'api',
 ]
 
@@ -32,12 +34,12 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ---------------------------
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # 👈 TEM QUE SER O PRIMEIRO
+    'corsheaders.middleware.CorsMiddleware',  # 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 
-    # ⚠️ IMPORTANTE: vamos desabilitar CSRF para API (dev)
+    # : vamos desabilitar CSRF para API (dev)
     'django.middleware.csrf.CsrfViewMiddleware',
 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -65,7 +67,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'api' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -86,10 +88,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # DATABASE
 # ---------------------------
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / config('DB_NAME', default='db.sqlite3'),
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / config("DB_NAME", default="db.sqlite3")}',
+        conn_max_age=600,
+    )
 }
 
 # ---------------------------
@@ -171,6 +173,49 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     X_FRAME_OPTIONS = 'DENY'
+
+# ---------------------------
+# DEFAULT AUTO FIELD
+# ---------------------------
+# ---------------------------
+# CELERY CONFIG
+# ---------------------------
+CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Sao_Paulo'
+CELERY_BEAT_SCHEDULE = {
+    'weekly-reminder': {
+        'task': 'api.tasks.send_weekly_reminder',
+        'schedule': crontab(day_of_week=1, hour=9, minute=0),
+    },
+    'monthly-average-alert': {
+        'task': 'api.tasks.check_monthly_average',
+        'schedule': crontab(day_of_week=1, hour=10, minute=0),
+    },
+}
+
+# ---------------------------
+# EMAIL CONFIG
+# ---------------------------
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Sem Aperreio <noreply@semaperreio.app>')
+
+# Fallback para console em dev sem senha
+if not EMAIL_HOST_PASSWORD and DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# ---------------------------
+# FRONTEND URL (para links em emails)
+# ---------------------------
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 
 # ---------------------------
 # DEFAULT AUTO FIELD

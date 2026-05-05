@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import prever_gasto, gastos, gasto_detail, dashboard, receitas, receita_detail, exportar_csv, exportar_xlsx, listar_metas, criar_meta, atualizar_meta, deletar_meta
 from .views_auth import RegisterView, LoginView, RefreshView, UserView
 from .views_family import FamilyViewSet
+from .views_notificacoes import healthcheck, notificacoes_status, trigger_tasks
 
 router = DefaultRouter()
 router.register('family', FamilyViewSet, basename='family')
@@ -24,5 +25,8 @@ urlpatterns = [
     path("metas/criar/", criar_meta, name="criar_meta"),
     path("metas/<int:pk>/", atualizar_meta, name="atualizar_meta"),
     path("metas/<int:pk>/deletar/", deletar_meta, name="deletar_meta"),
+    path("health/", healthcheck, name="healthcheck"),
+    path("notificacoes/status/", notificacoes_status, name="notificacoes_status"),
+    path("tasks/trigger/", trigger_tasks, name="trigger_tasks"),
     path("", include(router.urls)),
 ]

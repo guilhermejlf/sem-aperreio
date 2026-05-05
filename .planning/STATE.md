@@ -43,7 +43,9 @@ Milestone v2.0 — Planejamento em andamento:
 - [x] Phase 5 ui-spec: `05-UI-SPEC.md` criado
 - [x] Phase 5 execute-phase: implementar Budget models, endpoints, e UI ✅
 - [x] Phase 5 review: bugs fixed (formatarValor, category filtering, delete UI)
-- [ ] Phase 6 — Notifications (email/push) + PostgreSQL + CI/CD + deploy
+- [x] Phase 6 discuss-phase: decisões capturadas em `06-CONTEXT.md`
+- [x] Phase 6 plan-phase: `06-01-PLAN.md` (backend notificações) e `06-02-PLAN.md` (infraestrutura/deploy) criados
+- [x] Phase 6 execute-phase: implementar notificações + PostgreSQL + CI/CD + deploy ✅
 
 ## Accumulated Context
 
