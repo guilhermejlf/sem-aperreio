@@ -52,7 +52,8 @@ MIDDLEWARE = [
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
-    CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    _raw_cors = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors if origin.strip()]
     CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------
