@@ -52,8 +52,14 @@ def trigger_tasks(request):
     results = {}
 
     if task_type in ('all', 'reminder'):
-        results['reminder'] = send_weekly_reminder()
+        try:
+            results['reminder'] = send_weekly_reminder()
+        except Exception as e:
+            results['reminder'] = f'Erro: {str(e)}'
     if task_type in ('all', 'average'):
-        results['average'] = check_monthly_average()
+        try:
+            results['average'] = check_monthly_average()
+        except Exception as e:
+            results['average'] = f'Erro: {str(e)}'
 
     return Response({'status': 'ok', 'results': results})
