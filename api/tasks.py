@@ -6,7 +6,6 @@ from django.utils import timezone
 from django.conf import settings
 from .models import Gasto, MetaGasto
 from datetime import timedelta
-import calendar
 
 
 @shared_task
