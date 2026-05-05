@@ -19,7 +19,7 @@ def send_weekly_reminder():
     inicio_semana = hoje - timedelta(days=hoje.weekday() + 7)
     fim_semana = inicio_semana + timedelta(days=6)
 
-    for user in User.objects.filter(gasto__data__range=(inicio_semana, fim_semana)).distinct():
+    for user in User.objects.filter(gastos__data__range=(inicio_semana, fim_semana)).distinct():
         # Total gasto na semana
         total = Gasto.objects.filter(
             user=user,
@@ -75,7 +75,7 @@ Acesse o app: {contexto['frontend_url']}
             fail_silently=True,
         )
 
-    return f"Lembretes enviados para {User.objects.filter(gasto__data__range=(inicio_semana, fim_semana)).distinct().count()} usuários."
+    return f"Lembretes enviados para {User.objects.filter(gastos__data__range=(inicio_semana, fim_semana)).distinct().count()} usuários."
 
 
 @shared_task
