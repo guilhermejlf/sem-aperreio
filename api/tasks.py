@@ -1,5 +1,5 @@
 from celery import shared_task
-from django.core.mail import send_mail
+from django.core.mail import send_mass_mail
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.utils import timezone
@@ -18,6 +18,8 @@ def send_weekly_reminder():
     # Semana anterior (segunda a domingo)
     inicio_semana = hoje - timedelta(days=hoje.weekday() + 7)
     fim_semana = inicio_semana + timedelta(days=6)
+
+    email_messages = []
 
     for user in User.objects.filter(gastos__data__range=(inicio_semana, fim_semana)).distinct():
         # Total gasto na semana
@@ -48,19 +50,9 @@ def send_weekly_reminder():
 
         # Renderizar email
         cat_nome = dict(Gasto.CATEGORIAS_CHOICES).get(cat_mais_gasta['categoria'], 'Outros') if cat_mais_gasta else 'Nenhuma'
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
 
-        contexto = {
-            'total': total,
-            'categoria_top': cat_nome,
-            'meta_alerta': meta_alerta,
-            'frontend_url': getattr(settings, 'FRONTEND_URL', 'http://localhost:5173'),
-        }
-
-        # Enviar email
-        send_mail(
-            subject='Sem Aperreio — Resumo Semanal',
-            message=f"""
-Olá {user.first_name or user.username}!
+        message = f"""Olá {user.first_name or user.username}!
 
 Aqui está o resumo da semana passada:
 
@@ -68,14 +60,19 @@ Total gasto: R$ {total:.2f}
 Categoria mais gasta: {cat_nome}
 {'Meta próxima do limite: ' + meta_alerta.categoria_nome if meta_alerta else 'Nenhuma meta próxima do limite.'}
 
-Acesse o app: {contexto['frontend_url']}
-            """.strip(),
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@semaperreio.app'),
-            recipient_list=[user.email],
-            fail_silently=True,
-        )
+Acesse o app: {frontend_url}"""
 
-    return f"Lembretes enviados para {User.objects.filter(gastos__data__range=(inicio_semana, fim_semana)).distinct().count()} usuários."
+        email_messages.append((
+            'Sem Aperreio — Resumo Semanal',
+            message,
+            getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@semaperreio.app'),
+            [user.email],
+        ))
+
+    if email_messages:
+        send_mass_mail(email_messages, fail_silently=True)
+
+    return f"Lembretes enviados para {len(email_messages)} usuário(s)."
 
 
 @shared_task
@@ -97,6 +94,8 @@ def check_monthly_average():
             mes += 12
             ano -= 1
         meses_anteriores.append((mes, ano))
+
+    email_messages = []
 
     for user in User.objects.all():
         # Calcular média dos últimos 6 meses
@@ -137,10 +136,7 @@ def check_monthly_average():
             ).order_by('-total').first()
             cat_nome = dict(Gasto.CATEGORIAS_CHOICES).get(cat_mais_gasta['categoria'], 'Outros') if cat_mais_gasta else 'Geral'
 
-            send_mail(
-                subject='Sem Aperreio — Alerta de Gastos',
-                message=f"""
-Olá {user.first_name or user.username}!
+            message = f"""Olá {user.first_name or user.username}!
 
 ⚠️ Alerta: seu gasto este mês está {pct_acima:.0f}% acima da média histórica.
 
@@ -150,11 +146,16 @@ Valores:
 
 Categoria que mais contribuiu: {cat_nome}
 
-Acesse o dashboard para ver detalhes: {getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')}
-                """.strip(),
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@semaperreio.app'),
-                recipient_list=[user.email],
-                fail_silently=True,
-            )
+Acesse o dashboard para ver detalhes: {getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')}"""
 
-    return "Verificação de média histórica concluída."
+            email_messages.append((
+                'Sem Aperreio — Alerta de Gastos',
+                message,
+                getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@semaperreio.app'),
+                [user.email],
+            ))
+
+    if email_messages:
+        send_mass_mail(email_messages, fail_silently=True)
+
+    return f"Verificação concluída. {len(email_messages)} alerta(s) enviado(s)."
