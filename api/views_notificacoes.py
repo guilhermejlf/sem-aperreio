@@ -37,9 +37,8 @@ def trigger_tasks(request):
     Protegido por secret key para evitar spam.
     Usado por cron-job.org quando Railway free tier não suporta worker.
     """
-    secret = request.data.get('secret') if hasattr(request, 'data') else None
-    if not secret:
-        secret = request.GET.get('secret', '')
+    # Read secret from custom header (avoids exposure in URL query params / logs)
+    secret = request.headers.get('X-Trigger-Secret', '')
 
     expected = os.environ.get('TASK_TRIGGER_SECRET', '')
     if not expected or secret != expected:
