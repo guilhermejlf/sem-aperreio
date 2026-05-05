@@ -1,5 +1,7 @@
 // Configuração da API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const PROD_API_URL = 'https://campo-valor-production.up.railway.app'
+const DEV_API_URL = 'http://127.0.0.1:8000'
+const API_BASE_URL = import.meta.env.VITE_API_URL || PROD_API_URL
 export { API_BASE_URL }
 
 export const API_ENDPOINTS = {
