@@ -22,6 +22,8 @@ def healthcheck(request):
 @permission_classes([IsAuthenticated])
 def notificacoes_status(request):
     """Retorna configuração de notificações do usuário logado."""
+    # TODO: Implementar modelo UserNotificationPreferences para permitir
+    # cada usuário habilitar/desabilitar lembretes e alertas individualmente.
     return Response({
         'email_configurado': bool(settings.EMAIL_HOST_PASSWORD),
         'lembrete_semanal': True,
