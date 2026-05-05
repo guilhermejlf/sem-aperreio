@@ -95,14 +95,10 @@ DATABASES = {
     }
 }
 
-# Override com PostgreSQL em produção (Railway, Render, etc.)
+# Override com PostgreSQL em produo (Railway, Render, etc.)
 DATABASE_URL = os.environ.get('DATABASE_URL')
-print(f"[DEBUG] DATABASE_URL present: {bool(DATABASE_URL)}, len: {len(DATABASE_URL) if DATABASE_URL else 0}")
 if DATABASE_URL:
     DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
-    print(f"[DEBUG] Using PostgreSQL: {DATABASES['default'].get('ENGINE')}")
-else:
-    print(f"[DEBUG] Using SQLite: {DATABASES['default'].get('ENGINE')}")
 
 # ---------------------------
 # PASSWORDS
