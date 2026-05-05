@@ -1,4 +1,5 @@
 import os
+import threading
 from django.conf import settings
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
@@ -50,17 +51,24 @@ def trigger_tasks(request):
     if not task_type:
         task_type = request.GET.get('task', 'all')
 
-    results = {}
+    def _run_tasks():
+        results = {}
+        if task_type in ('all', 'reminder'):
+            try:
+                results['reminder'] = send_weekly_reminder()
+            except Exception as e:
+                results['reminder'] = f'Erro: {str(e)}'
+        if task_type in ('all', 'average'):
+            try:
+                results['average'] = check_monthly_average()
+            except Exception as e:
+                results['average'] = f'Erro: {str(e)}'
+        # Railway free tier may kill the process after HTTP response,
+        # but the thread gets a few seconds grace period.
+        # For reliable delivery, consider upgrading Railway or using a paid worker.
 
-    if task_type in ('all', 'reminder'):
-        try:
-            results['reminder'] = send_weekly_reminder()
-        except Exception as e:
-            results['reminder'] = f'Erro: {str(e)}'
-    if task_type in ('all', 'average'):
-        try:
-            results['average'] = check_monthly_average()
-        except Exception as e:
-            results['average'] = f'Erro: {str(e)}'
+    # Start background thread and return immediately to avoid cron-job timeout
+    t = threading.Thread(target=_run_tasks, daemon=True)
+    t.start()
 
-    return Response({'status': 'ok', 'results': results})
+    return Response({'status': 'started', 'task': task_type})
