@@ -26,7 +26,6 @@
             :class="['nav-item', { active: activeTab === 'extrato' }]"
             @click="activeTab = 'extrato'"
           >
-            <i class="pi pi-list"></i>
             Extrato
           </button>
           <button 

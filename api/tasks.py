@@ -1,4 +1,12 @@
-from celery import shared_task
+try:
+    from celery import shared_task
+except ImportError:
+    # Dummy decorator for local dev without Celery installed
+    def shared_task(func=None, **kwargs):
+        if func:
+            return func
+        return lambda f: f
+
 from django.core.mail import send_mass_mail
 from django.contrib.auth.models import User
 from django.db.models import Sum
