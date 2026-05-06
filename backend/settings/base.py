@@ -2,7 +2,11 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
-import dj_database_url
+
+try:
+    import dj_database_url
+except ImportError:
+    dj_database_url = None
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -102,7 +106,7 @@ DATABASES = {
 
 # Override com PostgreSQL em produção (Railway, Render, etc.)
 DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
+if DATABASE_URL and dj_database_url:
     DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 
 # ---------------------------
