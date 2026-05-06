@@ -95,12 +95,37 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 ---
 
+### Phase 7 — Mobile Responsiveness & Recorrência Automática 🚧 PLANNED
+
+**Goal:** Tornar o app totalmente responsivo para mobile e adicionar suporte a gastos/receitas recorrentes.
+
+**Depends on:** v2.0 (all phases)
+
+**Requirements:** MOBI-01, MOBI-02, REC-01, REC-02
+
+**Deliverables:**
+- [ ] Layout mobile-first: navbar hamburguer, cards empilhados, tabelas scrolláveis
+- [ ] Breakpoints: sm (640px), md (768px), lg (1024px)
+- [ ] Modelo `GastoRecorrente` (frequência: diário, semanal, quinzenal, mensal, anual)
+- [ ] Backend: geração automática de instâncias ao criar/editar recorrência
+- [ ] Frontend: flag "Recorrente" no modal de gastos/receitas
+- [ ] Dashboard adaptativo para telas pequenas
+- [ ] Touch-friendly: botões maiores, inputs otimizados para mobile
+
+**Verification:**
+- [ ] App usável em iPhone SE (375px)
+- [ ] Gasto recorrente mensal gera instância automaticamente
+- [ ] Dashboard legível sem scroll horizontal
+
+---
+
 ## Milestone Summary
 
 | Milestone | Phases | Status |
 |-----------|--------|--------|
 | v1.0 | 1–4 | ✅ Shipped (2026-04-30) |
 | v2.0 | 5–6 | ✅ Shipped (2026-05-05) |
+| v3.0 | 7 | 🚧 Planned |
 
 ---
-*Last updated: 2026-05-05 after Phase 6 completion*
+*Last updated: 2026-05-06 after Phase 7 planning*
