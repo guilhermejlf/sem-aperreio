@@ -8,60 +8,87 @@
 
     <!-- Content -->
     <template v-else>
-      <!-- FILTERS -->
-      <div class="extrato-filters">
-        <div class="filter-group">
-          <label>Mês</label>
-          <select v-model="filters.mes" class="filter-select" @change="carregarExtrato">
-            <option value="">Todos</option>
-            <option v-for="m in 12" :key="m" :value="m">
-              {{ mesesLabels[m - 1] }}
-            </option>
-          </select>
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <div class="toolbar-filters">
+          <div class="filter-group">
+            <label>Mês</label>
+            <select v-model="filters.mes" class="filter-select" @change="carregarExtrato">
+              <option value="">Todos</option>
+              <option v-for="m in 12" :key="m" :value="m">
+                {{ mesesLabels[m - 1] }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Ano</label>
+            <select v-model="filters.ano" class="filter-select" @change="carregarExtrato">
+              <option value="">Todos</option>
+              <option v-for="a in anosDisponiveis" :key="a" :value="a">
+                {{ a }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Categoria</label>
+            <select v-model="filters.categoria" class="filter-select" @change="carregarExtrato">
+              <option value="">Todas</option>
+              <option v-for="cat in categorias" :key="cat.value" :value="cat.value">
+                {{ cat.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Tipo</label>
+            <select v-model="filters.tipo" class="filter-select" @change="carregarExtrato">
+              <option value="">Todos</option>
+              <option value="receitas">Receitas</option>
+              <option value="gastos">Gastos</option>
+            </select>
+          </div>
+
+          <div v-if="filters.tipo !== 'receitas'" class="filter-group">
+            <label>Status</label>
+            <select v-model="filters.pago" class="filter-select" @change="carregarExtrato">
+              <option value="">Todos</option>
+              <option value="true">Já pagos</option>
+              <option value="false">Ainda a pagar</option>
+            </select>
+          </div>
+
         </div>
 
-        <div class="filter-group">
-          <label>Ano</label>
-          <select v-model="filters.ano" class="filter-select" @change="carregarExtrato">
-            <option value="">Todos</option>
-            <option v-for="a in anosDisponiveis" :key="a" :value="a">
-              {{ a }}
-            </option>
-          </select>
-        </div>
+        <div class="toolbar-actions">
+          <button class="btn-clear" @click="limparFiltros">
+            <i class="pi pi-filter-slash"></i>
+            Limpar
+          </button>
 
-        <div class="filter-group">
-          <label>Categoria</label>
-          <select v-model="filters.categoria" class="filter-select" @change="carregarExtrato">
-            <option value="">Todas</option>
-            <option v-for="cat in categorias" :key="cat.value" :value="cat.value">
-              {{ cat.label }}
-            </option>
-          </select>
+          <div class="export-dropdown-wrapper" v-if="itens.length > 0">
+            <button
+              class="btn-export-toggle"
+              @click="toggleExportDropdown"
+              ref="exportBtn"
+            >
+              <i class="pi pi-download"></i>
+              <span>Exportar</span>
+              <i class="pi pi-chevron-down" :class="{ rotated: showExportDropdown }"></i>
+            </button>
+            <div v-if="showExportDropdown" class="export-dropdown" ref="exportDropdown">
+              <button class="export-option" @click="exportar('csv'); showExportDropdown = false">
+                <i class="pi pi-file-export"></i>
+                Exportar CSV
+              </button>
+              <button class="export-option" @click="exportar('xlsx'); showExportDropdown = false">
+                <i class="pi pi-file-excel"></i>
+                Exportar Excel
+              </button>
+            </div>
+          </div>
         </div>
-
-        <div class="filter-group">
-          <label>Tipo</label>
-          <select v-model="filters.tipo" class="filter-select" @change="carregarExtrato">
-            <option value="">Todos</option>
-            <option value="receitas">Receitas</option>
-            <option value="gastos">Gastos</option>
-          </select>
-        </div>
-
-        <div v-if="filters.tipo !== 'receitas'" class="filter-group">
-          <label>Status</label>
-          <select v-model="filters.pago" class="filter-select" @change="carregarExtrato">
-            <option value="">Todos</option>
-            <option value="true">Já pagos</option>
-            <option value="false">Ainda a pagar</option>
-          </select>
-        </div>
-
-        <button class="btn-clear" @click="limparFiltros">
-          <i class="pi pi-filter-slash"></i>
-          Limpar
-        </button>
       </div>
 
       <!-- SUMMARY CARDS -->
@@ -89,19 +116,14 @@
         </div>
       </div>
 
-      <!-- EXPORT BUTTONS -->
-      <div class="extrato-toolbar">
-        <button class="btn-export" @click="exportar('csv')" :disabled="itens.length === 0">
-          <i class="pi pi-file-export"></i>
-          Exportar CSV
-        </button>
-        <button class="btn-export btn-export--xlsx" @click="exportar('xlsx')" :disabled="itens.length === 0">
-          <i class="pi pi-file-excel"></i>
-          Exportar Excel
-        </button>
-        <span v-if="itens.length > 0" class="extrato-count">
-          {{ itens.length }} registro{{ itens.length === 1 ? '' : 's' }}
-        </span>
+      <!-- LIST HEADER -->
+      <div class="extrato-list-header">
+        <div class="list-header-info">
+          <h2 class="list-header-title">Extrato Financeiro</h2>
+          <span class="list-header-count">
+            {{ itens.length }} registro{{ itens.length === 1 ? '' : 's' }} encontrado{{ itens.length === 1 ? '' : 's' }}
+          </span>
+        </div>
       </div>
 
       <!-- EMPTY STATE -->
@@ -160,6 +182,7 @@ export default {
       loading: false,
       itens: [],
       resumo: null,
+      showExportDropdown: false,
       filters: {
         mes: hoje.getMonth() + 1,
         ano: hoje.getFullYear(),
@@ -197,6 +220,11 @@ export default {
 
   mounted() {
     this.carregarExtrato()
+    document.addEventListener('click', this.closeExportDropdown)
+  },
+
+  beforeUnmount() {
+    document.removeEventListener('click', this.closeExportDropdown)
   },
 
   methods: {
@@ -223,6 +251,20 @@ export default {
         })
       } finally {
         this.loading = false
+      }
+    },
+
+    toggleExportDropdown() {
+      this.showExportDropdown = !this.showExportDropdown
+    },
+
+    closeExportDropdown(e) {
+      if (
+        this.$refs.exportDropdown &&
+        !this.$refs.exportDropdown.contains(e.target) &&
+        !this.$refs.exportBtn.contains(e.target)
+      ) {
+        this.showExportDropdown = false
       }
     },
 
@@ -328,66 +370,96 @@ export default {
   gap: 16px;
 }
 
-/* Filters */
-.extrato-filters {
+/* Toolbar */
+.toolbar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
+  justify-content: space-between;
   align-items: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.toolbar-filters {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: flex-end;
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .filter-group label {
-  font-size: 12px;
-  color: #94a3b8;
+  font-size: 11px;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
 .filter-select {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  padding: 8px 12px;
-  color: #e5e7eb;
-  font-size: 14px;
-  min-width: 120px;
+  padding: 7px 6px;
+  color: #cbd5e1;
+  font-size: 12px;
+  min-width: 80px;
+  width: 100%;
   cursor: pointer;
+  transition: border-color 0.15s ease;
+  height: 34px;
+  box-sizing: border-box;
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #22c55e;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .filter-select option {
   background: #1e293b;
-  color: #e5e7eb;
+  color: #cbd5e1;
 }
 
 .btn-clear {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  padding: 8px 14px;
-  color: #94a3b8;
-  font-size: 13px;
+  padding: 7px 10px;
+  color: #64748b;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   transition: all 0.2s ease;
-  height: fit-content;
+  height: 34px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .btn-clear:hover {
-  border-color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.4);
   color: #ef4444;
 }
 
@@ -396,7 +468,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .summary-card {
@@ -452,47 +524,111 @@ export default {
   color: #ef4444;
 }
 
-/* Toolbar */
-.extrato-toolbar {
+/* List Header */
+.extrato-list-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
   margin-bottom: 16px;
-  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.btn-export {
-  background: rgba(255, 255, 255, 0.05);
+.list-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.list-header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e5e7eb;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.list-header-count {
+  font-size: 12px;
+  color: #64748b;
+  opacity: 0.7;
+}
+
+/* Export Dropdown */
+.export-dropdown-wrapper {
+  position: relative;
+}
+
+.btn-export-toggle {
+  background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  padding: 8px 14px;
-  color: #e5e7eb;
-  font-size: 13px;
+  padding: 7px 10px;
+  color: #64748b;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   transition: all 0.2s ease;
+  font-weight: 500;
+  height: 34px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.btn-export:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #3b82f6;
+.btn-export-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.btn-export:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.btn-export-toggle .pi-download {
+  font-size: 12px;
 }
 
-.btn-export--xlsx:hover:not(:disabled) {
-  border-color: #22c55e;
+.btn-export-toggle .pi-chevron-down {
+  font-size: 9px;
+  transition: transform 0.2s ease;
 }
 
-.extrato-count {
+.btn-export-toggle .pi-chevron-down.rotated {
+  transform: rotate(180deg);
+}
+
+.export-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 170px;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.export-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
   font-size: 13px;
-  color: #64748b;
-  margin-left: auto;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+.export-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
 }
 
 /* Empty state */
@@ -523,29 +659,31 @@ export default {
 .extrato-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .extrato-item {
   display: flex;
   align-items: center;
-  gap: 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 14px 16px;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 12px 14px;
   transition: all 0.2s ease;
 }
 
 .extrato-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .extrato-item__icon {
-  font-size: 22px;
+  font-size: 20px;
   flex-shrink: 0;
-  width: 36px;
+  width: 32px;
   text-align: center;
+  line-height: 1;
 }
 
 .extrato-item__info {
@@ -553,13 +691,13 @@ export default {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .extrato-item__title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  color: #e5e7eb;
+  color: #e2e8f0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -575,31 +713,32 @@ export default {
 }
 
 .item-categoria {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1px 7px;
   border-radius: 4px;
   font-size: 11px;
+  color: #94a3b8;
 }
 
 .item-status {
-  padding: 2px 8px;
+  padding: 1px 7px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 500;
 }
 
 .status-pago {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.1);
   color: #22c55e;
 }
 
 .status-pendente {
-  background: rgba(245, 158, 11, 0.15);
+  background: rgba(245, 158, 11, 0.1);
   color: #f59e0b;
 }
 
 .extrato-item__value {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   flex-shrink: 0;
   white-space: nowrap;
@@ -615,22 +754,51 @@ export default {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .extrato-filters {
-    flex-direction: column;
-    align-items: stretch;
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .toolbar-filters {
+    flex-wrap: wrap;
+    width: 100%;
   }
 
   .filter-group {
+    flex: 1 1 45%;
+    min-width: 120px;
+  }
+
+  .toolbar-actions {
     width: 100%;
+    justify-content: flex-start;
   }
 
   .filter-select {
     width: 100%;
+    height: auto;
   }
 
   .btn-clear {
-    width: 100%;
+    flex: 1;
     justify-content: center;
+    height: 38px;
+  }
+
+  .btn-export-toggle {
+    flex: 1;
+    justify-content: center;
+    height: 38px;
+  }
+
+  .export-dropdown-wrapper {
+    width: 100%;
+  }
+
+  .export-dropdown {
+    right: auto;
+    left: 0;
+    width: 100%;
   }
 
   .extrato-summary {
@@ -651,19 +819,10 @@ export default {
     font-size: 14px;
   }
 
-  .extrato-toolbar {
+  .extrato-list-header {
     flex-direction: column;
-    align-items: stretch;
-  }
-
-  .btn-export {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .extrato-count {
-    margin-left: 0;
-    text-align: center;
+    align-items: flex-start;
+    gap: 6px;
   }
 }
 </style>
