@@ -1,9 +1,11 @@
 import csv
 import io
+import os
 import pandas as pd
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.http import StreamingHttpResponse, HttpResponse
 import logging
@@ -18,6 +20,13 @@ from .serializers import GastoSerializer, ReceitaSerializer, MetaGastoSerializer
 from .permissions import GastoPermission
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
+
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
 
 logger = logging.getLogger(__name__)
 
@@ -1020,13 +1029,14 @@ def exportar_xlsx(request):
         logger.error(f"Erro na exportação XLSX: {e}")
         return Response(
             {"erro": "Erro interno no servidor"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content_type='application/json'
         )
 
 
 @api_view(['GET'])
 def exportar_pdf(request):
-    """Exporta extrato unificado (gastos + receitas) como PDF."""
+    """Exporta extrato unificado (gastos + receitas) como PDF estilizado."""
     try:
         from datetime import datetime
 
@@ -1052,6 +1062,8 @@ def exportar_pdf(request):
         # --- Filtros ---
         mes = request.query_params.get('mes')
         ano = request.query_params.get('ano')
+        mes_int = None
+        ano_int = None
         if mes and ano:
             try:
                 mes_int = int(mes)
@@ -1088,22 +1100,30 @@ def exportar_pdf(request):
                 "categoria": g.get_categoria_display() or "",
                 "descricao": g.descricao or "",
                 "valor": float(g.valor),
-                "pago": "Sim" if g.pago else "Não",
             })
         for r in receitas_qs.order_by('-data'):
             itens.append({
                 "tipo": "RECEITA",
                 "data": r.data.strftime('%d/%m/%Y') if r.data else "",
-                "categoria": "Receita",
+                "categoria": "-",
                 "descricao": r.descricao or "",
                 "valor": float(r.valor),
-                "pago": "Sim",
             })
 
         itens.sort(key=lambda x: datetime.strptime(x["data"], '%d/%m/%Y') if x["data"] else datetime.min, reverse=True)
 
         total_gastos = sum(i["valor"] for i in itens if i["tipo"] == "GASTO")
         total_receitas = sum(i["valor"] for i in itens if i["tipo"] == "RECEITA")
+        saldo = total_receitas - total_gastos
+
+        # --- Helpers ---
+        def fmt_brl(v):
+            s = f"{abs(v):,.2f}"
+            return s.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+        MESES = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+        periodo_str = f"{MESES[mes_int]}/{ano_int}" if mes_int and ano_int else "Todos os registros"
 
         # --- Gerar PDF ---
         buffer = io.BytesIO()
@@ -1111,67 +1131,195 @@ def exportar_pdf(request):
         elements = []
         styles = getSampleStyleSheet()
 
+        # Cores
+        C_TITLE = colors.HexColor('#10b981')
+        C_HEADER_BG = colors.HexColor('#111827')
+        C_HEADER_TEXT = colors.whitesmoke
+        C_RECEITA_BG = colors.HexColor('#dcfce7')
+        C_RECEITA_TEXT = colors.HexColor('#166534')
+        C_GASTO_BG = colors.HexColor('#fee2e2')
+        C_GASTO_TEXT = colors.HexColor('#991b1b')
+        C_SALDO_BG = colors.HexColor('#dbeafe')
+        C_SALDO_TEXT = colors.HexColor('#1e40af')
+        C_SUBTITLE = colors.HexColor('#64748b')
+        C_BORDER = colors.HexColor('#e5e7eb')
+        C_ROW_ALT = colors.HexColor('#f8fafc')
+
+        # Estilos customizados
         title_style = ParagraphStyle(
-            'CustomTitle',
+            'Title',
             parent=styles['Heading1'],
-            fontSize=18,
-            textColor=colors.HexColor('#1a1a2e'),
-            spaceAfter=20,
+            fontSize=28,
+            textColor=C_TITLE,
             alignment=TA_CENTER,
+            spaceAfter=6,
+            fontName='Helvetica-Bold',
         )
         subtitle_style = ParagraphStyle(
-            'CustomSubtitle',
+            'Subtitle',
             parent=styles['Normal'],
-            fontSize=10,
-            textColor=colors.grey,
+            fontSize=11,
+            textColor=C_SUBTITLE,
             alignment=TA_CENTER,
             spaceAfter=20,
         )
+        section_title = ParagraphStyle(
+            'SectionTitle',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=C_HEADER_BG,
+            spaceAfter=12,
+            spaceBefore=20,
+            fontName='Helvetica-Bold',
+        )
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=C_SUBTITLE,
+            alignment=TA_CENTER,
+            spaceBefore=30,
+        )
+        info_style = ParagraphStyle(
+            'Info',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=C_SUBTITLE,
+            alignment=TA_CENTER,
+            spaceAfter=2,
+        )
+        tagline_style = ParagraphStyle(
+            'Tagline',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor=C_SUBTITLE,
+            alignment=TA_CENTER,
+            spaceAfter=16,
+        )
 
-        elements.append(Paragraph("Extrato Financeiro", title_style))
-        periodo_texto = f"Período: {mes:02d}/{ano}" if mes and ano else "Período: Todos os registros"
-        elements.append(Paragraph(periodo_texto, subtitle_style))
-        elements.append(Spacer(1, 0.5*cm))
+        # Info topo direito
+        user_name = request.user.get_full_name() or request.user.username
+        now_str = datetime.now().strftime('%d/%m/%Y às %H:%M')
+        info_data = [
+            ['', Paragraph(f"Solicitado por: <b>{user_name}</b>", info_style)],
+            ['', Paragraph(f"Gerado em: {now_str}", info_style)],
+        ]
+        info_table = Table(info_data, colWidths=[10*cm, 7*cm])
+        info_table.setStyle(TableStyle([
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ]))
+        elements.append(info_table)
+        elements.append(Spacer(1, 0.3*cm))
 
-        # Tabela de dados
-        data = [['Tipo', 'Data', 'Categoria', 'Descrição', 'Valor', 'Pago']]
+        # Logo + Título + Tagline
+        logo_path = os.path.join(settings.BASE_DIR, 'frontend', 'src', 'assets', 'logo-pdf.png')
+        try:
+            if os.path.exists(logo_path):
+                logo = Image(logo_path, width=2.5*cm, height=2.5*cm)
+                logo.hAlign = 'CENTER'
+                elements.append(logo)
+        except Exception:
+            pass
+        elements.append(Paragraph("Sem Aperreio", title_style))
+        elements.append(Paragraph("Sua vida financeira, sem aperreio.", tagline_style))
+        elements.append(Paragraph(f"Relatório Financeiro Familiar — {periodo_str}", subtitle_style))
+
+        # Linha divisória
+        line_data = [['']]
+        line_table = Table(line_data, colWidths=[17*cm])
+        line_table.setStyle(TableStyle([
+            ('LINEBELOW', (0, 0), (-1, 0), 1, C_BORDER),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 0),
+        ]))
+        elements.append(line_table)
+        elements.append(Spacer(1, 0.8*cm))
+
+        # Cards de resumo
+        card_data = [
+            ['Receitas', 'Gastos', 'Saldo'],
+            [f'R$ {fmt_brl(total_receitas)}', f'R$ {fmt_brl(total_gastos)}', f'R$ {fmt_brl(saldo)}'],
+        ]
+        card_table = Table(card_data, colWidths=[5.67*cm, 5.67*cm, 5.67*cm])
+        card_table.setStyle(TableStyle([
+            # Headers
+            ('BACKGROUND', (0, 0), (-1, 0), C_HEADER_BG),
+            ('TEXTCOLOR', (0, 0), (-1, 0), C_HEADER_TEXT),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 11),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            ('TOPPADDING', (0, 0), (-1, 0), 10),
+            # Valores
+            ('BACKGROUND', (0, 1), (0, 1), C_RECEITA_BG),
+            ('TEXTCOLOR', (0, 1), (0, 1), C_RECEITA_TEXT),
+            ('BACKGROUND', (1, 1), (1, 1), C_GASTO_BG),
+            ('TEXTCOLOR', (1, 1), (1, 1), C_GASTO_TEXT),
+            ('BACKGROUND', (2, 1), (2, 1), C_SALDO_BG),
+            ('TEXTCOLOR', (2, 1), (2, 1), C_SALDO_TEXT),
+            ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 1), (-1, 1), 12),
+            ('ALIGN', (0, 1), (-1, 1), 'CENTER'),
+            ('BOTTOMPADDING', (0, 1), (-1, 1), 14),
+            ('TOPPADDING', (0, 1), (-1, 1), 14),
+            # Grid
+            ('BOX', (0, 0), (-1, -1), 0.5, C_BORDER),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, C_BORDER),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        elements.append(card_table)
+
+        # Título da seção
+        elements.append(Spacer(1, 0.6*cm))
+        elements.append(Paragraph("Extrato Financeiro", section_title))
+
+        # Tabela de extrato
+        extrato_data = [['Data', 'Tipo', 'Categoria', 'Descrição', 'Valor']]
         for item in itens:
-            data.append([
-                item['tipo'],
+            tipo_label = 'Receita' if item['tipo'] == 'RECEITA' else 'Gasto'
+            valor_sinal = f"+ R$ {fmt_brl(item['valor'])}" if item['tipo'] == 'RECEITA' else f"- R$ {fmt_brl(item['valor'])}"
+            extrato_data.append([
                 item['data'],
+                tipo_label,
                 item['categoria'],
-                Paragraph(item['descricao'][:40], styles['Normal']),
-                f"R$ {item['valor']:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'),
-                item['pago'],
+                Paragraph(item['descricao'][:50], styles['Normal']),
+                valor_sinal,
             ])
 
-        # Resumo
-        data.append(['', '', '', '', '', ''])
-        data.append(['', '', '', 'TOTAL RECEITAS', f"R$ {total_receitas:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'), ''])
-        data.append(['', '', '', 'TOTAL GASTOS', f"R$ {total_gastos:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'), ''])
-        data.append(['', '', '', 'SALDO', f"R$ {(total_receitas - total_gastos):,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'), ''])
-
-        table = Table(data, colWidths=[2*cm, 2.2*cm, 3*cm, 5*cm, 2.5*cm, 1.8*cm], repeatRows=1)
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a1a2e')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('ALIGN', (3, 1), (3, -1), 'LEFT'),
-            ('ALIGN', (4, 1), (4, -1), 'RIGHT'),
+        extrato_table = Table(extrato_data, colWidths=[2.5*cm, 2.2*cm, 3.3*cm, 6.5*cm, 2.5*cm], repeatRows=1)
+        extrato_table.setStyle(TableStyle([
+            # Header
+            ('BACKGROUND', (0, 0), (-1, 0), C_HEADER_BG),
+            ('TEXTCOLOR', (0, 0), (-1, 0), C_HEADER_TEXT),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -6), colors.HexColor('#f8f9fa')),
-            ('GRID', (0, 0), (-1, -6), 0.5, colors.grey),
-            ('FONTSIZE', (0, 1), (-1, -6), 9),
+            ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            ('TOPPADDING', (0, 0), (-1, 0), 10),
+            # Linhas alternadas
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, C_ROW_ALT]),
+            # Alinhamento
+            ('ALIGN', (0, 1), (3, -1), 'LEFT'),
+            ('ALIGN', (4, 1), (4, -1), 'RIGHT'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('TEXTCOLOR', (0, -3), (3, -3), colors.HexColor('#28a745')),
-            ('TEXTCOLOR', (0, -2), (3, -2), colors.HexColor('#dc3545')),
-            ('FONTNAME', (0, -3), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+            ('TOPPADDING', (0, 1), (-1, -1), 8),
+            # Cores por tipo
+            ('TEXTCOLOR', (1, 1), (1, -1), C_RECEITA_TEXT, 'Receita'),
+            ('TEXTCOLOR', (1, 1), (1, -1), C_GASTO_TEXT, 'Gasto'),
+            ('TEXTCOLOR', (4, 1), (4, -1), C_RECEITA_TEXT, '+'),
+            ('TEXTCOLOR', (4, 1), (4, -1), C_GASTO_TEXT, '-'),
+            # Grid leve
+            ('LINEBELOW', (0, 0), (-1, -2), 0.5, C_BORDER),
+            ('LINEABOVE', (0, 0), (-1, 0), 0.5, C_BORDER),
         ]))
-        elements.append(table)
-        elements.append(Spacer(1, 0.5*cm))
-        elements.append(Paragraph(f"Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')} por {request.user.username}", styles['Normal']))
+        elements.append(extrato_table)
+
+        # Rodapé
+        elements.append(Spacer(1, 0.8*cm))
+        elements.append(Paragraph("Relatório gerado automaticamente pelo Sem Aperreio.", footer_style))
 
         doc.build(elements)
         buffer.seek(0)
@@ -1186,10 +1334,6 @@ def exportar_pdf(request):
             {"erro": "Erro interno no servidor"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
-
-# -------------------------
-# METAS DE GASTO (Budget Goals)
 # -------------------------
 
 def _get_meta_status(pct):
