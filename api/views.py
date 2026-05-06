@@ -1213,27 +1213,14 @@ def exportar_pdf(request):
         elements.append(Spacer(1, 0.3*cm))
 
         # Logo + Título + Tagline
-        logo_path = os.path.join(settings.BASE_DIR, 'frontend', 'src', 'assets', 'logo-pdf.png')
-        logo_path = os.path.abspath(logo_path)
-        logger.debug(f"PDF logo path: {logo_path} exists={os.path.exists(logo_path)}")
+        logo_path = str(settings.BASE_DIR.parent / 'frontend' / 'src' / 'assets' / 'logo-pdf.png')
+        logger.debug(f"PDF logo path: {logo_path}")
         try:
-            if os.path.exists(logo_path):
-                from PIL import Image as PILImage
-                # Abre com PIL para garantir compatibilidade com reportlab
-                pil_img = PILImage.open(logo_path)
-                pil_img = pil_img.convert('RGBA')
-                img_width, img_height = pil_img.size
-                aspect = img_height / float(img_width)
-                display_width = 3 * cm
-                display_height = display_width * aspect
-                logo = Image(logo_path, width=display_width, height=display_height)
-                logo.hAlign = 'CENTER'
-                elements.append(logo)
-                logger.debug("PDF logo carregado com sucesso")
+            logo = Image(logo_path, width=4*cm, height=4*cm)
+            logo.hAlign = 'CENTER'
+            elements.append(logo)
         except Exception as e:
-            logger.warning(f"PDF logo erro: {e}")
-        elements.append(Paragraph("Sem Aperreio", title_style))
-        elements.append(Paragraph("Sua vida financeira, sem aperreio.", tagline_style))
+            logger.warning(f"PDF logo failed: {e}")
         elements.append(Paragraph(f"Relatório Financeiro Familiar — {periodo_str}", subtitle_style))
 
         # Linha divisória
