@@ -1,8 +1,11 @@
+import csv
+import io
 import pandas as pd
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ValidationError
+from django.http import StreamingHttpResponse, HttpResponse
 import logging
 from calendar import monthrange
 
@@ -913,6 +916,21 @@ def _get_gastos_filtrados(request):
     pago = request.query_params.get('pago')
     if pago is not None:
         queryset = queryset.filter(pago=pago.lower() in ('true', '1', 'yes', 'sim'))
+
+    # Suporte a filtro por mes/ano (usado pela tela de Extrato)
+    mes = request.query_params.get('mes')
+    ano = request.query_params.get('ano')
+    if mes and ano:
+        try:
+            from calendar import monthrange
+            mes_int = int(mes)
+            ano_int = int(ano)
+            ultimo_dia = monthrange(ano_int, mes_int)[1]
+            inicio = f"{ano_int}-{mes_int:02d}-01"
+            fim = f"{ano_int}-{mes_int:02d}-{ultimo_dia}"
+            queryset = queryset.filter(data_efetiva__range=(inicio, fim))
+        except (ValueError, IndexError):
+            pass
 
     return queryset.order_by('-data_efetiva', '-criado_em')
 

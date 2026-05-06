@@ -62,9 +62,8 @@
         </div>
 
         <div class="toolbar-actions">
-          <button class="btn-clear" @click="limparFiltros">
+          <button class="btn-clear" @click="limparFiltros" title="Limpar filtros">
             <i class="pi pi-filter-slash"></i>
-            Limpar
           </button>
 
           <div class="export-dropdown-wrapper" v-if="itens.length > 0">
@@ -72,9 +71,9 @@
               class="btn-export-toggle"
               @click="toggleExportDropdown"
               ref="exportBtn"
+              title="Exportar"
             >
               <i class="pi pi-download"></i>
-              <span>Exportar</span>
               <i class="pi pi-chevron-down" :class="{ rotated: showExportDropdown }"></i>
             </button>
             <div v-if="showExportDropdown" class="export-dropdown" ref="exportDropdown">
@@ -441,25 +440,24 @@ export default {
 }
 
 .btn-clear {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 7px 10px;
+  background: none;
+  border: none;
   color: #64748b;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
+  justify-content: center;
+  padding: 4px;
   height: 34px;
+  width: 34px;
   box-sizing: border-box;
+  line-height: 1;
+  transition: color 0.2s ease;
   flex-shrink: 0;
-  white-space: nowrap;
 }
 
 .btn-clear:hover {
-  border-color: rgba(239, 68, 68, 0.4);
   color: #ef4444;
 }
 
@@ -560,36 +558,30 @@ export default {
 }
 
 .btn-export-toggle {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 7px 10px;
+  background: none;
+  border: none;
   color: #64748b;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  transition: all 0.2s ease;
-  font-weight: 500;
+  padding: 4px;
   height: 34px;
+  width: 34px;
   box-sizing: border-box;
+  line-height: 1;
+  transition: color 0.2s ease;
   flex-shrink: 0;
-  white-space: nowrap;
 }
 
 .btn-export-toggle:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #94a3b8;
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.btn-export-toggle .pi-download {
-  font-size: 12px;
+  color: #3b82f6;
 }
 
 .btn-export-toggle .pi-chevron-down {
-  font-size: 9px;
+  font-size: 10px;
   transition: transform 0.2s ease;
 }
 

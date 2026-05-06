@@ -13,47 +13,52 @@
           <img :src="logo" class="logo" />
           <h1 class="brand">Sem Aperreio</h1>
         </div>
-        
-        <div class="header-right">
+
         <nav class="nav-menu">
-          <button 
+          <button
             :class="['nav-item', { active: activeTab === 'dashboard' }]"
             @click="activeTab = 'dashboard'"
           >
-            Dashboard
+            <i class="pi pi-home"></i>
+            <span>Dashboard</span>
           </button>
-          <button 
+          <button
             :class="['nav-item', { active: activeTab === 'extrato' }]"
             @click="activeTab = 'extrato'"
           >
-            Extrato
+            <i class="pi pi-list"></i>
+            <span>Extrato</span>
           </button>
-          <button 
+          <button
+            :class="['nav-item', { active: activeTab === 'gastos' }]"
+            @click="activeTab = 'gastos'"
+          >
+            <i class="pi pi-arrow-up-right"></i>
+            <span>Gastos</span>
+          </button>
+          <button
+            :class="['nav-item', { active: activeTab === 'receitas' }]"
+            @click="activeTab = 'receitas'"
+          >
+            <i class="pi pi-chart-line"></i>
+            <span>Receitas</span>
+          </button>
+          <button
             :class="['nav-item', { active: activeTab === 'metas' }]"
             @click="activeTab = 'metas'"
           >
             <i class="pi pi-bullseye"></i>
-            Metas
+            <span>Metas</span>
           </button>
-          <button 
-            :class="['nav-item', { active: activeTab === 'gastos' }]"
-            @click="activeTab = 'gastos'"
-          >
-            Gastos
-          </button>
-          <button 
+          <button
             :class="['nav-item', { active: activeTab === 'grupo' }]"
             @click="activeTab = 'grupo'"
           >
-            Grupo
-          </button>
-          <button 
-            :class="['nav-item', { active: activeTab === 'receitas' }]"
-            @click="activeTab = 'receitas'"
-          >
-            Receitas
+            <i class="pi pi-users"></i>
+            <span>Grupo</span>
           </button>
         </nav>
+
         <div class="header-actions">
           <div v-if="currentUser" class="user-menu-wrapper">
             <button class="user-name" @click="showUserMenu = !showUserMenu">
@@ -63,25 +68,32 @@
             </button>
             <div v-if="showUserMenu" class="user-dropdown">
               <div class="dropdown-header">
-                <span class="user-avatar">{{ (currentUser.first_name || currentUser.username || '?').charAt(0).toUpperCase() }}</span>
+                <span class="user-avatar dropdown-avatar">{{ (currentUser.first_name || currentUser.username || '?').charAt(0).toUpperCase() }}</span>
                 <div class="dropdown-info">
                   <span class="dropdown-name">{{ currentUser.first_name || currentUser.username }}</span>
                   <span class="dropdown-email">{{ currentUser.email || '' }}</span>
                 </div>
               </div>
-              <div class="dropdown-divider"></div>
               <div v-if="currentFamily" class="dropdown-group-info">
                 <span class="group-label">Grupo</span>
                 <span class="group-name">{{ currentFamily.name }}</span>
               </div>
-              <div v-if="currentFamily" class="dropdown-divider"></div>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" @click="showUserMenu = false">
+                <i class="pi pi-user"></i>
+                <span>Meu Perfil</span>
+              </button>
+              <button class="dropdown-item" @click="showUserMenu = false">
+                <i class="pi pi-cog"></i>
+                <span>Configurações</span>
+              </button>
+              <div class="dropdown-divider"></div>
               <button @click="handleLogout" class="dropdown-item danger">
                 <i class="pi pi-sign-out"></i>
                 <span>Sair</span>
               </button>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </header>
@@ -839,6 +851,18 @@ export default {
   margin-top: 10px;
   background: linear-gradient(90deg, #22c55e, #4ade80);
   border: none;
+  padding: 15px 30px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
 }
 
 /* TOTAL */
@@ -960,65 +984,78 @@ export default {
   position: sticky;
   top: 0;
   z-index: 100;
+  padding: 10px 24px;
 }
 
 .header-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
 }
 
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 10px;
 }
 
 .logo {
-  width: 56px;
-  height: 56px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
 }
 
 .brand {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: white;
   margin: 0;
   background: none;
   -webkit-background-clip: initial;
   -webkit-text-fill-color: initial;
+  letter-spacing: -0.3px;
 }
 
 /* NAV MENU */
 .nav-menu {
   display: flex;
   gap: 4px;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .nav-item {
-  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
   background: none;
   border: none;
-  color: #94a3b8;
-  border-radius: 6px;
+  color: #9ca3af;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
+.nav-item i {
+  font-size: 14px;
+}
+
 .nav-item:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .nav-item.active {
-  color: white;
-  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
 }
 
 /* GASTOS CONTAINER */
@@ -1193,25 +1230,21 @@ export default {
 .user-name {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 8px;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 24px;
+  transition: background 0.2s ease;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #d1d5db;
+  cursor: pointer;
+  color: inherit;
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .user-name:hover {
   background: rgba(255, 255, 255, 0.06);
-}
-
-.user-name i.rotated {
-  transform: rotate(180deg);
 }
 
 .user-name i {
@@ -1223,13 +1256,13 @@ export default {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #22c55e;
-  color: #ffffff;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
+  background: #22c55e;
+  color: #ffffff;
   flex-shrink: 0;
 }
 
@@ -1244,14 +1277,15 @@ export default {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: #1f2937;
-  border: 1px solid #374151;
+  min-width: 220px;
+  background: rgba(31, 41, 55, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  padding: 8px;
-  min-width: 240px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  padding: 6px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
   z-index: 1000;
   animation: dropdownIn 0.15s ease;
+  backdrop-filter: blur(20px);
 }
 
 @keyframes dropdownIn {
@@ -1268,8 +1302,9 @@ export default {
 .dropdown-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .dropdown-info {
@@ -1319,26 +1354,31 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
   padding: 8px 12px;
-  border-radius: 8px;
+  width: 100%;
   background: none;
   border: none;
-  color: #d1d5db;
+  color: #9ca3af;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.15s ease;
   text-align: left;
+  border-radius: 6px;
+  white-space: nowrap;
 }
 
 .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #f3f4f6;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e5e7eb;
+}
+
+.dropdown-item.danger {
+  color: #9ca3af;
 }
 
 .dropdown-item.danger:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.08);
   color: #ef4444;
 }
 
@@ -1531,7 +1571,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 6px 10px;
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #ef4444;
@@ -1555,7 +1595,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 6px 10px;
   background: transparent;
   border: 1px solid transparent;
   color: #9ca3af;
@@ -1626,8 +1666,13 @@ export default {
   }
 
   .nav-item {
-    padding: 6px 12px;
-    font-size: 13px;
+    padding: 6px 8px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .nav-item i {
+    font-size: 12px;
   }
 
   .logout-btn {
