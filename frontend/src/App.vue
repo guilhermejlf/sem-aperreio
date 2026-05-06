@@ -23,6 +23,13 @@
             Dashboard
           </button>
           <button 
+            :class="['nav-item', { active: activeTab === 'extrato' }]"
+            @click="activeTab = 'extrato'"
+          >
+            <i class="pi pi-list"></i>
+            Extrato
+          </button>
+          <button 
             :class="['nav-item', { active: activeTab === 'metas' }]"
             @click="activeTab = 'metas'"
           >
@@ -101,6 +108,11 @@
       <!-- DASHBOARD TAB -->
       <div v-if="activeTab === 'dashboard'" class="tab-content">
         <DashboardCharts />
+      </div>
+
+      <!-- EXTRATO TAB -->
+      <div v-if="activeTab === 'extrato'" class="tab-content">
+        <ExtratoView />
       </div>
 
       <!-- METAS TAB -->
@@ -310,6 +322,7 @@ import AuthView from './components/AuthView.vue'
 import FamilyView from './components/FamilyView.vue'
 import ReceitasView from './components/ReceitasView.vue'
 import BudgetView from './components/BudgetView.vue'
+import ExtratoView from './components/ExtratoView.vue'
 import BaseCard from './components/BaseCard.vue'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
@@ -333,6 +346,7 @@ export default {
     FamilyView,
     ReceitasView,
     BudgetView,
+    ExtratoView,
     BaseCard,
     Toast,
     ConfirmDialog

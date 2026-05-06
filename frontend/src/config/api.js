@@ -33,6 +33,20 @@ export const API_ENDPOINTS = {
   FAMILY_DELETE: `${API_BASE_URL}/api/family/delete/`,
   FAMILY_MEMBER: (id) => `${API_BASE_URL}/api/family/members/${id}/`,
 
+  // Extrato
+  EXTRATO: (params = {}) => {
+    const qs = new URLSearchParams(params).toString()
+    return `${API_BASE_URL}/api/extrato/${qs ? '?' + qs : ''}`
+  },
+  EXPORT_CSV: (params = {}) => {
+    const qs = new URLSearchParams(params).toString()
+    return `${API_BASE_URL}/api/export/csv/${qs ? '?' + qs : ''}`
+  },
+  EXPORT_XLSX: (params = {}) => {
+    const qs = new URLSearchParams(params).toString()
+    return `${API_BASE_URL}/api/export/xlsx/${qs ? '?' + qs : ''}`
+  },
+
   // Metas de Gasto
   METAS: (mes, ano) => `${API_BASE_URL}/api/metas/?mes=${mes}&ano=${ano}`,
   META_CREATE: `${API_BASE_URL}/api/metas/criar/`,
@@ -195,6 +209,36 @@ export async function deleteFamily() {
 }
 
 // Metas de Gasto
+export async function fetchExtrato(params = {}) {
+  return await apiRequest(API_ENDPOINTS.EXTRATO(params))
+}
+
+export async function downloadExport(format, params = {}) {
+  const token = getAccessToken()
+  const url = format === 'csv'
+    ? API_ENDPOINTS.EXPORT_CSV(params)
+    : API_ENDPOINTS.EXPORT_XLSX(params)
+
+  const response = await fetch(url, {
+    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+  })
+
+  if (!response.ok) {
+    throw new Error(`Erro ${response.status} ao exportar`)
+  }
+
+  const blob = await response.blob()
+  const filename = format === 'csv' ? 'extrato.csv' : 'extrato.xlsx'
+  const downloadUrl = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = downloadUrl
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  window.URL.revokeObjectURL(downloadUrl)
+}
+
 export async function fetchMetas(mes, ano) {
   return await apiRequest(API_ENDPOINTS.METAS(mes, ano))
 }

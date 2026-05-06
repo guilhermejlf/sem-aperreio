@@ -753,11 +753,126 @@ def receitas(request):
 
 
 # -------------------------
-# EXPORTAÇÃO CSV / XLSX
+# EXTRATO UNIFICADO (Gastos + Receitas)
 # -------------------------
-import csv
-import io
-from django.http import StreamingHttpResponse, HttpResponse
+@api_view(['GET'])
+def extrato(request):
+    """Retorna lista unificada de gastos e receitas do usuário/família, ordenada por data decrescente."""
+    try:
+        user_family = get_user_family(request.user)
+
+        # --- Gastos ---
+        if user_family:
+            gastos_qs = Gasto.objects.filter(
+                Q(family=user_family) | Q(user=request.user, family__isnull=True)
+            )
+        else:
+            gastos_qs = Gasto.objects.filter(user=request.user)
+
+        gastos_qs = gastos_qs.annotate(data_efetiva=Coalesce('data_competencia', 'data'))
+
+        # --- Receitas ---
+        if user_family:
+            receitas_qs = Receita.objects.filter(
+                Q(family=user_family) | Q(user=request.user, family__isnull=True)
+            )
+        else:
+            receitas_qs = Receita.objects.filter(user=request.user)
+
+        # --- Filtros comuns ---
+        mes = request.query_params.get('mes')
+        ano = request.query_params.get('ano')
+        if mes and ano:
+            try:
+                mes_int = int(mes)
+                ano_int = int(ano)
+                from calendar import monthrange
+                ultimo_dia = monthrange(ano_int, mes_int)[1]
+                inicio = f"{ano_int}-{mes_int:02d}-01"
+                fim = f"{ano_int}-{mes_int:02d}-{ultimo_dia}"
+                gastos_qs = gastos_qs.filter(data_efetiva__range=(inicio, fim))
+                receitas_qs = receitas_qs.filter(data__range=(inicio, fim))
+            except (ValueError, IndexError):
+                pass
+
+        categoria = request.query_params.get('categoria')
+        if categoria:
+            gastos_qs = gastos_qs.filter(categoria=categoria)
+
+        # --- Filtro por tipo ---
+        tipo = request.query_params.get('tipo')
+        if tipo == 'gastos':
+            receitas_qs = Receita.objects.none()
+        elif tipo == 'receitas':
+            gastos_qs = Gasto.objects.none()
+
+        # --- Filtro por status pago (apenas gastos) ---
+        pago = request.query_params.get('pago')
+        if pago is not None:
+            gastos_qs = gastos_qs.filter(pago=pago.lower() in ('true', '1', 'yes', 'sim'))
+
+        # --- Serializar ---
+        gastos_qs = gastos_qs.order_by('-data_efetiva', '-criado_em')
+        receitas_qs = receitas_qs.order_by('-data', '-criado_em')
+
+        gastos_serializer = GastoSerializer(gastos_qs, many=True)
+        receitas_serializer = ReceitaSerializer(receitas_qs, many=True)
+
+        # --- Unificar com campo tipo ---
+        itens = []
+        for g in gastos_serializer.data:
+            itens.append({
+                "tipo": "gasto",
+                "id": g["id"],
+                "categoria": g["categoria"],
+                "descricao": g["descricao"],
+                "valor": g["valor"],
+                "data": g.get("data_competencia") or g.get("data"),
+                "pago": g["pago"],
+                "data_pagamento": g.get("data_pagamento"),
+                "user_name": g.get("user_name"),
+                "is_group": g.get("is_group"),
+                "criado_em": g.get("criado_em"),
+            })
+        for r in receitas_serializer.data:
+            itens.append({
+                "tipo": "receita",
+                "id": r["id"],
+                "categoria": None,
+                "descricao": r["descricao"] or "Receita",
+                "valor": r["valor"],
+                "data": r.get("data_competencia") or r.get("data"),
+                "pago": True,
+                "data_pagamento": None,
+                "user_name": r.get("user_name"),
+                "is_group": r.get("is_group"),
+                "criado_em": r.get("criado_em"),
+            })
+
+        # Ordenar por data decrescente
+        itens.sort(key=lambda x: x["data"] or "", reverse=True)
+
+        # Resumo
+        total_gastos = sum(float(i["valor"]) for i in itens if i["tipo"] == "gasto")
+        total_receitas = sum(float(i["valor"]) for i in itens if i["tipo"] == "receita")
+
+        return Response({
+            "itens": itens,
+            "total": len(itens),
+            "resumo": {
+                "total_gastos": round(total_gastos, 2),
+                "total_receitas": round(total_receitas, 2),
+                "saldo": round(total_receitas - total_gastos, 2),
+            }
+        })
+
+    except Exception as e:
+        logger.error(f"Erro na API de extrato: {e}")
+        return Response(
+            {"erro": "Erro interno no servidor"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
 
 try:
     from openpyxl import Workbook
