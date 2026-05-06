@@ -46,6 +46,10 @@ export const API_ENDPOINTS = {
     const qs = new URLSearchParams(params).toString()
     return `${API_BASE_URL}/api/export/xlsx/${qs ? '?' + qs : ''}`
   },
+  EXPORT_PDF: (params = {}) => {
+    const qs = new URLSearchParams(params).toString()
+    return `${API_BASE_URL}/api/export/pdf/${qs ? '?' + qs : ''}`
+  },
 
   // Metas de Gasto
   METAS: (mes, ano) => `${API_BASE_URL}/api/metas/?mes=${mes}&ano=${ano}`,
@@ -215,9 +219,18 @@ export async function fetchExtrato(params = {}) {
 
 export async function downloadExport(format, params = {}) {
   const token = getAccessToken()
-  const url = format === 'csv'
-    ? API_ENDPOINTS.EXPORT_CSV(params)
-    : API_ENDPOINTS.EXPORT_XLSX(params)
+  let url
+  let filename
+  if (format === 'csv') {
+    url = API_ENDPOINTS.EXPORT_CSV(params)
+    filename = 'extrato.csv'
+  } else if (format === 'xlsx') {
+    url = API_ENDPOINTS.EXPORT_XLSX(params)
+    filename = 'extrato.xlsx'
+  } else {
+    url = API_ENDPOINTS.EXPORT_PDF(params)
+    filename = 'extrato.pdf'
+  }
 
   const response = await fetch(url, {
     headers: token ? { 'Authorization': `Bearer ${token}` } : {}
@@ -228,7 +241,6 @@ export async function downloadExport(format, params = {}) {
   }
 
   const blob = await response.blob()
-  const filename = format === 'csv' ? 'extrato.csv' : 'extrato.xlsx'
   const downloadUrl = window.URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = downloadUrl

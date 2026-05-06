@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import prever_gasto, gastos, gasto_detail, dashboard, receitas, receita_detail, exportar_csv, exportar_xlsx, listar_metas, criar_meta, atualizar_meta, deletar_meta, extrato
+from .views import prever_gasto, gastos, gasto_detail, dashboard, receitas, receita_detail, exportar_csv, exportar_xlsx, exportar_pdf, listar_metas, criar_meta, atualizar_meta, deletar_meta, extrato
 from .views_auth import RegisterView, LoginView, RefreshView, UserView
 from .views_family import FamilyViewSet
 from .views_notificacoes import healthcheck, notificacoes_status, trigger_tasks
@@ -16,6 +16,7 @@ urlpatterns = [
     path("prever/", prever_gasto, name="prever_gasto"),
     path("export/csv/", exportar_csv, name="exportar_csv"),
     path("export/xlsx/", exportar_xlsx, name="exportar_xlsx"),
+    path("export/pdf/", exportar_pdf, name="exportar_pdf"),
     path("gastos/", gastos, name="gastos_list"),
     path("gastos/<int:pk>/", gasto_detail, name="gasto_detail"),
     path("dashboard/", dashboard, name="dashboard"),

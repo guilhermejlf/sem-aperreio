@@ -1024,6 +1024,170 @@ def exportar_xlsx(request):
         )
 
 
+@api_view(['GET'])
+def exportar_pdf(request):
+    """Exporta extrato unificado (gastos + receitas) como PDF."""
+    try:
+        from datetime import datetime
+
+        user_family = get_user_family(request.user)
+
+        # --- Gastos ---
+        if user_family:
+            gastos_qs = Gasto.objects.filter(
+                Q(family=user_family) | Q(user=request.user, family__isnull=True)
+            )
+        else:
+            gastos_qs = Gasto.objects.filter(user=request.user)
+        gastos_qs = gastos_qs.annotate(data_efetiva=Coalesce('data_competencia', 'data'))
+
+        # --- Receitas ---
+        if user_family:
+            receitas_qs = Receita.objects.filter(
+                Q(family=user_family) | Q(user=request.user, family__isnull=True)
+            )
+        else:
+            receitas_qs = Receita.objects.filter(user=request.user)
+
+        # --- Filtros ---
+        mes = request.query_params.get('mes')
+        ano = request.query_params.get('ano')
+        if mes and ano:
+            try:
+                mes_int = int(mes)
+                ano_int = int(ano)
+                from calendar import monthrange
+                ultimo_dia = monthrange(ano_int, mes_int)[1]
+                inicio = f"{ano_int}-{mes_int:02d}-01"
+                fim = f"{ano_int}-{mes_int:02d}-{ultimo_dia}"
+                gastos_qs = gastos_qs.filter(data_efetiva__range=(inicio, fim))
+                receitas_qs = receitas_qs.filter(data__range=(inicio, fim))
+            except (ValueError, IndexError):
+                pass
+
+        categoria = request.query_params.get('categoria')
+        if categoria:
+            gastos_qs = gastos_qs.filter(categoria=categoria)
+
+        tipo = request.query_params.get('tipo')
+        if tipo == 'gastos':
+            receitas_qs = Receita.objects.none()
+        elif tipo == 'receitas':
+            gastos_qs = Gasto.objects.none()
+
+        pago = request.query_params.get('pago')
+        if pago is not None:
+            gastos_qs = gastos_qs.filter(pago=pago.lower() in ('true', '1', 'yes', 'sim'))
+
+        # --- Dados ---
+        itens = []
+        for g in gastos_qs.order_by('-data_efetiva'):
+            itens.append({
+                "tipo": "GASTO",
+                "data": (g.data_competencia or g.data).strftime('%d/%m/%Y') if (g.data_competencia or g.data) else "",
+                "categoria": g.get_categoria_display() or "",
+                "descricao": g.descricao or "",
+                "valor": float(g.valor),
+                "pago": "Sim" if g.pago else "Não",
+            })
+        for r in receitas_qs.order_by('-data'):
+            itens.append({
+                "tipo": "RECEITA",
+                "data": r.data.strftime('%d/%m/%Y') if r.data else "",
+                "categoria": "Receita",
+                "descricao": r.descricao or "",
+                "valor": float(r.valor),
+                "pago": "Sim",
+            })
+
+        itens.sort(key=lambda x: datetime.strptime(x["data"], '%d/%m/%Y') if x["data"] else datetime.min, reverse=True)
+
+        total_gastos = sum(i["valor"] for i in itens if i["tipo"] == "GASTO")
+        total_receitas = sum(i["valor"] for i in itens if i["tipo"] == "RECEITA")
+
+        # --- Gerar PDF ---
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+        elements = []
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            textColor=colors.HexColor('#1a1a2e'),
+            spaceAfter=20,
+            alignment=TA_CENTER,
+        )
+        subtitle_style = ParagraphStyle(
+            'CustomSubtitle',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=colors.grey,
+            alignment=TA_CENTER,
+            spaceAfter=20,
+        )
+
+        elements.append(Paragraph("Extrato Financeiro", title_style))
+        periodo_texto = f"Período: {mes:02d}/{ano}" if mes and ano else "Período: Todos os registros"
+        elements.append(Paragraph(periodo_texto, subtitle_style))
+        elements.append(Spacer(1, 0.5*cm))
+
+        # Tabela de dados
+        data = [['Tipo', 'Data', 'Categoria', 'Descrição', 'Valor', 'Pago']]
+        for item in itens:
+            data.append([
+                item['tipo'],
+                item['data'],
+                item['categoria'],
+                Paragraph(item['descricao'][:40], styles['Normal']),
+                f"R$ {item['valor']:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'),
+                item['pago'],
+            ])
+
+        # Resumo
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', 'TOTAL RECEITAS', f"R$ {total_receitas:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'), ''])
+        data.append(['', '', '', 'TOTAL GASTOS', f"R$ {total_gastos:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'), ''])
+        data.append(['', '', '', 'SALDO', f"R$ {(total_receitas - total_gastos):,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'), ''])
+
+        table = Table(data, colWidths=[2*cm, 2.2*cm, 3*cm, 5*cm, 2.5*cm, 1.8*cm], repeatRows=1)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a1a2e')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (3, 1), (3, -1), 'LEFT'),
+            ('ALIGN', (4, 1), (4, -1), 'RIGHT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -6), colors.HexColor('#f8f9fa')),
+            ('GRID', (0, 0), (-1, -6), 0.5, colors.grey),
+            ('FONTSIZE', (0, 1), (-1, -6), 9),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TEXTCOLOR', (0, -3), (3, -3), colors.HexColor('#28a745')),
+            ('TEXTCOLOR', (0, -2), (3, -2), colors.HexColor('#dc3545')),
+            ('FONTNAME', (0, -3), (-1, -1), 'Helvetica-Bold'),
+        ]))
+        elements.append(table)
+        elements.append(Spacer(1, 0.5*cm))
+        elements.append(Paragraph(f"Gerado em {datetime.now().strftime('%d/%m/%Y %H:%M')} por {request.user.username}", styles['Normal']))
+
+        doc.build(elements)
+        buffer.seek(0)
+
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="extrato.pdf"'
+        return response
+
+    except Exception as e:
+        logger.error(f"Erro na exportação PDF: {e}")
+        return Response(
+            {"erro": "Erro interno no servidor"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
 # -------------------------
 # METAS DE GASTO (Budget Goals)
 # -------------------------

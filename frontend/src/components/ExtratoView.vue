@@ -85,6 +85,10 @@
                 <i class="pi pi-file-excel"></i>
                 Exportar Excel
               </button>
+              <button class="export-option" @click="exportar('pdf'); showExportDropdown = false">
+                <i class="pi pi-file-pdf"></i>
+                Exportar PDF
+              </button>
             </div>
           </div>
         </div>
