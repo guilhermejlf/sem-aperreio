@@ -38,14 +38,19 @@ Regras:
 1. Identifique se e gasto ou receita.
 2. Extraia o valor numerico (convertendo textos como "5 mil" para 5000, "25 reais" para 25).
 3. Classifique a categoria (use o slug listado acima).
-4. Use a descricao mais curta e precisa possivel.
-5. Se a mensagem nao fizer sentido como gasto ou receita, retorne intent: "unknown".
+4. A descricao deve ser o LUGAR, ESTABELECIMENTO ou ITEM do gasto. Nunca use verbos como "gastei", "paguei", "comprei" como descricao.
+5. Se a descricao estiver apos uma preposicao (na, no, em, com, de), use a palavra apos a preposicao.
+6. Se a mensagem nao fizer sentido como gasto ou receita, retorne intent: "unknown".
 
-Exemplos:
-- "uber 25 reais" -> gasto, transporte, 25.00, "Uber"
-- "mercado 320" -> gasto, mercado, 320.00, "Mercado"
-- "recebi 5 mil hoje" -> receita, null, 5000.00, "Receita"
-- "paguei 150 no ifood" -> gasto, restaurantes, 150.00, "iFood"
+Exemplos de descricao:
+- "gastei 25 reais de uber" -> descricao: "Uber" (nao "gastei")
+- "paguei 150 no ifood" -> descricao: "iFood" (nao "paguei")
+- "gastei 400 reais na feira" -> descricao: "Feira" (nao "gastei")
+- "mercado 320" -> descricao: "Mercado"
+- "recebi 5 mil hoje" -> descricao: "Receita"
+- "dei 80 reais de gasolina" -> descricao: "Gasolina"
+- "comprei remedio na farmacia, 45 reais" -> descricao: "Remedio"
+- "paguei o aluguel, 1200 reais" -> descricao: "Aluguel"
 
 Responda SEMPRE em JSON com este formato:
 {
@@ -81,6 +86,53 @@ def _call_openai(message: str):
     except Exception as e:
         logger.error(f"Erro na chamada OpenAI: {e}")
         return None
+
+
+def _extract_description(message, msg_lower, categoria, categoria_map):
+    """Extrai a descricao do gasto usando heurísticas de linguagem natural."""
+    import re
+
+    # 1. Procurar palavras após preposições (na, no, em, com, de, do, da, para, pra)
+    prep_pattern = r'(?:na|no|em|com|de|do|da|para|pra|d[a-o]\s+)\s+([a-zA-Zà-úç]+(?:\s+[a-zA-Zà-úç]+)?)'
+    prep_match = re.search(prep_pattern, msg_lower)
+    if prep_match:
+        desc = prep_match.group(1).strip()
+        # Verificar se não é uma stop word
+        stop_words = {'reais', 'real', 'mil', 'vezes', 'dia', 'mês', 'ano', 'semana'}
+        if desc not in stop_words and len(desc) > 1:
+            # Capitalizar
+            return ' '.join(w.capitalize() for w in desc.split())
+
+    # 2. Usar a keyword que acionou a categoria como descrição
+    keywords = categoria_map.get(categoria, [])
+    for kw in keywords:
+        if kw in msg_lower:
+            # Pegar a palavra exatamente como aparece na mensagem original
+            idx = msg_lower.find(kw)
+            if idx >= 0:
+                # Extrair da mensagem original mantendo case
+                original = message[idx:idx + len(kw)]
+                return original.capitalize()
+
+    # 3. Ignorar verbos iniciais e pegar substantivo antes do número
+    verbos_iniciais = {'gastei', 'paguei', 'dei', 'comprei', 'fiz', 'tive',
+                        'gasto', 'pago', 'dou', 'compro', 'uso', 'peguei',
+                        'gastei', 'gastos', 'paguei', 'pago', 'gasto'}
+    words = message.strip().split()
+    for i, w in enumerate(words):
+        # Encontrar posição do número na mensagem
+        clean = w.replace('.', '').replace(',', '').replace('R$', '').replace('r$', '')
+        if clean.isdigit():
+            # Procurar para trás o primeiro substantivo não-verbo
+            for j in range(i - 1, -1, -1):
+                candidate = words[j].replace(',', '').replace('.', '').lower()
+                if candidate not in verbos_iniciais and len(candidate) > 1:
+                    # Capitalizar
+                    return ' '.join(wd.capitalize() for wd in words[j:i]).strip()
+            break
+
+    # 4. Fallback: categoria capitalizada
+    return categoria.capitalize()
 
 
 def _fallback_parser(message: str):
@@ -136,17 +188,8 @@ def _fallback_parser(message: str):
             categoria = cat
             break
 
-    # Descricao: primeira palavra antes do numero, ou categoria
-    words = message.strip().split()
-    descricao = categoria.capitalize()
-    for w in words:
-        if w.replace('.', '').replace(',', '').isdigit():
-            idx = words.index(w)
-            if idx > 0:
-                descricao = ' '.join(words[:idx]).strip()
-            break
-    # Limpar descricao
-    descricao = descricao.replace('R$', '').replace('r$', '').strip()
+    # Extrair descricao inteligente
+    descricao = _extract_description(message, msg_lower, categoria, categoria_map)
     descricao = descricao[:60] or (CATEGORIAS_LABELS.get(categoria, 'Gasto'))
 
     return {
