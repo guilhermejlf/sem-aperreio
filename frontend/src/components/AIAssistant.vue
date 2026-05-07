@@ -75,27 +75,27 @@
                   <button
                     class="ai-btn ai-btn--confirm"
                     :disabled="msg.processing"
+                    :title="msg.processing ? 'Salvando...' : 'Confirmar'"
                     @click="confirmAction(msg, index)"
                   >
                     <i class="pi pi-check"></i>
-                    {{ msg.processing ? 'Salvando...' : 'Confirmar' }}
                   </button>
                   <button
                     v-if="msg.confirmation.intent === 'add_expense'"
                     class="ai-btn ai-btn--edit"
                     :disabled="msg.processing"
+                    title="Editar"
                     @click="editAction(msg, index)"
                   >
                     <i class="pi pi-pencil"></i>
-                    Editar
                   </button>
                   <button
                     class="ai-btn ai-btn--cancel"
                     :disabled="msg.processing"
+                    title="Cancelar"
                     @click="cancelAction(index)"
                   >
                     <i class="pi pi-times"></i>
-                    Cancelar
                   </button>
                 </div>
               </div>
@@ -571,20 +571,20 @@ export default {
 
 .ai-confirm-actions {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .ai-btn {
-  flex: 1;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 0;
+  border-radius: 8px;
   border: none;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
 }
