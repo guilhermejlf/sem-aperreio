@@ -81,6 +81,15 @@
                     {{ msg.processing ? 'Salvando...' : 'Confirmar' }}
                   </button>
                   <button
+                    v-if="msg.confirmation.intent === 'add_expense'"
+                    class="ai-btn ai-btn--edit"
+                    :disabled="msg.processing"
+                    @click="editAction(msg, index)"
+                  >
+                    <i class="pi pi-pencil"></i>
+                    Editar
+                  </button>
+                  <button
                     class="ai-btn ai-btn--cancel"
                     :disabled="msg.processing"
                     @click="cancelAction(index)"
@@ -276,6 +285,29 @@ export default {
         }
       } finally {
         this.scrollToBottom()
+      }
+    },
+
+    editAction(msg, index) {
+      const confirmation = msg.confirmation
+      if (!confirmation || !confirmation.data) return
+
+      // Emitir evento para App.vue abrir o modal de gasto preenchido
+      this.$emit('edit-expense', {
+        valor: confirmation.data.valor,
+        categoria: confirmation.data.categoria,
+        descricao: confirmation.data.descricao,
+        data: confirmation.data.data
+      })
+
+      // Fechar o drawer para o usuário ver o modal
+      this.close()
+
+      // Atualizar a mensagem no chat
+      this.messages[index] = {
+        role: 'ai',
+        text: 'Abri o formulário para você revisar e ajustar antes de salvar.',
+        confirmation: null
       }
     },
 
@@ -570,6 +602,17 @@ export default {
 .ai-btn--confirm:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.ai-btn--edit {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.ai-btn--edit:hover:not(:disabled) {
+  background: rgba(234, 179, 8, 0.25);
+  transform: translateY(-1px);
 }
 
 .ai-btn--cancel {

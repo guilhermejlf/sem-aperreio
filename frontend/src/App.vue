@@ -320,7 +320,7 @@
 
     <Toast position="top-right" />
     <ConfirmDialog />
-    <AIAssistant @saved="handleAIAssistantSaved" />
+    <AIAssistant @saved="handleAIAssistantSaved" @edit-expense="handleEditExpense" />
   </template>
 </div>
 </template>
@@ -779,6 +779,20 @@ export default {
 
     handleAIAssistantSaved() {
       this.carregarGastos()
+    },
+
+    handleEditExpense(data) {
+      this.novo = {
+        valor: parseFloat(data.valor),
+        categoria: data.categoria || '',
+        descricao: data.descricao || '',
+        data: new Date().toISOString().split('T')[0],
+        data_competencia: data.data || new Date().toISOString().split('T')[0],
+        data_pagamento: '',
+        pago: false
+      }
+      this.editingGasto = null
+      this.showAddModal = true
     },
 
     handleLogout() {

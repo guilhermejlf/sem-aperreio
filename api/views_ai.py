@@ -176,7 +176,8 @@ def _build_confirmation_response(parsed: dict, message: str):
 
     if intent == 'add_expense':
         cat_label = CATEGORIAS_LABELS.get(categoria, categoria) if categoria else 'Outros'
-        msg = f'Adicionar gasto de {valor_fmt} em {cat_label}?'
+        desc_extra = f' ({descricao})' if descricao and descricao.lower() != cat_label.lower() else ''
+        msg = f'Entendi! Você gastou {valor_fmt} em {cat_label}{desc_extra}.'
         return {
             'intent': 'add_expense',
             'confirmation_required': True,
@@ -190,7 +191,8 @@ def _build_confirmation_response(parsed: dict, message: str):
         }
 
     if intent == 'add_income':
-        msg = f'Adicionar receita de {valor_fmt}?'
+        desc_extra = f' ({descricao})' if descricao else ''
+        msg = f'Entendi! Você recebeu {valor_fmt}{desc_extra}.'
         return {
             'intent': 'add_income',
             'confirmation_required': True,
