@@ -154,6 +154,36 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 ---
 
+### Phase 7.2 — IA-03 Continuidade Conversacional ✅ SHIPPED 2026-05-07
+
+**Goal:** Conversas contínuas e naturais, múltiplos lançamentos em sequência, saudações e fim de conversa amigável.
+
+**Depends on:** Phase 7.1 (IA-02)
+
+**Requirements:** IA-03
+
+**Deliverables:**
+- [x] Backend: `conversation_history` para contexto de sessão
+- [x] Backend: `_is_continuation` detecta "e", "também", "sim", "mais", "outro"
+- [x] Backend: `_is_greeting` detecta saudações ("oi", "bom dia", "opa")
+- [x] Backend: `_is_conversation_end` detecta recusas, gratidão, despedida
+- [x] Backend: fallback_parser usa histórico para continuações
+- [x] Backend: respostas com tom natural ("Perfeito!" em vez de "Entendi!")
+- [x] Frontend: envia `conversation_history` a cada requisição
+- [x] Frontend: chips de sugestões rápidas após salvar (+ Mercado, + Transporte, etc.)
+- [x] Frontend: chip "Nenhum" para encerrar conversa naturalmente
+- [x] Frontend: typing indicator com animação de dots
+- [x] Frontend: foco preservado no input após envio
+- [x] Frontend: botão Editar aparece em gastos e receitas
+
+**Verification:**
+- [x] "uber 25" → confirmar → "e mercado 120" → confirmação contínua
+- [x] "bom dia" → IA: "Oi! Como posso ajudar?"
+- [x] "obrigado" / "não" → IA: 👋
+- [x] Foco mantido no input durante toda a conversa
+
+---
+
 ## Milestone Summary
 
 | Milestone | Phases | Status |
@@ -163,4 +193,4 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 | v3.0 | 7 | ✅ Shipped (2026-05-07) |
 
 ---
-*Last updated: 2026-05-07 after Phase 7 deploy*
+*Last updated: 2026-05-07 after Phase 7.2 IA-03 deploy*

@@ -222,6 +222,69 @@ def _check_completeness(parsed: dict, original_message: str):
     return parsed
 
 
+def _is_continuation(message: str):
+    """Detecta se mensagem é continuação de assunto ('e mercado 120', 'também', 'sim')."""
+    msg_lower = message.lower().strip()
+    continuation_markers = ['e ', 'tambem', 'também', 'tbm ', 'tb ', 'mais ', 'outro ', 'outra ', 'sim', 'confirmo', 'pode ', 'beleza', 'ok', 'blz']
+    return any(msg_lower.startswith(m) or msg_lower == m.strip() for m in continuation_markers)
+
+
+def _is_greeting(message: str):
+    """Detecta saudações e cumprimentos."""
+    msg_lower = message.lower().strip()
+    greetings = ['oi', 'olá', 'ola', 'opa', 'e aí', 'e ai', 'eae', 'hey',
+                 'hello', 'hi', 'bom dia', 'boa tarde', 'boa noite',
+                 'beleza', 'tudo bem', 'tudo bem?', 'como vai', 'eai',
+                 'salve', 'fala', 'fala ai', 'fala aí', 'tchau', 'xau',
+                 'até mais', 'ate mais', 'falou', 'flw', 'valeu', 'obrigado',
+                 'obrigada', 'blz', 'tranquilo', 'suave', 'de boa', 'deboa',
+                 'show', 'massa', 'top', 'legal', 'nice', 'perfeito',
+                 'maravilha', 'excelente', 'ótimo', 'otimo', 'bom', 'bom demais']
+    return msg_lower in greetings or any(msg_lower.startswith(g + ' ') for g in greetings if len(g) > 3)
+
+
+def _is_conversation_end(message: str):
+    """Detecta se mensagem encerra a conversa (não, obrigado, tchau, valeu)."""
+    msg_lower = message.lower().strip()
+    # Recusas
+    negative = ['não', 'nao', 'nope', 'n', 'cancela', 'cancelar', 'sair',
+                'fechar', 'nada', 'passo', 'esquece', 'deixa', 'n quero',
+                'nao quero', 'não quero', 'já deu', 'chega', 'pare',
+                'n preciso', 'nao preciso', 'não preciso',
+                'nenhum', 'nenhum gasto', 'nenhuma']
+    # Gratidão
+    thanks = ['obrigado', 'obrigada', 'valeu', 'thanks', 'thank you',
+              'grato', 'grata', 'agradeço', 'agradeco', 'flw', 'falou',
+              'show', 'massa', 'top', 'legal']
+    # Despedida
+    goodbye = ['tchau', 'xau', 'até', 'ate', 'bye', 'cya', 'até logo',
+               'ate logo', 'até mais', 'ate mais', 'fui', 'té']
+    all_markers = negative + thanks + goodbye
+    return msg_lower in all_markers or any(msg_lower.startswith(m + ' ') for m in all_markers)
+
+
+def _detect_continuation_intent(message: str, history: list):
+    """Infere o intent da mensagem de continuação baseado no histórico."""
+    if not history:
+        return None
+
+    # Pegar últimas mensagens do usuário do histórico
+    last_user_msgs = [h for h in history if h.get('role') == 'user']
+    if not last_user_msgs:
+        return None
+
+    # Pegar última mensagem do usuário que tinha conteúdo
+    last_user_msg = last_user_msgs[-1].get('content', '')
+    last_lower = last_user_msg.lower()
+
+    # Se a última mensagem tinha receita, provavelmente continua receita
+    receita_keywords = ['recebi', 'receita', 'ganhei', 'salario', 'entrada']
+    if any(k in last_lower for k in receita_keywords):
+        return 'add_income'
+
+    return 'add_expense'
+
+
 def _process_contextual(message: str, context: dict):
     """Processa resposta do usuario quando ha contexto pendente."""
     awaiting_field = context.get('awaiting_field')
@@ -258,15 +321,31 @@ def _process_contextual(message: str, context: dict):
     return result
 
 
-def _fallback_parser(message: str):
-    """Parser simples de fallback quando OpenAI falha ou nao esta configurada."""
+def _fallback_parser(message: str, conversation_history: list = None):
+    """Parser simples de fallback quando OpenAI falha ou nao esta configurada.
+    Detecta continuidade de assunto baseado no conversation_history.
+    """
     import re
     msg_lower = message.lower().strip()
 
     # Detectar tipo
     palavras_receita = ['recebi', 'receita', 'ganhei', 'salario', 'pagaram', 'entrada']
     is_receita = any(p in msg_lower for p in palavras_receita)
-    intent = 'add_income' if is_receita else 'add_expense'
+
+    # Se mensagem é continuação e temos histórico, manter o intent do histórico
+    if _is_continuation(message) and conversation_history:
+        inferred_intent = _detect_continuation_intent(message, conversation_history)
+        if inferred_intent:
+            intent = inferred_intent
+            # Remover marcadores de continuidade do início da mensagem
+            for marker in ['e ', 'tambem ', 'também ', 'tbm ', 'tb ', 'mais ', 'outro ', 'outra ', 'sim', 'confirmo', 'pode ', 'beleza', 'ok', 'blz']:
+                if msg_lower.startswith(marker):
+                    msg_lower = msg_lower[len(marker):].strip()
+                    break
+        else:
+            intent = 'add_income' if is_receita else 'add_expense'
+    else:
+        intent = 'add_income' if is_receita else 'add_expense'
 
     # Extrair valor numerico
     # Procura padroes como 5 mil, 5000, 1.200,50, 25 reais, R$ 50
@@ -327,7 +406,7 @@ def _build_confirmation_response(parsed: dict, message: str):
     if intent == 'add_expense':
         cat_label = CATEGORIAS_LABELS.get(categoria, categoria) if categoria else 'Outros'
         desc_extra = f' ({descricao})' if descricao and descricao.lower() != cat_label.lower() else ''
-        msg = f'Entendi! Você gastou {valor_fmt} em {cat_label}{desc_extra}.'
+        msg = f'Perfeito! Adicionar gasto de {valor_fmt} em {cat_label}{desc_extra}?'
         return {
             'intent': 'add_expense',
             'confirmation_required': True,
@@ -342,7 +421,7 @@ def _build_confirmation_response(parsed: dict, message: str):
 
     if intent == 'add_income':
         desc_extra = f' ({descricao})' if descricao else ''
-        msg = f'Entendi! Você recebeu {valor_fmt}{desc_extra}.'
+        msg = f'Perfeito! Adicionar receita de {valor_fmt}{desc_extra}?'
         return {
             'intent': 'add_income',
             'confirmation_required': True,
@@ -367,19 +446,42 @@ def _build_confirmation_response(parsed: dict, message: str):
 def ai_chat(request):
     """
     POST /api/ai/chat/
-    Body: {"message": "uber 25 reais", "context": {"awaiting_field": null, "partial_data": {}}}
+    Body: {"message": "uber 25 reais", "context": {...}, "conversation_history": []}
     Responde com interpretacao + pedido de confirmacao OU pergunta complementar.
     NAO salva nada no banco.
     """
     try:
         message = request.data.get('message', '').strip()
         context = request.data.get('context', {})
+        conversation_history = request.data.get('conversation_history', [])
 
         if not message:
             return Response(
                 {'erro': 'Mensagem vazia'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        # Detectar saudações
+        if _is_greeting(message):
+            return Response({
+                'intent': 'unknown',
+                'confirmation_required': False,
+                'awaiting_field': None,
+                'partial_data': {},
+                'message': 'Oi! Como posso ajudar? Me diga um gasto ou receita que eu registro pra voc\u00ea \U0001f44b',
+                'data': None
+            })
+
+        # Detectar fim de conversa (não, obrigado, tchau, valeu)
+        if _is_conversation_end(message):
+            return Response({
+                'intent': 'unknown',
+                'confirmation_required': False,
+                'awaiting_field': None,
+                'partial_data': {},
+                'message': '\U0001f44b',
+                'data': None
+            })
 
         # Se ha contexto pendente, processar resposta complementar
         if context.get('awaiting_field') or context.get('partial_data'):
@@ -390,7 +492,7 @@ def ai_chat(request):
                     'confirmation_required': False,
                     'awaiting_field': context.get('awaiting_field'),
                     'partial_data': context.get('partial_data'),
-                    'message': 'Nao consegui entender. Pode repetir?',
+                    'message': 'Não entendi direito. Pode repetir?',
                     'data': None
                 })
         else:
@@ -399,7 +501,7 @@ def ai_chat(request):
 
             # Fallback se OpenAI falhar ou nao estiver configurada
             if not parsed:
-                parsed = _fallback_parser(message)
+                parsed = _fallback_parser(message, conversation_history)
 
             # Fallback para mensagens sem valor (ex: "paguei internet")
             if not parsed:
@@ -410,7 +512,11 @@ def ai_chat(request):
 
                 # Se pelo menos temos descricao ou categoria
                 if desc and desc.lower() not in ('gastei', 'paguei', 'comprei', 'dei'):
-                    intent = 'add_income' if any(p in msg_lower for p in ['recebi', 'receita', 'ganhei', 'salario', 'pagaram', 'entrada']) else 'add_expense'
+                    # Se é continuação, manter intent do histórico
+                    if _is_continuation(message) and conversation_history:
+                        intent = _detect_continuation_intent(message, conversation_history) or 'add_expense'
+                    else:
+                        intent = 'add_income' if any(p in msg_lower for p in ['recebi', 'receita', 'ganhei', 'salario', 'pagaram', 'entrada']) else 'add_expense'
                     parsed = {
                         'intent': intent,
                         'valor': None,
@@ -422,7 +528,7 @@ def ai_chat(request):
                         {
                             'intent': 'unknown',
                             'confirmation_required': False,
-                            'message': 'Nao consegui entender. Tente algo como "mercado 150" ou "recebi 3000".',
+                            'message': 'Hmm, não consegui entender. Que tal "mercado 150" ou "recebi 3000"?',
                             'data': None
                         }
                     )
@@ -435,7 +541,7 @@ def ai_chat(request):
         # Verificar completude: falta valor?
         valor = parsed.get('valor')
         if not valor or valor <= 0:
-            # Ainda falta valor - perguntar
+            # Ainda falta valor - perguntar de forma natural
             descricao = parsed.get('descricao', '')
             categoria = parsed.get('categoria', 'outros')
             cat_label = CATEGORIAS_LABELS.get(categoria, categoria)
@@ -446,7 +552,10 @@ def ai_chat(request):
             if intent == 'add_income':
                 question = f'Qual foi o valor recebido?'
             else:
-                question = f'Quanto você gastou com {item}?' if item != 'Outros' else 'Qual foi o valor?'
+                if item != 'Outros':
+                    question = f'Quanto você gastou com {item}?'
+                else:
+                    question = 'Qual foi o valor?'
 
             return Response({
                 'intent': intent,

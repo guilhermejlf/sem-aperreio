@@ -61,6 +61,18 @@
             <div class="ai-bubble">
               <p v-if="msg.text">{{ msg.text }}</p>
 
+              <!-- Suggestion chips -->
+              <div v-if="msg.suggestions && msg.suggestions.length" class="ai-suggestions-inline">
+                <button
+                  v-for="s in msg.suggestions"
+                  :key="s"
+                  class="ai-suggestion-chip"
+                  @click="send(s)"
+                >
+                  {{ s }}
+                </button>
+              </div>
+
               <!-- Confirmation card -->
               <div v-if="msg.confirmation" class="ai-confirm-card">
                 <div class="ai-confirm-data">
@@ -91,7 +103,6 @@
                     <i class="pi pi-times"></i>
                   </button>
                   <button
-                    v-if="msg.confirmation.intent === 'add_expense'"
                     class="ai-btn ai-btn--edit"
                     :disabled="msg.processing"
                     title="Editar"
@@ -115,10 +126,9 @@
           <!-- Typing indicator -->
           <div v-if="loading" class="ai-message ai-message--ai">
             <div class="ai-bubble ai-bubble--typing">
-              <span class="ai-typing-text">Analisando</span>
-              <span class="ai-dot"></span>
-              <span class="ai-dot"></span>
-              <span class="ai-dot"></span>
+              <span class="ai-typing-dot"></span>
+              <span class="ai-typing-dot"></span>
+              <span class="ai-typing-dot"></span>
             </div>
           </div>
         </div>
@@ -132,7 +142,7 @@
               type="text"
               placeholder="Digite uma mensagem..."
               class="ai-input"
-              @keydown.enter="send"
+              @keydown.enter.prevent="send"
               :disabled="loading"
             />
             <button
@@ -180,6 +190,7 @@ export default {
         awaiting_field: null,
         partial_data: {}
       },
+      conversationHistory: [],
       quickSuggestions: [
         'uber 25',
         'mercado 320',
@@ -236,9 +247,19 @@ export default {
       this.scrollToBottom()
 
       try {
+        // Build conversation history from messages (last 10, excluding current)
+        const history = this.messages
+          .filter(m => m.role === 'user' || m.role === 'ai')
+          .slice(-10)
+          .map(m => ({
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.text || ''
+          }))
+
         const payload = {
           message: text,
-          context: this.sessionContext
+          context: this.sessionContext,
+          conversation_history: history
         }
 
         const response = await apiRequest(API_ENDPOINTS.AI_CHAT, {
@@ -281,6 +302,10 @@ export default {
       } finally {
         this.loading = false
         this.scrollToBottom()
+        // Restaurar foco no input após resposta
+        this.$nextTick(() => {
+          this.$refs.inputRef?.focus()
+        })
       }
     },
 
@@ -329,6 +354,14 @@ export default {
           partial_data: {}
         }
 
+        // Adicionar sugestões rápidas para próximo lançamento
+        this.messages.push({
+          role: 'ai',
+          text: 'Mais algum gasto para registrar?',
+          confirmation: null,
+          suggestions: ['+ Mercado', '+ Transporte', '+ Restaurante', '+ Receita', 'Nenhum']
+        })
+
         this.$emit('saved')
       } catch (error) {
         this.messages[index] = {
@@ -339,6 +372,10 @@ export default {
         }
       } finally {
         this.scrollToBottom()
+        // Restaurar foco no input para continuar conversa
+        this.$nextTick(() => {
+          this.$refs.inputRef?.focus()
+        })
       }
     },
 
@@ -566,33 +603,30 @@ export default {
   border-bottom-left-radius: 4px;
 }
 
-/* Typing */
+/* Typing indicator */
 .ai-bubble--typing {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
   padding: 12px 16px;
+  min-width: 60px;
 }
 
-.ai-typing-text {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-right: 4px;
-}
-
-.ai-dot {
-  width: 5px;
-  height: 5px;
+.ai-typing-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #94a3b8;
-  animation: ai-bounce 1.4s infinite ease-in-out both;
+  background: #a78bfa;
+  animation: ai-typing-bounce 1.4s infinite ease-in-out both;
 }
 
-.ai-dot:nth-child(2) { animation-delay: -0.32s; }
-.ai-dot:nth-child(3) { animation-delay: -0.16s; }
+.ai-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.ai-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.ai-typing-dot:nth-child(3) { animation-delay: 0s; }
 
-@keyframes ai-bounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+@keyframes ai-typing-bounce {
+  0%, 80%, 100% { transform: scale(0.5); opacity: 0.3; }
   40% { transform: scale(1); opacity: 1; }
 }
 
