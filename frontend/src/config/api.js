@@ -51,6 +51,9 @@ export const API_ENDPOINTS = {
     return `${API_BASE_URL}/api/export/pdf/${qs ? '?' + qs : ''}`
   },
 
+  // AI Assistant
+  AI_CHAT: `${API_BASE_URL}/api/ai/chat/`,
+
   // Metas de Gasto
   METAS: (mes, ano) => `${API_BASE_URL}/api/metas/?mes=${mes}&ano=${ano}`,
   META_CREATE: `${API_BASE_URL}/api/metas/criar/`,

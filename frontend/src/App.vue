@@ -320,8 +320,9 @@
 
     <Toast position="top-right" />
     <ConfirmDialog />
+    <AIAssistant @saved="handleAIAssistantSaved" />
   </template>
-  </div>
+</div>
 </template>
 
 <script>
@@ -335,6 +336,7 @@ import ReceitasView from './components/ReceitasView.vue'
 import BudgetView from './components/BudgetView.vue'
 import ExtratoView from './components/ExtratoView.vue'
 import BaseCard from './components/BaseCard.vue'
+import AIAssistant from './components/AIAssistant.vue'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
 import logo from './assets/logo.png'
@@ -359,6 +361,7 @@ export default {
     BudgetView,
     ExtratoView,
     BaseCard,
+    AIAssistant,
     Toast,
     ConfirmDialog
   },
@@ -772,6 +775,10 @@ export default {
       } else if (action === 'code-regenerated' || action === 'member-removed') {
         this.fetchFamily()
       }
+    },
+
+    handleAIAssistantSaved() {
+      this.carregarGastos()
     },
 
     handleLogout() {

@@ -95,27 +95,33 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 ---
 
-### Phase 7 — Mobile Responsiveness & Recorrência Automática 🚧 PLANNED
+### Phase 7 — IA-01 Assistente Financeiro Conversacional 🚧 IN PROGRESS
 
-**Goal:** Tornar o app totalmente responsivo para mobile e adicionar suporte a gastos/receitas recorrentes.
+**Goal:** Criar um assistente financeiro conversacional simples que interpreta linguagem natural para registrar gastos e receitas com confirmação do usuário.
 
 **Depends on:** v2.0 (all phases)
 
-**Requirements:** MOBI-01, MOBI-02, REC-01, REC-02
+**Requirements:** IA-01, IA-02, IA-03
 
 **Deliverables:**
-- [ ] Layout mobile-first: navbar hamburguer, cards empilhados, tabelas scrolláveis
-- [ ] Breakpoints: sm (640px), md (768px), lg (1024px)
-- [ ] Modelo `GastoRecorrente` (frequência: diário, semanal, quinzenal, mensal, anual)
-- [ ] Backend: geração automática de instâncias ao criar/editar recorrência
-- [ ] Frontend: flag "Recorrente" no modal de gastos/receitas
-- [ ] Dashboard adaptativo para telas pequenas
-- [ ] Touch-friendly: botões maiores, inputs otimizados para mobile
+- [x] Backend: endpoint `POST /api/ai/chat/` com parser estruturado (OpenAI GPT-4o-mini + fallback)
+- [x] Backend: interpreta tipo (gasto/receita), valor, categoria, descrição
+- [x] Backend: resposta padronizada com `intent`, `confirmation_required`, `message`, `data`
+- [x] Backend: NÃO salva automaticamente — apenas interpreta e sugere
+- [x] Frontend: componente `AIAssistant.vue` (drawer lateral/chat)
+- [x] Frontend: FAB flutuante no canto inferior direito
+- [x] Frontend: bolhas de mensagem, card de confirmação com dados estruturados
+- [x] Frontend: botões Confirmar/Cancelar no card de confirmação
+- [x] Frontend: persistência via endpoints existentes (`/api/gastos/`, `/api/receitas/`)
+- [x] Frontend: integração com App.vue + recarregamento de dados após save
+- [x] UX: tema dark, animações suaves, mobile-responsive drawer
 
 **Verification:**
-- [ ] App usável em iPhone SE (375px)
-- [ ] Gasto recorrente mensal gera instância automaticamente
-- [ ] Dashboard legível sem scroll horizontal
+- [ ] Usuário digita "uber 25 reais" → IA sugere gasto de R$ 25,00 em Transporte
+- [ ] Usuário digita "recebi 5 mil hoje" → IA sugere receita de R$ 5.000,00
+- [ ] Confirmação do usuário persiste no banco via API existente
+- [ ] Cancelamento descarta a sugestão sem salvar
+- [ ] Fallback funciona sem OPENAI_API_KEY configurada
 
 ---
 
@@ -125,7 +131,7 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 |-----------|--------|--------|
 | v1.0 | 1–4 | ✅ Shipped (2026-04-30) |
 | v2.0 | 5–6 | ✅ Shipped (2026-05-05) |
-| v3.0 | 7 | 🚧 Planned |
+| v3.0 | 7 | 🚧 In Progress |
 
 ---
 *Last updated: 2026-05-06 after Phase 7 planning*

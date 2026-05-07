@@ -4,6 +4,7 @@ from .views import prever_gasto, gastos, gasto_detail, dashboard, receitas, rece
 from .views_auth import RegisterView, LoginView, RefreshView, UserView
 from .views_family import FamilyViewSet
 from .views_notificacoes import healthcheck, notificacoes_status, trigger_tasks
+from .views_ai import ai_chat
 
 router = DefaultRouter()
 router.register('family', FamilyViewSet, basename='family')
@@ -30,5 +31,6 @@ urlpatterns = [
     path("health/", healthcheck, name="healthcheck"),
     path("notificacoes/status/", notificacoes_status, name="notificacoes_status"),
     path("tasks/trigger/", trigger_tasks, name="trigger_tasks"),
+    path("ai/chat/", ai_chat, name="ai_chat"),
     path("", include(router.urls)),
 ]

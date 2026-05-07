@@ -2,11 +2,11 @@
 
 ## Current Milestone
 
-**Milestone:** v2.0 Production — Phase 5 complete
-**Phase:** 6 — Notificações e Deploy
-**Plan:** —
-**Status:** Phase 5 shipped, Phase 6 planning
-**Last activity:** 2026-05-04 — Phase 5 completed (budget goals + alerts + UI polish)
+**Milestone:** v3.0 AI — Phase 7 IA-01
+**Phase:** 7 — Assistente Financeiro Conversacional
+**Plan:** `.planning/phases/07-ia-01/07-01-PLAN.md`
+**Status:** Implementado (backend + frontend)
+**Last activity:** 2026-05-07 — IA-01 implementado (OpenAI parser + fallback + drawer chat + FAB)
 
 ## Project Reference
 
@@ -21,11 +21,12 @@ See: `.planning/MILESTONES.md` (v1.0 retrospective)
 
 ## What's Next
 
-Milestone v2.0 — Planejamento em andamento:
+Milestone v3.0 — IA:
 
-1. ✅ `/gsd-new-milestone "v2.0 Production"` — iniciado
+1. ✅ `/gsd-new-milestone "v3.0 AI"` — iniciado
 2. ✅ Phase 5 — Orçamento e Metas (BUDG-01/02/03) — SHIPPED 2026-05-04
-3. ⏳ Phase 6 — Notificações e Deploy (NOTF-01/02, INFR-01/02/03)
+3. ✅ Phase 6 — Notificações e Deploy (NOTF-01/02, INFR-01/02/03) — SHIPPED 2026-05-05
+4. ⏳ Phase 7 — IA-01 Assistente Financeiro Conversacional — implementado, aguardando testes
 
 ## Recent Commits
 
@@ -46,6 +47,10 @@ Milestone v2.0 — Planejamento em andamento:
 - [x] Phase 6 discuss-phase: decisões capturadas em `06-CONTEXT.md`
 - [x] Phase 6 plan-phase: `06-01-PLAN.md` (backend notificações) e `06-02-PLAN.md` (infraestrutura/deploy) criados
 - [x] Phase 6 execute-phase: implementar notificações + PostgreSQL + CI/CD + deploy ✅
+- [x] Phase 7 discuss-phase: decisões capturadas em `07-CONTEXT.md`
+- [x] Phase 7 plan-phase: `07-01-PLAN.md` criado
+- [x] Phase 7 execute-phase: implementar IA parser + drawer chat + FAB ✅
+- [ ] Phase 7 review: testes manuais end-to-end
 
 ## Accumulated Context
 
