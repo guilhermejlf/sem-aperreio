@@ -42,6 +42,10 @@ Regras:
 5. Se a descricao estiver apos uma preposicao (na, no, em, com, de), use a palavra apos a preposicao.
 6. Se a mensagem nao fizer sentido como gasto ou receita, retorne intent: "unknown".
 
+Se o usuario enviar apenas um numero (ex: "140", "25 reais", "5 mil"), ele provavelmente esta respondendo uma pergunta anterior sobre valor. Extraia o numero e retorne com os outros campos como null.
+
+Se o usuario enviar apenas uma palavra (ex: "internet", "uber", "mercado"), extraia como descricao e tente inferir a categoria.
+
 Exemplos de descricao:
 - "gastei 25 reais de uber" -> descricao: "Uber" (nao "gastei")
 - "paguei 150 no ifood" -> descricao: "iFood" (nao "paguei")
@@ -51,13 +55,15 @@ Exemplos de descricao:
 - "dei 80 reais de gasolina" -> descricao: "Gasolina"
 - "comprei remedio na farmacia, 45 reais" -> descricao: "Remedio"
 - "paguei o aluguel, 1200 reais" -> descricao: "Aluguel"
+- "140" -> valor: 140, descricao: null, categoria: null
+- "internet" -> valor: null, descricao: "Internet", categoria: "contas"
 
 Responda SEMPRE em JSON com este formato:
 {
   "intent": "add_expense" | "add_income" | "unknown",
-  "valor": 0.0,
+  "valor": 0.0 | null,
   "categoria": "slug_da_categoria" | null,
-  "descricao": "string"
+  "descricao": "string" | null
 }
 """
 
@@ -135,6 +141,123 @@ def _extract_description(message, msg_lower, categoria, categoria_map):
     return categoria.capitalize()
 
 
+# Categoria map global para reutilização
+CATEGORIA_MAP = {
+    'moradia': ['aluguel', 'condominio', 'iptu', 'moradia'],
+    'mercado': ['mercado', 'supermercado', 'feira', 'açougue'],
+    'restaurantes': ['restaurante', 'ifood', 'uber eats', 'mcdonalds', 'burger', 'pizza', 'lanche'],
+    'transporte': ['uber', '99', 'taxi', 'onibus', 'metro', 'combustivel', 'gasolina', 'estacionamento', 'transporte'],
+    'saude': ['remedio', 'farmacia', 'hospital', 'consulta', 'dentista', 'saude'],
+    'educacao': ['curso', 'escola', 'faculdade', 'livro', 'educacao'],
+    'lazer': ['cinema', 'bar', 'show', 'jogo', 'netflix', 'spotify', 'lazer'],
+    'contas': ['luz', 'agua', 'internet', 'telefone', 'gas', 'conta'],
+    'compras': ['shopping', 'loja', 'roupa', 'tenis', 'compra'],
+    'outros': []
+}
+
+
+def _detect_category_from_text(msg_lower: str):
+    """Detecta categoria a partir de palavras-chave no texto."""
+    for cat, keywords in CATEGORIA_MAP.items():
+        if any(k in msg_lower for k in keywords):
+            return cat
+    return 'outros'
+
+
+def _extract_value(message: str):
+    """Extrai valor numerico de uma mensagem curta (resposta a pergunta)."""
+    import re
+    msg_lower = message.lower().strip()
+
+    patterns = [
+        r'(?:(?:r\$)?\s?)([\d.]+(?:,\d+)?)(?:\s?(?:mil|k|reais|real|r\$))?',
+        r'(\d+(?:\.\d{3})*(?:,\d+)?)\s?(?:mil|k|reais|real)',
+        r'(\d+(?:,\d+)?)',
+    ]
+    for pat in patterns:
+        match = re.search(pat, msg_lower)
+        if match:
+            raw = match.group(1).replace('.', '').replace(',', '.')
+            try:
+                v = float(raw)
+                if 'mil' in msg_lower or 'k ' in msg_lower or msg_lower.endswith('k'):
+                    v *= 1000
+                return round(v, 2)
+            except ValueError:
+                continue
+    return None
+
+
+def _check_completeness(parsed: dict, original_message: str):
+    """Verifica se os dados estão completos. Se faltar valor, marca como incompleto."""
+    intent = parsed.get('intent')
+    valor = parsed.get('valor')
+    categoria = parsed.get('categoria')
+    descricao = parsed.get('descricao')
+
+    # Se não tem intent valido ou não conseguiu nenhum dado
+    if intent == 'unknown':
+        return parsed
+
+    # Se tem valor, consideramos completo (categoria e descricao tem fallback)
+    if valor and valor > 0:
+        return parsed
+
+    # Falta valor - verificar se pelo menos temos descricao ou categoria
+    if not descricao and not categoria:
+        # Nem valor nem descricao - tentar extrair descricao da mensagem
+        msg_lower = original_message.lower().strip()
+        # Remover verbos comuns
+        verbos = {'gastei', 'paguei', 'comprei', 'dei', 'fiz', 'tive', 'gasto', 'pago'}
+        words = [w for w in msg_lower.split() if w not in verbos and not w.replace('.', '').replace(',', '').isdigit()]
+        if words:
+            parsed['descricao'] = ' '.join(words).capitalize()
+            parsed['categoria'] = _detect_category_from_text(msg_lower)
+
+    # Se tem descricao mas nao tem valor, ainda esta incompleto
+    if not valor or valor <= 0:
+        # Marcar como incompleto - precisa perguntar valor
+        pass
+
+    return parsed
+
+
+def _process_contextual(message: str, context: dict):
+    """Processa resposta do usuario quando ha contexto pendente."""
+    awaiting_field = context.get('awaiting_field')
+    partial = context.get('partial_data', {})
+    msg_lower = message.lower().strip()
+
+    result = dict(partial)
+    result.setdefault('intent', 'add_expense')
+    result.setdefault('descricao', '')
+    result.setdefault('categoria', 'outros')
+
+    if awaiting_field == 'valor':
+        valor = _extract_value(message)
+        if valor and valor > 0:
+            result['valor'] = valor
+        else:
+            return None
+
+    elif awaiting_field == 'categoria':
+        cat = _detect_category_from_text(msg_lower)
+        result['categoria'] = cat
+
+    elif awaiting_field == 'descricao':
+        result['descricao'] = message.strip().capitalize()
+
+    # Se nao tinha awaiting_field especifico, tentar extrair o que falta
+    elif not result.get('valor'):
+        valor = _extract_value(message)
+        if valor:
+            result['valor'] = valor
+        else:
+            return None
+
+    return result
+
+
 def _fallback_parser(message: str):
     """Parser simples de fallback quando OpenAI falha ou nao esta configurada."""
     import re
@@ -170,26 +293,10 @@ def _fallback_parser(message: str):
         return None
 
     # Categoria
-    categoria_map = {
-        'moradia': ['aluguel', 'condominio', 'iptu', 'moradia'],
-        'mercado': ['mercado', 'supermercado', 'feira', 'açougue'],
-        'restaurantes': ['restaurante', 'ifood', 'uber eats', 'mcdonalds', 'burger', 'pizza', 'lanche'],
-        'transporte': ['uber', '99', 'taxi', 'onibus', 'metro', 'combustivel', 'gasolina', 'estacionamento', 'transporte'],
-        'saude': ['remedio', 'farmacia', 'hospital', 'consulta', 'dentista', 'saude'],
-        'educacao': ['curso', 'escola', 'faculdade', 'livro', 'educacao'],
-        'lazer': ['cinema', 'bar', 'show', 'jogo', 'netflix', 'spotify', 'lazer'],
-        'contas': ['luz', 'agua', 'internet', 'telefone', 'gas', 'conta'],
-        'compras': ['shopping', 'loja', 'roupa', 'tenis', 'compra'],
-        'outros': []
-    }
-    categoria = 'outros'
-    for cat, keywords in categoria_map.items():
-        if any(k in msg_lower for k in keywords):
-            categoria = cat
-            break
+    categoria = _detect_category_from_text(msg_lower)
 
     # Extrair descricao inteligente
-    descricao = _extract_description(message, msg_lower, categoria, categoria_map)
+    descricao = _extract_description(message, msg_lower, categoria, CATEGORIA_MAP)
     descricao = descricao[:60] or (CATEGORIAS_LABELS.get(categoria, 'Gasto'))
 
     return {
@@ -260,41 +367,104 @@ def _build_confirmation_response(parsed: dict, message: str):
 def ai_chat(request):
     """
     POST /api/ai/chat/
-    Body: {"message": "uber 25 reais"}
-    Responde com interpretacao + pedido de confirmacao.
+    Body: {"message": "uber 25 reais", "context": {"awaiting_field": null, "partial_data": {}}}
+    Responde com interpretacao + pedido de confirmacao OU pergunta complementar.
     NAO salva nada no banco.
     """
     try:
         message = request.data.get('message', '').strip()
+        context = request.data.get('context', {})
+
         if not message:
             return Response(
                 {'erro': 'Mensagem vazia'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Tentar OpenAI primeiro
-        parsed = _call_openai(message)
-
-        # Fallback se OpenAI falhar ou nao estiver configurada
-        if not parsed:
-            parsed = _fallback_parser(message)
-
-        if not parsed:
-            return Response(
-                {
+        # Se ha contexto pendente, processar resposta complementar
+        if context.get('awaiting_field') or context.get('partial_data'):
+            parsed = _process_contextual(message, context)
+            if not parsed:
+                return Response({
                     'intent': 'unknown',
                     'confirmation_required': False,
-                    'message': 'Nao consegui entender. Tente algo como "mercado 150" ou "recebi 3000".',
+                    'awaiting_field': context.get('awaiting_field'),
+                    'partial_data': context.get('partial_data'),
+                    'message': 'Nao consegui entender. Pode repetir?',
                     'data': None
-                }
-            )
+                })
+        else:
+            # Primeira mensagem - tentar OpenAI primeiro
+            parsed = _call_openai(message)
+
+            # Fallback se OpenAI falhar ou nao estiver configurada
+            if not parsed:
+                parsed = _fallback_parser(message)
+
+            # Fallback para mensagens sem valor (ex: "paguei internet")
+            if not parsed:
+                msg_lower = message.lower().strip()
+                cat = _detect_category_from_text(msg_lower)
+                desc = _extract_description(message, msg_lower, cat, CATEGORIA_MAP)
+                desc = desc[:60] or CATEGORIAS_LABELS.get(cat, 'Gasto')
+
+                # Se pelo menos temos descricao ou categoria
+                if desc and desc.lower() not in ('gastei', 'paguei', 'comprei', 'dei'):
+                    intent = 'add_income' if any(p in msg_lower for p in ['recebi', 'receita', 'ganhei', 'salario', 'pagaram', 'entrada']) else 'add_expense'
+                    parsed = {
+                        'intent': intent,
+                        'valor': None,
+                        'categoria': None if intent == 'add_income' else cat,
+                        'descricao': desc
+                    }
+                else:
+                    return Response(
+                        {
+                            'intent': 'unknown',
+                            'confirmation_required': False,
+                            'message': 'Nao consegui entender. Tente algo como "mercado 150" ou "recebi 3000".',
+                            'data': None
+                        }
+                    )
 
         # Validar categoria se for gasto
         if parsed.get('intent') == 'add_expense' and parsed.get('categoria'):
             if parsed['categoria'] not in CATEGORIAS_VALIDAS:
                 parsed['categoria'] = 'outros'
 
+        # Verificar completude: falta valor?
+        valor = parsed.get('valor')
+        if not valor or valor <= 0:
+            # Ainda falta valor - perguntar
+            descricao = parsed.get('descricao', '')
+            categoria = parsed.get('categoria', 'outros')
+            cat_label = CATEGORIAS_LABELS.get(categoria, categoria)
+
+            # Montar pergunta contextual
+            item = descricao or cat_label
+            intent = parsed.get('intent', 'add_expense')
+            if intent == 'add_income':
+                question = f'Qual foi o valor recebido?'
+            else:
+                question = f'Quanto você gastou com {item}?' if item != 'Outros' else 'Qual foi o valor?'
+
+            return Response({
+                'intent': intent,
+                'confirmation_required': False,
+                'awaiting_field': 'valor',
+                'partial_data': {
+                    'intent': intent,
+                    'categoria': categoria if intent == 'add_expense' else None,
+                    'descricao': descricao
+                },
+                'message': question,
+                'data': None
+            })
+
+        # Dados completos - montar confirmacao
         response_data = _build_confirmation_response(parsed, message)
+        response_data['awaiting_field'] = None
+        response_data['partial_data'] = None
         return Response(response_data)
 
     except Exception as e:

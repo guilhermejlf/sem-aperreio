@@ -32,14 +32,24 @@
         <div ref="messagesContainer" class="ai-messages">
           <div class="ai-welcome" v-if="messages.length === 0">
             <div class="ai-welcome-icon">
-              <i class="pi pi-comments"></i>
+              <i class="pi pi-sparkles"></i>
             </div>
             <p class="ai-welcome-text">
               Me diga um gasto ou receita em linguagem natural.<br>
               <span class="ai-welcome-examples">
-                Ex: <em>"uber 25 reais"</em>, <em>"mercado 320"</em>, <em>"recebi 5 mil"</em>
+                Posso perguntar o valor se você esquecer de informar.
               </span>
             </p>
+            <div class="ai-suggestions">
+              <button
+                v-for="s in quickSuggestions"
+                :key="s"
+                class="ai-suggestion-chip"
+                @click="send(s)"
+              >
+                {{ s }}
+              </button>
+            </div>
           </div>
 
           <div
@@ -105,6 +115,7 @@
           <!-- Typing indicator -->
           <div v-if="loading" class="ai-message ai-message--ai">
             <div class="ai-bubble ai-bubble--typing">
+              <span class="ai-typing-text">Analisando</span>
               <span class="ai-dot"></span>
               <span class="ai-dot"></span>
               <span class="ai-dot"></span>
@@ -163,7 +174,17 @@ export default {
       input: '',
       loading: false,
       messages: [],
-      isMobile: window.innerWidth < 768
+      isMobile: window.innerWidth < 768,
+      sessionContext: {
+        awaiting_field: null,
+        partial_data: {}
+      },
+      quickSuggestions: [
+        'uber 25',
+        'mercado 320',
+        'paguei internet',
+        'recebi 5 mil'
+      ]
     }
   },
 
@@ -201,21 +222,46 @@ export default {
       })
     },
 
-    async send() {
-      const text = this.input.trim()
+    async send(suggestionText = null) {
+      const text = (suggestionText || this.input).trim()
       if (!text || this.loading) return
+
+      // Se foi sugestão, limpar input
+      if (suggestionText) {
+        this.input = ''
+      } else {
+        this.input = ''
+      }
 
       // Add user message
       this.messages.push({ role: 'user', text })
-      this.input = ''
       this.loading = true
       this.scrollToBottom()
 
       try {
+        const payload = {
+          message: text,
+          context: this.sessionContext
+        }
+
         const response = await apiRequest(API_ENDPOINTS.AI_CHAT, {
           method: 'POST',
-          body: JSON.stringify({ message: text })
+          body: JSON.stringify(payload)
         })
+
+        // Se IA está perguntando algo (awaiting_field), guardar contexto
+        if (response.awaiting_field) {
+          this.sessionContext = {
+            awaiting_field: response.awaiting_field,
+            partial_data: response.partial_data || {}
+          }
+        } else {
+          // Resposta completa - limpar contexto
+          this.sessionContext = {
+            awaiting_field: null,
+            partial_data: {}
+          }
+        }
 
         // Add AI response
         this.messages.push({
@@ -230,6 +276,11 @@ export default {
           text: 'Ops, algo deu errado. Tente novamente em instantes.',
           confirmation: null
         })
+        // Limpar contexto em caso de erro
+        this.sessionContext = {
+          awaiting_field: null,
+          partial_data: {}
+        }
       } finally {
         this.loading = false
         this.scrollToBottom()
@@ -275,6 +326,12 @@ export default {
           processing: false
         }
 
+        // Limpar contexto da sessao
+        this.sessionContext = {
+          awaiting_field: null,
+          partial_data: {}
+        }
+
         this.$emit('saved')
       } catch (error) {
         this.messages[index] = {
@@ -316,6 +373,10 @@ export default {
         role: 'ai',
         text: 'Cancelado. Me envie outra mensagem quando quiser.',
         confirmation: null
+      }
+      this.sessionContext = {
+        awaiting_field: null,
+        partial_data: {}
       }
       this.scrollToBottom()
     },
@@ -511,24 +572,57 @@ export default {
 /* Typing */
 .ai-bubble--typing {
   display: flex;
-  gap: 4px;
-  padding: 14px 16px;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+}
+
+.ai-typing-text {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-right: 4px;
 }
 
 .ai-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: #94a3b8;
   animation: ai-bounce 1.4s infinite ease-in-out both;
 }
 
-.ai-dot:nth-child(1) { animation-delay: -0.32s; }
-.ai-dot:nth-child(2) { animation-delay: -0.16s; }
+.ai-dot:nth-child(2) { animation-delay: -0.32s; }
+.ai-dot:nth-child(3) { animation-delay: -0.16s; }
 
 @keyframes ai-bounce {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
   40% { transform: scale(1); opacity: 1; }
+}
+
+/* Suggestions */
+.ai-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.ai-suggestion-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-suggestion-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Confirmation card */
