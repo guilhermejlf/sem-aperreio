@@ -167,6 +167,7 @@ import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 
 export default {
   name: 'AIAssistant',
+  emits: ['saved', 'edit-expense'],
 
   data() {
     return {
@@ -223,15 +224,11 @@ export default {
     },
 
     async send(suggestionText = null) {
-      const text = (suggestionText || this.input).trim()
+      // Ignorar eventos Vue (KeyboardEvent/MouseEvent) — aceitar apenas string
+      const text = (typeof suggestionText === 'string' ? suggestionText : this.input).trim()
       if (!text || this.loading) return
 
-      // Se foi sugestão, limpar input
-      if (suggestionText) {
-        this.input = ''
-      } else {
-        this.input = ''
-      }
+      this.input = ''
 
       // Add user message
       this.messages.push({ role: 'user', text })
