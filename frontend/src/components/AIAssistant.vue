@@ -73,12 +73,12 @@
                 </div>
                 <div class="ai-confirm-actions">
                   <button
-                    class="ai-btn ai-btn--confirm"
+                    class="ai-btn ai-btn--cancel"
                     :disabled="msg.processing"
-                    :title="msg.processing ? 'Salvando...' : 'Confirmar'"
-                    @click="confirmAction(msg, index)"
+                    title="Cancelar"
+                    @click="cancelAction(index)"
                   >
-                    <i class="pi pi-check"></i>
+                    <i class="pi pi-times"></i>
                   </button>
                   <button
                     v-if="msg.confirmation.intent === 'add_expense'"
@@ -90,12 +90,12 @@
                     <i class="pi pi-pencil"></i>
                   </button>
                   <button
-                    class="ai-btn ai-btn--cancel"
+                    class="ai-btn ai-btn--confirm"
                     :disabled="msg.processing"
-                    title="Cancelar"
-                    @click="cancelAction(index)"
+                    :title="msg.processing ? 'Salvando...' : 'Confirmar'"
+                    @click="confirmAction(msg, index)"
                   >
-                    <i class="pi pi-times"></i>
+                    <i class="pi pi-check"></i>
                   </button>
                 </div>
               </div>
@@ -576,53 +576,51 @@ export default {
 }
 
 .ai-btn {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
+  color: #64748b;
 }
 
 .ai-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .ai-btn--confirm {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
+  color: #22c55e;
 }
 
 .ai-btn--confirm:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.25);
 }
 
 .ai-btn--edit {
-  background: rgba(234, 179, 8, 0.15);
-  color: #eab308;
-  border: 1px solid rgba(234, 179, 8, 0.3);
+  color: #3b82f6;
 }
 
 .ai-btn--edit:hover:not(:disabled) {
-  background: rgba(234, 179, 8, 0.25);
-  transform: translateY(-1px);
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.25);
 }
 
 .ai-btn--cancel {
-  background: rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
+  color: #ef4444;
 }
 
 .ai-btn--cancel:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
 /* Input area */
