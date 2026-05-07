@@ -5,8 +5,8 @@
 **Milestone:** v3.0 AI — Phase 7 IA-01
 **Phase:** 7 — Assistente Financeiro Conversacional
 **Plan:** `.planning/phases/07-ia-01/07-01-PLAN.md`
-**Status:** Implementado (backend + frontend)
-**Last activity:** 2026-05-07 — IA-01 implementado (OpenAI parser + fallback + drawer chat + FAB)
+**Status:** SHIPPED (backend + frontend) — Deploy 2026-05-07
+**Last activity:** 2026-05-07 — IA-01 deployado (OpenAI parser + fallback + drawer chat + FAB + modal edit)
 
 ## Project Reference
 
@@ -26,7 +26,7 @@ Milestone v3.0 — IA:
 1. ✅ `/gsd-new-milestone "v3.0 AI"` — iniciado
 2. ✅ Phase 5 — Orçamento e Metas (BUDG-01/02/03) — SHIPPED 2026-05-04
 3. ✅ Phase 6 — Notificações e Deploy (NOTF-01/02, INFR-01/02/03) — SHIPPED 2026-05-05
-4. ⏳ Phase 7 — IA-01 Assistente Financeiro Conversacional — implementado, aguardando testes
+4. ✅ Phase 7 — IA-01 Assistente Financeiro Conversacional — SHIPPED 2026-05-07
 
 ## Recent Commits
 
@@ -50,7 +50,7 @@ Milestone v3.0 — IA:
 - [x] Phase 7 discuss-phase: decisões capturadas em `07-CONTEXT.md`
 - [x] Phase 7 plan-phase: `07-01-PLAN.md` criado
 - [x] Phase 7 execute-phase: implementar IA parser + drawer chat + FAB ✅
-- [ ] Phase 7 review: testes manuais end-to-end
+- [x] Phase 7 review: testes manuais end-to-end ✅
 
 ## Accumulated Context
 

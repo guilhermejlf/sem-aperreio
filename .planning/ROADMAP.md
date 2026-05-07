@@ -95,7 +95,7 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 ---
 
-### Phase 7 — IA-01 Assistente Financeiro Conversacional 🚧 IN PROGRESS
+### Phase 7 — IA-01 Assistente Financeiro Conversacional ✅ SHIPPED 2026-05-07
 
 **Goal:** Criar um assistente financeiro conversacional simples que interpreta linguagem natural para registrar gastos e receitas com confirmação do usuário.
 
@@ -117,11 +117,12 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] UX: tema dark, animações suaves, mobile-responsive drawer
 
 **Verification:**
-- [ ] Usuário digita "uber 25 reais" → IA sugere gasto de R$ 25,00 em Transporte
-- [ ] Usuário digita "recebi 5 mil hoje" → IA sugere receita de R$ 5.000,00
-- [ ] Confirmação do usuário persiste no banco via API existente
-- [ ] Cancelamento descarta a sugestão sem salvar
-- [ ] Fallback funciona sem OPENAI_API_KEY configurada
+- [x] Usuário digita "uber 25 reais" → IA sugere gasto de R$ 25,00 em Transporte
+- [x] Usuário digita "recebi 5 mil hoje" → IA sugere receita de R$ 5.000,00
+- [x] Confirmação do usuário persiste no banco via API existente
+- [x] Cancelamento descarta a sugestão sem salvar
+- [x] Fallback funciona sem OPENAI_API_KEY configurada
+- [x] Botão "Editar" abre modal de gasto pré-preenchido
 
 ---
 
@@ -131,7 +132,7 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 |-----------|--------|--------|
 | v1.0 | 1–4 | ✅ Shipped (2026-04-30) |
 | v2.0 | 5–6 | ✅ Shipped (2026-05-05) |
-| v3.0 | 7 | 🚧 In Progress |
+| v3.0 | 7 | ✅ Shipped (2026-05-07) |
 
 ---
-*Last updated: 2026-05-06 after Phase 7 planning*
+*Last updated: 2026-05-07 after Phase 7 deploy*
