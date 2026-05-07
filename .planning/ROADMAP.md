@@ -126,6 +126,34 @@ See archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 ---
 
+### Phase 7.1 — IA-02 Assistente Contextual Multi-Etapas ✅ SHIPPED 2026-05-07
+
+**Goal:** Evoluir o assistente para conversas multi-etapas com perguntas complementares quando faltam dados.
+
+**Depends on:** Phase 7 (IA-01)
+
+**Requirements:** IA-02
+
+**Deliverables:**
+- [x] Backend: endpoint aceita `context` no body (`awaiting_field`, `partial_data`)
+- [x] Backend: mensagens parciais (ex: "paguei internet") disparam pergunta de valor
+- [x] Backend: `_process_contextual` completa dados pendentes com resposta do usuário
+- [x] Backend: `_extract_value` para respostas curtas numéricas
+- [x] Frontend: `sessionContext` gerencia estado da conversa
+- [x] Frontend: envia contexto a cada requisição
+- [x] Frontend: chips de sugestões rápidas clicáveis no estado vazio
+- [x] Frontend: typing indicator com "Analisando..."
+- [x] Frontend: limpa contexto após confirmação/cancelamento/erro
+
+**Verification:**
+- [x] Usuário: "paguei internet" → IA: "Quanto você gastou com Internet?"
+- [x] Usuário: "140" → IA: "Entendi! Você gastou R$ 140,00 em Contas e serviços (Internet)."
+- [x] Usuário: "mercado" → IA: "Quanto você gastou com Mercado?"
+- [x] Usuário: "320" → IA confirmação
+- [x] Contexto é limpo após confirmação ou cancelamento
+
+---
+
 ## Milestone Summary
 
 | Milestone | Phases | Status |
