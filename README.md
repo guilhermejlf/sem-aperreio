@@ -1,181 +1,183 @@
-# Sem Aperreio - Sistema de Controle de Gastos
+# Sem Aperreio — Controle de Gastos Doméstico
 
-Sistema de controle de gastos financeiros com previsão usando Inteligência Artificial.
+Sistema web completo para controle de gastos domésticos em família, com previsão via IA, metas de orçamento, notificações por email e interface moderna em tema escuro.
 
 ## 🚀 Stack Tecnológico
 
 ### Backend
-- **Django 4.2** - Framework web
-- **Django REST Framework** - API REST
-- **SQLite** - Banco de dados
-- **Scikit-learn** - Machine Learning
-- **Pandas** - Manipulação de dados
+- **Django 4.2** — Framework web
+- **Django REST Framework** — API REST
+- **SimpleJWT** — Autenticação JWT
+- **PostgreSQL** — Banco de dados (produção)
+- **Redis + Celery** — Tarefas assíncronas e notificações
+- **Scikit-learn / Pandas / NumPy** — Machine Learning
+- **OpenAI** — Assistente de IA
+- **SendGrid** — Envio de emails
+- **Gunicorn** — Servidor WSGI
 
 ### Frontend
-- **Vue 3** - Framework JavaScript
-- **Vite** - Build tool
-- **PrimeVue** - Componentes UI
-- **CSS3** - Estilização
+- **Vue 3 (Options API)** — Framework JavaScript
+- **Vite** — Build tool
+- **PrimeVue / PrimeIcons** — Componentes UI e ícones
+- **Chart.js** — Gráficos e dashboards
+- **CSS3** — Estilização com glassmorphism
 
-## 📋 Funcionalidades
+## ✅ Funcionalidades Entregues
 
-- ✅ Cadastro de gastos com categorias
-- ✅ Validação robusta de dados
-- ✅ Previsão de gastos com IA
-- ✅ Interface responsiva e moderna
-- ✅ Tratamento de erros amigável
-- ✅ Loading states e feedback visual
-- ✅ Filtros e ordenação
-- ✅ Segurança com variáveis de ambiente
+| Módulo | Funcionalidades |
+|--------|----------------|
+| **Autenticação** | Cadastro, login JWT, refresh token, perfil do usuário |
+| **Gastos** | CRUD completo com 10 categorias, data de competência, pagamento e status |
+| **Receitas** | CRUD de entradas financeiras com data de competência |
+| **Grupo Familiar** | Criar grupo, convidar por código, compartilhar gastos, roles (admin/member) |
+| **Dashboard** | Cards de totais, gráfico de pizza (categorias), gráfico de linha (evolução), ranking, comparativo mês a mês |
+| **Extrato** | Visualização detalhada filtrada por período |
+| **Metas** | Definir meta de gasto mensal por categoria (ou geral), com alerta visual de 80% |
+| **ML / Previsão** | Modelo treinado com dados reais do usuário/família, prevê gasto do mês por categoria |
+| **Exportação** | CSV, Excel (XLSX) e PDF |
+| **Assistente IA** | Chat integrado para ajudar com dúvidas e análise de gastos |
+| **Notificações** | Lembretes semanais por email + alerta quando gasto ultrapassa média histórica |
+| **UI** | Tema escuro, glassmorphism, responsivo, header sticky com navegação centrada |
 
-## 🔧 Instalação
+## 📱 Categorias de Gasto
+
+- Moradia 🏠
+- Mercado 🛒
+- Restaurantes / Delivery 🍔
+- Transporte 🚗
+- Saúde 🏥
+- Educação 📚
+- Lazer 🎮
+- Contas e serviços 💡
+- Compras 🛍️
+- Outros 📦
+
+## 🔧 Instalação Local
 
 ### Pré-requisitos
-- Python 3.8+
-- Node.js 16+
-- npm ou yarn
+- Python 3.10+
+- Node.js 18+
+- PostgreSQL (opcional, SQLite funciona para dev)
+- Redis (opcional, para tarefas assíncronas)
 
 ### Backend
 
-1. **Criar ambiente virtual**
 ```bash
-cd backend
+# 1. Ambiente virtual
 python -m venv venv
+venv\Scripts\activate  # Windows
 
-# Windows
-venv\Scripts\activate
-
-# Linux/Mac
-source venv/bin/activate
-```
-
-2. **Instalar dependências**
-```bash
+# 2. Dependências
 pip install -r requirements.txt
-```
 
-3. **Configurar variáveis de ambiente**
-```bash
+# 3. Variáveis de ambiente
 cp .env.example .env
-# Edite o arquivo .env com suas configurações
-```
+# Edite .env com suas configurações (DATABASE_URL, SECRET_KEY, etc.)
 
-4. **Migrar banco de dados**
-```bash
-python manage.py makemigrations
+# 4. Banco de dados
 python manage.py migrate
-```
 
-5. **Treinar modelo de IA (opcional)**
-```bash
-python treinar_modelo.py
-```
+# 5. Criar superusuário (opcional)
+python manage.py createsuperuser
 
-6. **Iniciar servidor**
-```bash
+# 6. Iniciar
 python manage.py runserver
 ```
 
 ### Frontend
 
-1. **Instalar dependências**
 ```bash
 cd frontend
 npm install
-```
 
-2. **Configurar variáveis de ambiente**
-```bash
-# Criar arquivo .env.local
+# Configurar API local
 echo "VITE_API_URL=http://127.0.0.1:8000" > .env.local
-```
 
-3. **Iniciar servidor de desenvolvimento**
-```bash
 npm run dev
 ```
 
-## 🌐 URLs de Acesso
+## 🌐 URLs
 
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000/api/
-- **Admin Django**: http://localhost:8000/admin/
+### Desenvolvimento
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000/api/
+- Admin Django: http://localhost:8000/admin/
+
+### Produção
+- **Frontend**: https://sem-aperreio.vercel.app
+- **Backend**: https://campo-valor-production.up.railway.app
+- **Healthcheck**: `GET /api/health/`
 
 ## 📚 Endpoints da API
 
+### Autenticação
+- `POST /api/auth/register/` — Criar conta
+- `POST /api/auth/login/` — Login (retorna access + refresh)
+- `POST /api/auth/refresh/` — Renovar token
+- `GET /api/auth/user/` — Dados do usuário logado
+
 ### Gastos
-- `GET /api/gastos/` - Listar todos os gastos
-- `POST /api/gastos/` - Criar novo gasto
-- `GET /api/gastos/{id}/` - Detalhes do gasto
-- `PUT /api/gastos/{id}/` - Atualizar gasto
-- `DELETE /api/gastos/{id}/` - Excluir gasto
+- `GET /api/gastos/` — Listar (filtros: categoria, data_inicio, data_fim, limite)
+- `POST /api/gastos/` — Criar
+- `GET/PUT/DELETE /api/gastos/{id}/`
 
-### Previsão
-- `POST /api/prever/` - Prever gasto do mês
+### Receitas
+- `GET /api/receitas/` — Listar
+- `POST /api/receitas/` — Criar
+- `GET/PUT/DELETE /api/receitas/{id}/`
 
-### Parâmetros de Filtro
-- `?categoria=alimentacao` - Filtrar por categoria
-- `?data_inicio=2024-01-01` - Data inicial
-- `?data_fim=2024-12-31` - Data final
-- `?limite=50` - Limitar resultados
+### Dashboard & Análises
+- `GET /api/dashboard/?mes=5&ano=2026` — Cards e totais do período
+- `GET /api/extrato/?mes=5&ano=2026` — Extrato detalhado
+- `POST /api/prever/` — Previsão de gastos via ML
+
+### Metas
+- `GET /api/metas/` — Listar metas
+- `POST /api/metas/criar/` — Criar meta
+- `PUT /api/metas/{id}/` — Atualizar
+- `DELETE /api/metas/{id}/deletar/` — Remover
+
+### Grupo Familiar
+- `GET/POST /api/family/` — Criar/consultar grupo
+- `POST /api/family/join/` — Entrar por código
+- `POST /api/family/leave/` — Sair do grupo
+
+### Exportação
+- `GET /api/export/csv/` — Exportar CSV
+- `GET /api/export/xlsx/` — Exportar Excel
+- `GET /api/export/pdf/` — Exportar PDF
+
+### Notificações & IA
+- `GET /api/health/` — Healthcheck
+- `GET /api/notificacoes/status/` — Status das notificações
+- `POST /api/tasks/trigger/` — Disparar tarefas manualmente
+- `POST /api/ai/chat/` — Chat com assistente IA
 
 ## 🔒 Segurança
 
-- ✅ Variáveis de ambiente configuradas
-- ✅ CORS configurado para produção
-- ✅ Validação de inputs no backend
-- ✅ Headers de segurança em produção
-- ✅ SQL injection prevention
-- ✅ XSS protection
+- Autenticação JWT com refresh token
+- CORS configurado dinamicamente por ambiente
+- Validação de inputs no backend e frontend
+- SQL injection prevention via ORM
+- Proteção XSS com escape automático
+- Variáveis sensíveis em `.env`
 
-## 📱 Categorias Disponíveis
+## 🚀 Deploy & CI/CD
 
-- Alimentação 🍔
-- Transporte 🚗
-- Moradia 🏠
-- Saúde 🏥
-- Educação 📚
-- Lazer 🎮
-- Outros 📦
-
-## 🚀 Deploy
-
-### Backend (Produção)
-1. Configure as variáveis de ambiente no servidor
-2. Defina `DEBUG=False` no `.env`
-3. Configure `ALLOWED_HOSTS` e `CORS_ALLOWED_ORIGINS`
-4. Execute `collectstatic`
-5. Use servidor WSGI (Gunicorn, uWSGI)
-
-### Frontend (Produção)
-1. Configure `VITE_API_URL` para o URL de produção
-2. Execute `npm run build`
-3. Sirva os arquivos estáticos com Nginx ou similar
+Deploy automatizado via **GitHub Actions**:
+- Push na branch `main` dispara deploy
+- **Backend** → Railway (Django + PostgreSQL + Redis)
+- **Frontend** → Vercel (SPA com Vite)
+- Cron jobs configurados via cron-job.org (Weekly Reminder + Average Alert)
 
 ## 🤝 Contribuindo
 
 1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Add nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
+2. Crie uma branch (`git checkout -b feature/nova-feature`)
+3. Commit (`git commit -m 'feat: descrição'`)
+4. Push (`git push origin feature/nova-feature`)
 5. Abra um Pull Request
 
 ## 📝 Licença
 
-Este projeto está sob licença MIT.
-
-## 🐛 Problemas Conhecidos
-
-- Modelo de IA usa dados fixos (precisa de retreinamento com dados reais)
-- Não há autenticação implementada
-- Cache não está configurado
-
-## 🔮 Próximos Passos
-
-- [ ] Implementar autenticação JWT
-- [ ] Adicionar gráficos e dashboard
-- [ ] Implementar cache com Redis
-- [ ] Melhorar modelo de IA com dados reais
-- [ ] Adicionar exportação de dados
-- [ ] Implementar PWA
-- [ ] Adicionar testes automatizados
+MIT

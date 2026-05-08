@@ -12,10 +12,10 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 
 ### Validated (v1.0 — shipped 2026-04-30)
 
-- ✓ Cadastro de gastos com categorias — Phase 0 (código base existente)
-- ✓ Dashboard com gráficos (pizza + linha) e estatísticas — Phase 0 (código base existente)
-- ✓ Previsão de gastos por mês via ML — Phase 0 (código base existente, modelo fixo)
-- ✓ Interface responsiva com tema escuro — Phase 0 (código base existente)
+- ✓ Cadastro de gastos com categorias — Phase 0
+- ✓ Dashboard com gráficos (pizza + linha) e estatísticas — Phase 0
+- ✓ Previsão de gastos por mês via ML — Phase 0
+- ✓ Interface responsiva com tema escuro — Phase 0
 - ✓ **AUTH-01**: Usuários podem criar conta e fazer login (JWT) — v1.0
 - ✓ **AUTH-02**: Gastos ficam vinculados ao usuário logado — v1.0
 - ✓ **AUTH-03**: Usuários podem pertencer a um "grupo familiar" (compartilhar gastos) — v1.0
@@ -26,16 +26,28 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 - ✓ **ML-02**: Previsão considera categoria (não apenas mês) — v1.0
 - ✓ **EXP-01**: Exportar gastos para CSV/Excel — v1.0
 
+### Validated (v1.1 — shipped 2026-05-08)
+
+- ✓ **RECEITAS-01**: CRUD de receitas (entradas financeiras) com data de competência
+- ✓ **EXTRATO-01**: Visualização detalhada de gastos e receitas por período
+- ✓ **BUDG-01**: Definir meta de gasto mensal por categoria ou geral — v1.1
+- ✓ **BUDG-02**: Dashboard e tela de metas exibem progresso com barra visual — v1.1
+- ✓ **BUDG-03**: Alerta visual e por API quando gasto ultrapassa 80% da meta (status: danger/critical) — v1.1
+- ✓ **AI-01**: Assistente de IA integrado para dúvidas e análise de gastos — v1.1
+- ✓ **NOTF-01**: Lembretes semanais por email com resumo dos gastos — v1.1
+- ✓ **NOTF-02**: Alerta por email quando gasto do mês ultrapassa média histórica +20% — v1.1
+- ✓ **INFR-01**: PostgreSQL como banco de produção — v1.1
+- ✓ **INFR-02**: CI/CD com GitHub Actions (deploy automático) — v1.1
+- ✓ **INFR-03**: Deploy automatizado backend (Railway) + frontend (Vercel) — v1.1
+- ✓ **EXP-02**: Exportação para PDF — v1.1
+- ✓ **UI-01**: Header glassmorphism sticky com logo, navegação centrada e menu de usuário
+
 ### Active (v2.0)
 
-- [ ] **BUDG-01**: Definir meta de gasto mensal por categoria
-- [ ] **BUDG-02**: Dashboard exibe progresso da meta (barra visual)
-- [ ] **BUDG-03**: Alerta visual quando gasto ultrapassa 80% da meta
-- [ ] **NOTF-01**: Lembrete semanal para registrar gastos
-- [ ] **NOTF-02**: Alerta quando gasto do mês ultrapassa média histórica
-- [ ] **INFR-01**: PostgreSQL como banco de produção
-- [ ] **INFR-02**: CI/CD com GitHub Actions
-- [ ] **INFR-03**: Deploy automatizado backend + frontend
+- [ ] **TEST-01**: Testes automatizados (unitários + integração)
+- [ ] **CACHE-01**: Cache Redis para dashboard e previsões
+- [ ] **MOB-01**: PWA com cache offline
+- [ ] **BANK-01**: Integração bancária (Open Banking) — avaliar viabilidade regulatória
 
 ### Out of Scope
 
@@ -48,23 +60,28 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 
 ## Context
 
-Sistema completo de controle de gastos domésticos com autenticação JWT, grupos familiares, dashboard com filtros por período (mês/ano), ranking de categorias, comparativo mês a mês, previsão via ML com dados reais, e exportação CSV/Excel. Backend Django + DRF, frontend Vue 3 + Vite, tema escuro, responsive. MVP v1.0 entregue com sucesso.
+Sistema completo de controle de gastos domésticos com autenticação JWT, grupos familiares, dashboard com filtros por período (mês/ano), ranking de categorias, comparativo mês a mês, previsão via ML com dados reais, exportação CSV/Excel/PDF, receitas, metas de orçamento com alertas visuais, assistente de IA, notificações por email e interface moderna em tema escuro com glassmorphism. Backend Django + DRF + PostgreSQL, frontend Vue 3 + Vite, deploy automatizado via Railway + Vercel.
 
-### Tech Stack (v1.0)
+### Tech Stack (v1.1 — Produção)
 
-- **Backend**: Django 5.x + Django REST Framework + djangorestframework-simplejwt
-- **Frontend**: Vue 3 (Options API) + Vite + Chart.js + PrimeIcons
+- **Backend**: Django 4.2 + Django REST Framework + djangorestframework-simplejwt
+- **Frontend**: Vue 3 (Options API) + Vite + Chart.js + PrimeVue + PrimeIcons
 - **ML**: scikit-learn (LinearRegression por categoria)
-- **Banco**: SQLite (MVP), PostgreSQL planejado para produção
-- **Export**: openpyxl (XLSX), csv/StreamingHttpResponse (CSV)
+- **Banco**: PostgreSQL (produção), SQLite (dev)
+- **Cache/Tarefas**: Redis + Celery
+- **Export**: openpyxl (XLSX), csv/StreamingHttpResponse (CSV), reportlab (PDF)
+- **Email**: SendGrid
+- **IA**: OpenAI API
+- **Deploy**: Railway (backend) + Vercel (frontend)
+- **CI/CD**: GitHub Actions
 
 ### Known Issues / Tech Debt
 
-- Options API no Vue — Composition API seria mais moderna, mas MVP usou existente
-- SQLite para produção — deve migrar para PostgreSQL antes do deploy real
-- Modelo ML treinado on-demand — não persistido; recomenda-se cache ou Celery para datasets grandes
+- Options API no Vue — Composition API seria mais moderna, mas código legado funcional
+- Modelo ML treinado on-demand — não persistido; recomenda-se cache Redis ou Celery para datasets grandes
 - Falta paginação completa com metadados (count/next/previous) — implementado apenas limite simples (50 itens)
 - Sem testes automatizados — apenas testes manuais realizados
+- Cron jobs externos (cron-job.org) — idealmente migrar para Celery Beat interno
 
 ## Evolution
 
@@ -102,22 +119,23 @@ This document evolves at phase transitions and milestone boundaries.
 | JWT ao invés de session cookies | Frontend SPA separado do backend; JWT facilita CORS e mobile futuro | — Pending |
 | Grupo familiar (User → Family) | Um gasto pertence a um User que pertence a uma Family; permite múltiplos usuários verem os mesmos gastos | — Pending |
 
-## Current Milestone: v2.0 Production
+## Current Milestone: v2.0 — Quality & Scale
 
-**Goal:** Transformar o MVP em produção com orçamento/metas, notificações e infraestrutura de deploy.
+**Goal:** Consolidar a base de produção com testes, performance e novas integrações.
 
 **Target features:**
-- Orçamento e metas de gasto por categoria (BUDG-01/02/03)
-- Notificações push/email (NOTF-01/02)
-- PostgreSQL como banco de produção (INFR-01)
-- CI/CD com GitHub Actions (INFR-02)
-- Deploy automatizado backend + frontend (INFR-03)
+- Testes automatizados (TEST-01)
+- Cache Redis para dashboard e previsões (CACHE-01)
+- PWA com cache offline (MOB-01)
+- Avaliar integração bancária (Open Banking) (BANK-01)
+- Migrar cron jobs externos para Celery Beat
 
 **Key context:**
-- SQLite → PostgreSQL migração requerida antes do deploy
-- Sem testes automatizados — CI/CD deve incluir testes mínimos
-- Options API no Vue pode ser mantido ou migrado no v2
-- Deploy: Render/Railway (backend), Netlify/Vercel (frontend)
+- Sistema em produção estável (Railway + Vercel + PostgreSQL + SendGrid)
+- Sem testes automatizados — risco técnico para evolução
+- Modelo ML treinado on-demand — oportunidade de cache
+- Options API no Vue pode ser mantido ou migrado gradualmente
+- Deploy automatizado funcional — focar em qualidade e novas features
 
 ---
-*Last updated: 2026-04-30 after v1.0 milestone completion and v2.0 initialization*
+*Last updated: 2026-05-08 after v1.1 production deploy with UI fixes, documentation refresh and v2.0 planning*
