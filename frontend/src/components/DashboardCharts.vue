@@ -38,7 +38,7 @@
             <p class="saldo-label">Saldo disponível</p>
             <h2 class="saldo-valor">{{ formatarValor(dashboardData.saldo || 0) }}</h2>
             <small v-if="saldoInsuficiente" class="saldo-aviso">Saldo pode não cobrir as contas pendentes</small>
-            <small v-else>Receitas - Já pagos</small>
+            <small v-else>Receitas - Contas pagas</small>
           </div>
         </div>
 
@@ -54,7 +54,7 @@
           <div class="stat-icon">💸</div>
           <div class="stat-content">
             <h3>{{ formatarValor(dashboardData.total_gastos_pagos || 0) }}</h3>
-            <p>Já pagos</p>
+            <p>Contas pagas</p>
           </div>
         </div>
 

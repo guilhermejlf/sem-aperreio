@@ -554,10 +554,10 @@ def dashboard(request):
         ).aggregate(total=Sum('valor'))
         total_receitas = receitas_agg['total'] or Decimal('0.00')
 
-        # Total de gastos pagos no período (por data_pagamento)
+        # Total de gastos pagos no período (por data_competencia via data_efetiva)
         gastos_pagos_agg = base_queryset.filter(
-            data_pagamento__month=mes_int,
-            data_pagamento__year=ano_int,
+            data_efetiva__month=mes_int,
+            data_efetiva__year=ano_int,
             pago=True
         ).aggregate(total=Sum('valor'))
         total_gastos_pagos = gastos_pagos_agg['total'] or Decimal('0.00')

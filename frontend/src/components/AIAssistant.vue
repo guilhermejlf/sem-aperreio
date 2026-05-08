@@ -383,13 +383,22 @@ export default {
       const confirmation = msg.confirmation
       if (!confirmation || !confirmation.data) return
 
-      // Emitir evento para App.vue abrir o modal de gasto preenchido
-      this.$emit('edit-expense', {
-        valor: confirmation.data.valor,
-        categoria: confirmation.data.categoria,
-        descricao: confirmation.data.descricao,
-        data: confirmation.data.data
-      })
+      // Receita → emitir evento específico para receitas
+      if (confirmation.intent === 'add_income') {
+        this.$emit('edit-income', {
+          valor: confirmation.data.valor,
+          descricao: confirmation.data.descricao,
+          data: confirmation.data.data
+        })
+      } else {
+        // Gasto → modal de gasto
+        this.$emit('edit-expense', {
+          valor: confirmation.data.valor,
+          categoria: confirmation.data.categoria,
+          descricao: confirmation.data.descricao,
+          data: confirmation.data.data
+        })
+      }
 
       // Fechar o drawer para o usuário ver o modal
       this.close()

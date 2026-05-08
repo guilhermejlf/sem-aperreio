@@ -11,7 +11,6 @@
       <div class="header-content">
         <div class="logo-section">
           <img :src="logo" class="logo" />
-          <h1 class="brand">Sem Aperreio</h1>
         </div>
 
         <nav class="nav-menu">
@@ -166,7 +165,7 @@
                 </button>
               </div>
               <button @click="showAddModal = true" class="btn-primary btn-sm">
-                <i class="pi pi-plus"></i> Adicionar Gasto
+                <i class="pi pi-plus"></i> Novo Gasto
               </button>
             </div>
 
@@ -230,7 +229,7 @@
       <!-- RECEITAS TAB -->
       <div v-if="activeTab === 'receitas'" class="tab-content">
         <div class="gastos-container">
-          <ReceitasView />
+          <ReceitasView :initial-edit-data="pendingIncomeEdit" />
         </div>
       </div>
 
@@ -320,7 +319,11 @@
 
     <Toast position="top-right" />
     <ConfirmDialog />
-    <AIAssistant @saved="handleAIAssistantSaved" @edit-expense="handleEditExpense" />
+    <AIAssistant 
+      @saved="handleAIAssistantSaved" 
+      @edit-expense="handleEditExpense" 
+      @edit-income="handleEditIncome" 
+    />
   </template>
 </div>
 </template>
@@ -390,6 +393,7 @@ export default {
       error: null,
       showAddModal: false,
       editingGasto: null,
+      pendingIncomeEdit: null,
       categorias: [
         { value: 'moradia', label: 'Moradia' },
         { value: 'mercado', label: 'Mercado' },
@@ -795,6 +799,16 @@ export default {
       this.showAddModal = true
     },
 
+    handleEditIncome(data) {
+      // Navegar para aba de receitas com dados pré-preenchidos
+      this.activeTab = 'receitas'
+      this.pendingIncomeEdit = {
+        valor: parseFloat(data.valor),
+        descricao: data.descricao || '',
+        data: data.data || new Date().toISOString().split('T')[0]
+      }
+    },
+
     handleLogout() {
       clearTokens()
       this.isAuth = false
@@ -823,19 +837,38 @@ export default {
   margin-bottom: 30px;
 }
 
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+}
+
 .logo {
-  width: 90px;
+  width: 120px;
+  height: 120px;
+  border-radius: 10px;
+  object-fit: contain;
 }
 
-.brand {
-  font-size: 32px;
-  background: linear-gradient(90deg, #a78bfa, #22c55e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* HEADER */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(11, 18, 32, 0.75);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
-.tag {
-  color: #94a3b8;
+.header-content {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6px 20px;
 }
 
 /* CARD */
@@ -848,206 +881,12 @@ export default {
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 
-/* FORM */
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.input-group {
-  display: flex;
-  align-items: center;
-  background: #020617;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.icon {
-  margin-right: 10px;
-}
-
-/* BOTÃO */
-.btn {
-  margin-top: 10px;
-  background: linear-gradient(90deg, #22c55e, #4ade80);
-  border: none;
-  padding: 15px 30px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
-}
-
-/* TOTAL */
-.total-card {
-  margin-top: 25px;
-  padding: 15px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1e293b, #020617);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.total-card h2 {
-  color: #22c55e;
-}
-
-.trend {
-  font-size: 30px;
-}
-
-/* LISTA */
-.lista {
-  margin-top: 20px;
-}
-
-.item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #1e293b;
-}
-
-.left {
-  display: flex;
-  gap: 10px;
-}
-
-.circle {
-  background: #22c55e;
-  border-radius: 50%;
-  padding: 8px;
-}
-
-.valor {
-  color: #22c55e;
-}
-
-/* LOADING */
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.loading-spinner {
-  text-align: center;
-  color: white;
-}
-
-.loading-spinner i {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-/* ERROR MESSAGE */
-.error-message {
-  background: #dc2626;
-  color: white;
-  padding: 15px 20px;
-  border-radius: 10px;
-  margin: 20px auto;
-  max-width: 600px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  animation: slideIn 0.3s ease;
-  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
-}
-
-.close-error {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  margin-left: auto;
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-}
-
-.close-error:hover {
-  opacity: 1;
-}
-
-/* MAIN CONTENT */
-.main-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 30px 20px;
-}
-
-.tab-content {
-  animation: fadeIn 0.5s ease;
-}
-
-/* HEADER */
-.header {
-  background: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  padding: 10px 24px;
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-}
-
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-}
-
-.brand {
-  font-size: 18px;
-  font-weight: 700;
-  color: white;
-  margin: 0;
-  background: none;
-  -webkit-background-clip: initial;
-  -webkit-text-fill-color: initial;
-  letter-spacing: -0.3px;
-}
-
 /* NAV MENU */
 .nav-menu {
   display: flex;
   gap: 4px;
   align-items: center;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  justify-self: center;
 }
 
 .nav-item {
@@ -1664,6 +1503,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-self: end;
 }
 
 /* RESPONSIVE */
@@ -1673,8 +1513,8 @@ export default {
   }
 
   .logo {
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
   }
 
   .brand {

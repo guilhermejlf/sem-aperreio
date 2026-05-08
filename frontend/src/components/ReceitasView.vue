@@ -62,7 +62,7 @@
       <div v-if="showModal" class="modal-overlay" @click.self="fecharModal">
         <div class="modal-card">
           <div class="modal-header">
-            <h2>{{ editingReceita ? 'Editar receita' : 'Nova Receita' }}</h2>
+            <h2>{{ editingReceita || isDraft ? 'Editar receita' : 'Adicionar Nova Receita' }}</h2>
             <button @click="fecharModal" class="modal-close">×</button>
           </div>
 
@@ -101,7 +101,7 @@
 
             <Button
               type="submit"
-              :label="editingReceita ? 'Salvar alterações' : 'Adicionar Receita'"
+              :label="editingReceita ? 'Salvar alterações' : (isDraft ? 'Confirmar Receita' : 'Adicionar Receita')"
               :icon="editingReceita ? 'pi pi-check' : 'pi pi-plus'"
               class="btn-submit"
               :disabled="loadingForm || !formValido" />
@@ -129,6 +129,12 @@ export default {
     Toast,
     BaseCard
   },
+  props: {
+    initialEditData: {
+      type: Object,
+      default: null
+    }
+  },
   data() {
     return {
       receitas: [],
@@ -136,10 +142,27 @@ export default {
       loadingForm: false,
       showModal: false,
       editingReceita: null,
+      isDraft: false,
       nova: {
         valor: null,
         descricao: '',
         data: new Date().toISOString().split('T')[0]
+      }
+    }
+  },
+  watch: {
+    initialEditData: {
+      handler(newVal) {
+        if (newVal) {
+          this.nova = {
+            valor: newVal.valor || null,
+            descricao: newVal.descricao || '',
+            data: newVal.data || new Date().toISOString().split('T')[0]
+          }
+          this.editingReceita = null
+          this.isDraft = true
+          this.showModal = true
+        }
       }
     }
   },
@@ -226,6 +249,7 @@ export default {
     },
     abrirModal() {
       this.editingReceita = null
+      this.isDraft = false
       this.nova = {
         valor: null,
         descricao: '',
@@ -245,6 +269,7 @@ export default {
     fecharModal() {
       this.showModal = false
       this.editingReceita = null
+      this.isDraft = false
     },
     podeEditarReceita(receita) {
       // Simples: todas as receitas são editáveis pelo usuário logado
