@@ -327,10 +327,16 @@
 
     <Toast position="top-right" />
     <ConfirmDialog />
-    <AIAssistant 
-      @saved="handleAIAssistantSaved" 
-      @edit-expense="handleEditExpense" 
-      @edit-income="handleEditIncome" 
+    <AIAssistant
+      ref="aiAssistant"
+      :hide-fab="true"
+      @saved="handleAIAssistantSaved"
+      @edit-expense="handleEditExpense"
+      @edit-income="handleEditIncome"
+    />
+    <BeneFloatingPresence
+      :chat-open="beneStore?.visible || false"
+      @open-chat="openAIAssistant"
     />
   </template>
 </div>
@@ -348,6 +354,7 @@ import BudgetView from './components/BudgetView.vue'
 import ExtratoView from './components/ExtratoView.vue'
 import BaseCard from './components/BaseCard.vue'
 import AIAssistant from './components/AIAssistant.vue'
+import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
 import logo from './assets/logo.png'
@@ -373,6 +380,7 @@ export default {
     ExtratoView,
     BaseCard,
     AIAssistant,
+    BeneFloatingPresence,
     Toast,
     ConfirmDialog
   },
@@ -402,6 +410,7 @@ export default {
       showAddModal: false,
       editingGasto: null,
       pendingIncomeEdit: null,
+      beneStore: null,
       categorias: [
         { value: 'moradia', label: 'Moradia' },
         { value: 'mercado', label: 'Mercado' },
@@ -463,6 +472,9 @@ export default {
       await this.fetchFamily()
       this.carregarGastos()
     }
+    import('./stores/beneContext.store.js').then(m => {
+      this.beneStore = m.beneStore || m.default
+    })
   },
 
   methods: {
@@ -787,6 +799,10 @@ export default {
       } else if (action === 'code-regenerated' || action === 'member-removed') {
         this.fetchFamily()
       }
+    },
+
+    openAIAssistant() {
+      this.$refs.aiAssistant?.open()
     },
 
     handleAIAssistantSaved() {

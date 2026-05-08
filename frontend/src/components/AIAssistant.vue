@@ -161,7 +161,7 @@
     <!-- FAB -->
     <Transition name="scale">
       <button
-        v-if="!visible"
+        v-if="!visible && !hideFab"
         class="ai-fab"
         @click="open"
         title="Assistente Financeiro"
@@ -178,6 +178,13 @@ import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 export default {
   name: 'AIAssistant',
   emits: ['saved', 'edit-expense'],
+
+  props: {
+    hideFab: {
+      type: Boolean,
+      default: false
+    }
+  },
 
   data() {
     return {
