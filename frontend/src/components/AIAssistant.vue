@@ -456,7 +456,7 @@ export default {
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
-  z-index: 998;
+  z-index: 1998;
 }
 
 .ai-drawer {
@@ -468,7 +468,7 @@ export default {
   max-width: 100vw;
   background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
   border-left: 1px solid rgba(255, 255, 255, 0.08);
-  z-index: 999;
+  z-index: 1999;
   display: flex;
   flex-direction: column;
   box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
@@ -842,7 +842,7 @@ export default {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 997;
+  z-index: 1997;
   box-shadow: 0 8px 30px rgba(167, 139, 250, 0.35);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
