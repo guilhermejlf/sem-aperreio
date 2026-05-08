@@ -358,9 +358,9 @@ export default {
 
 <style scoped>
 .extrato-page {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 20px;
 }
 
 .extrato-loading {

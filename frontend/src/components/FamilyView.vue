@@ -398,11 +398,8 @@ export default {
 
 <style scoped>
 .family-page {
-  background: rgba(30, 41, 59, 0.3);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .family-loading {

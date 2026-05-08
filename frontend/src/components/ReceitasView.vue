@@ -20,10 +20,6 @@
 
       <div v-else>
         <div class="receitas-toolbar">
-          <div class="receitas-total">
-            <span class="total-label">Total do período</span>
-            <span class="total-value">{{ formatarValor(totalReceitas) }}</span>
-          </div>
           <button @click="abrirModal" class="btn-primary btn-sm">
             <i class="pi pi-plus"></i> Nova Receita
           </button>
@@ -327,6 +323,7 @@ export default {
 
 <style scoped>
 .receitas-page {
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -342,28 +339,11 @@ export default {
 
 .receitas-toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 12px;
-}
-
-.receitas-total {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.total-label {
-  font-size: 0.875rem;
-  color: #9ca3af;
-}
-
-.total-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #10b981;
 }
 
 .receitas-list {

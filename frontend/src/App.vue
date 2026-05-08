@@ -117,17 +117,23 @@
       
       <!-- DASHBOARD TAB -->
       <div v-if="activeTab === 'dashboard'" class="tab-content">
-        <DashboardCharts />
+        <div class="gastos-container">
+          <DashboardCharts />
+        </div>
       </div>
 
       <!-- EXTRATO TAB -->
       <div v-if="activeTab === 'extrato'" class="tab-content">
-        <ExtratoView />
+        <div class="gastos-container">
+          <ExtratoView />
+        </div>
       </div>
 
       <!-- METAS TAB -->
       <div v-if="activeTab === 'metas'" class="tab-content">
-        <BudgetView />
+        <div class="gastos-container">
+          <BudgetView />
+        </div>
       </div>
 
       <!-- GASTOS TAB -->
@@ -219,11 +225,13 @@
 
       <!-- GRUPO TAB -->
       <div v-if="activeTab === 'grupo'" class="tab-content">
-        <FamilyView
-          :family="currentFamily"
-          :current-user="currentUser"
-          @family-action="handleFamilyAction"
-        />
+        <div class="gastos-container">
+          <FamilyView
+            :family="currentFamily"
+            :current-user="currentUser"
+            @family-action="handleFamilyAction"
+          />
+        </div>
       </div>
 
       <!-- RECEITAS TAB -->
@@ -926,6 +934,8 @@ export default {
 }
 
 .gastos-container {
+  max-width: 1200px;
+  margin: 20px auto 0;
   background: rgba(30, 41, 59, 0.3);
   backdrop-filter: blur(10px);
   border-radius: 20px;
@@ -1079,7 +1089,6 @@ export default {
 .gasto-filter-tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 

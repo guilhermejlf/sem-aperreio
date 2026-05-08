@@ -343,7 +343,6 @@ export default {
 .budget-view {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 /* Section Header (toolbar padrão como gastos/receitas) */
