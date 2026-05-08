@@ -16,11 +16,11 @@
         <div class="ai-header">
           <div class="ai-header-info">
             <div class="ai-avatar">
-              <i class="pi pi-sparkles"></i>
+              <BeneAvatar size="small" :breathing="false" />
             </div>
             <div>
-              <h3 class="ai-title">Assistente Financeiro</h3>
-              <span class="ai-subtitle">Copiloto Sem Aperreio</span>
+              <h3 class="ai-title">Seu Bené</h3>
+              <span class="ai-subtitle">Copiloto financeiro</span>
             </div>
           </div>
           <button class="ai-close" @click="close">
@@ -31,13 +31,16 @@
         <!-- Messages -->
         <div ref="messagesContainer" class="ai-messages">
           <div class="ai-welcome" v-if="messages.length === 0">
-            <div class="ai-welcome-icon">
-              <i class="pi pi-sparkles"></i>
+            <div class="ai-welcome-avatar">
+              <BeneAvatar size="medium" :breathing="true" />
             </div>
             <p class="ai-welcome-text">
-              Me diga um gasto ou receita em linguagem natural.<br>
+              Bora organizar essas contas? 😄<br>
               <span class="ai-welcome-examples">
-                Posso perguntar o valor se você esquecer de informar.
+                Pode falar naturalmente. Eu interpreto e organizo pra você.
+              </span>
+              <span class="ai-welcome-hint">
+                Se faltar alguma informação eu te pergunto 😄
               </span>
             </p>
             <div class="ai-suggestions">
@@ -153,7 +156,7 @@
               <i class="pi pi-send"></i>
             </button>
           </div>
-          <p class="ai-disclaimer">Apenas interpreto e sugiro. Nada é salvo sem sua confirmação.</p>
+          <p class="ai-disclaimer">Só interpreto e sugiro. Nada é salvo sem você confirmar.</p>
         </div>
       </div>
     </Transition>
@@ -173,10 +176,12 @@
 </template>
 
 <script>
+import BeneAvatar from './BeneAvatar.vue'
 import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 
 export default {
   name: 'AIAssistant',
+  components: { BeneAvatar },
   emits: ['saved', 'edit-expense'],
 
   props: {
@@ -199,10 +204,10 @@ export default {
       },
       conversationHistory: [],
       quickSuggestions: [
-        'uber 25',
-        'mercado 320',
-        'paguei internet',
-        'recebi 5 mil'
+        'Uber 25',
+        'Feira 320',
+        'Paguei internet 140',
+        'Recebi salário 5 mil'
       ]
     }
   },
@@ -298,7 +303,7 @@ export default {
       } catch (error) {
         this.messages.push({
           role: 'ai',
-          text: 'Ops, algo deu errado. Tente novamente em instantes.',
+          text: 'Opa, deu um ruim aqui. Tenta de novo daqui a pouco?',
           confirmation: null
         })
         // Limpar contexto em caso de erro
@@ -350,7 +355,7 @@ export default {
         // Update message to show success
         this.messages[index] = {
           role: 'ai',
-          text: `${msg.text} \u2713 Salvo com sucesso!`,
+          text: `${msg.text} \u2713 Pronto, salvo!`,
           confirmation: null,
           processing: false
         }
@@ -364,7 +369,7 @@ export default {
         // Adicionar sugestões rápidas para próximo lançamento
         this.messages.push({
           role: 'ai',
-          text: 'Mais algum gasto para registrar?',
+          text: 'Mais alguma coisa pra registrar? 😄',
           confirmation: null,
           suggestions: ['+ Mercado', '+ Transporte', '+ Restaurante', '+ Receita', 'Nenhum']
         })
@@ -413,7 +418,7 @@ export default {
       // Atualizar a mensagem no chat
       this.messages[index] = {
         role: 'ai',
-        text: 'Abri o formulário para você revisar e ajustar antes de salvar.',
+        text: 'Abri o formulário pra você revisar antes de salvar.',
         confirmation: null
       }
     },
@@ -421,7 +426,7 @@ export default {
     cancelAction(index) {
       this.messages[index] = {
         role: 'ai',
-        text: 'Cancelado. Me envie outra mensagem quando quiser.',
+        text: 'Beleza, cancelado. Manda outra quando quiser.',
         confirmation: null
       }
       this.sessionContext = {
@@ -504,16 +509,11 @@ export default {
 }
 
 .ai-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #a78bfa, #22c55e);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 18px;
-  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.3);
 }
 
 .ai-title {
@@ -560,12 +560,16 @@ export default {
   color: #94a3b8;
 }
 
-.ai-welcome-icon {
-  font-size: 48px;
+.ai-welcome-avatar {
   margin-bottom: 16px;
-  background: linear-gradient(135deg, #a78bfa, #22c55e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  opacity: 0.9;
+}
+
+.ai-welcome-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
 }
 
 .ai-welcome-text {
