@@ -514,6 +514,13 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.ai-header-info:hover .ai-avatar {
+  box-shadow: 0 0 28px rgba(34, 197, 94, 0.14);
 }
 
 .ai-title {
@@ -521,11 +528,13 @@ export default {
   font-size: 15px;
   font-weight: 600;
   color: white;
+  letter-spacing: -0.2px;
 }
 
 .ai-subtitle {
-  font-size: 12px;
-  color: #94a3b8;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 400;
 }
 
 .ai-close {
