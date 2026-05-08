@@ -1,30 +1,17 @@
 <template>
-  <Transition name="bene-insight">
-    <div
-      v-if="visible"
-      class="bene-insight"
-      :class="[`bene-insight--${variant}`]"
-      @click="handleClick"
-    >
-      <BeneAvatar size="small" :breathing="false" />
-      <span class="bene-insight__text">{{ message }}</span>
-      <button
-        v-if="dismissible"
-        class="bene-insight__dismiss"
-        @click.stop="dismiss"
-      >
-        <i class="pi pi-times"></i>
-      </button>
-    </div>
-  </Transition>
+  <div
+    v-if="visible"
+    class="bene-tooltip"
+    :class="[`bene-tooltip--${variant}`]"
+    @click="handleClick"
+  >
+    <span class="bene-tooltip__text">{{ message }}</span>
+  </div>
 </template>
 
 <script>
-import BeneAvatar from './BeneAvatar.vue'
-
 export default {
   name: 'BeneInsight',
-  components: { BeneAvatar },
   props: {
     message: { type: String, required: true },
     variant: {
@@ -32,97 +19,73 @@ export default {
       default: 'neutral',
       validator: (v) => ['info', 'success', 'warning', 'neutral'].includes(v),
     },
-    dismissible: { type: Boolean, default: true },
     visible: { type: Boolean, default: true },
   },
-  emits: ['click', 'dismiss'],
+  emits: ['click'],
   methods: {
     handleClick() {
       this.$emit('click')
-    },
-    dismiss() {
-      this.$emit('dismiss')
     },
   },
 }
 </script>
 
 <style scoped>
-.bene-insight {
+.bene-tooltip {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 16px;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transition: all 0.3s ease;
-  max-width: 260px;
+  max-width: 220px;
   user-select: none;
+  transition: all 0.25s ease;
 }
 
-.bene-insight:hover {
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(255, 255, 255, 0.12);
-  transform: translateY(-1px);
+.bene-tooltip:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.bene-insight__text {
-  font-size: 13px;
-  line-height: 1.4;
-  color: #e2e8f0;
-  flex: 1;
+.bene-tooltip__text {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #cbd5e1;
 }
 
-.bene-insight__dismiss {
-  background: none;
-  border: none;
-  color: #64748b;
-  font-size: 11px;
-  cursor: pointer;
-  padding: 2px;
-  line-height: 1;
-  border-radius: 4px;
-  transition: color 0.2s ease;
-  flex-shrink: 0;
+/* Arrow pointing down to avatar */
+.bene-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  right: 28px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(15, 23, 42, 0.65);
+  transition: border-top-color 0.25s ease;
 }
 
-.bene-insight__dismiss:hover {
-  color: #ef4444;
+.bene-tooltip:hover::after {
+  border-top-color: rgba(15, 23, 42, 0.8);
 }
 
-.bene-insight--info {
-  border-left: 3px solid #3b82f6;
+/* Variant accents — very subtle */
+.bene-tooltip--info {
+  border-color: rgba(59, 130, 246, 0.12);
 }
 
-.bene-insight--success {
-  border-left: 3px solid #22c55e;
+.bene-tooltip--success {
+  border-color: rgba(34, 197, 94, 0.12);
 }
 
-.bene-insight--warning {
-  border-left: 3px solid #f59e0b;
-}
-
-.bene-insight--neutral {
-  border-left: 3px solid #64748b;
-}
-
-/* Transitions */
-.bene-insight-enter-active,
-.bene-insight-leave-active {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.bene-insight-enter-from {
-  opacity: 0;
-  transform: translateY(8px) scale(0.95);
-}
-
-.bene-insight-leave-to {
-  opacity: 0;
-  transform: translateY(4px) scale(0.97);
+.bene-tooltip--warning {
+  border-color: rgba(245, 158, 11, 0.12);
 }
 </style>

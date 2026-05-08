@@ -1,18 +1,16 @@
 <template>
   <div class="bene-presence">
-    <!-- Insight bubble -->
-    <Transition name="bene-insight-fade">
+    <!-- Micro tooltip -->
+    <Transition name="bene-tooltip">
       <div
         v-if="hasInsight"
-        class="bene-presence__insight-wrapper"
+        class="bene-presence__tooltip-wrapper"
       >
         <BeneInsight
           :message="currentInsight.message"
           :variant="currentInsight.variant"
           :visible="true"
-          dismissible
           @click="openChat"
-          @dismiss="dismissInsight"
         />
       </div>
     </Transition>
@@ -77,9 +75,6 @@ export default {
       this.store.openChat()
       this.$emit('open-chat')
     },
-    dismissInsight() {
-      this.store.dismiss()
-    },
     showRandomInsight() {
       if (this.chatOpen) return
       const variants = ['neutral', 'info', 'success', 'warning']
@@ -116,7 +111,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 10px;
+  gap: 6px;
   pointer-events: none;
 }
 
@@ -124,37 +119,28 @@ export default {
   pointer-events: auto;
 }
 
-.bene-presence__insight-wrapper {
-  margin-bottom: 4px;
+.bene-presence__tooltip-wrapper {
+  margin-bottom: 2px;
 }
 
 .bene-presence__avatar-wrapper {
   cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.bene-presence__avatar-wrapper:hover {
-  transform: scale(1.05);
-}
-
-.bene-presence__avatar-wrapper:active {
-  transform: scale(0.97);
 }
 
 /* Transitions */
-.bene-insight-fade-enter-active,
-.bene-insight-fade-leave-active {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+.bene-tooltip-enter-active,
+.bene-tooltip-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.bene-insight-fade-enter-from {
+.bene-tooltip-enter-from {
   opacity: 0;
-  transform: translateY(12px) scale(0.92);
+  transform: translateY(6px) scale(0.96);
 }
 
-.bene-insight-fade-leave-to {
+.bene-tooltip-leave-to {
   opacity: 0;
-  transform: translateY(6px) scale(0.95);
+  transform: translateY(4px) scale(0.98);
 }
 
 @media (max-width: 768px) {

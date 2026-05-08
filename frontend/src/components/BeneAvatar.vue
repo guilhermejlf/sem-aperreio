@@ -57,19 +57,26 @@ export default {
 }
 
 .bene-avatar--floating {
-  width: 80px;
-  height: 80px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(255, 255, 255, 0.06);
+  width: 68px;
+  height: 68px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
   cursor: pointer;
+  opacity: 0.92;
+  transition: all 0.4s ease;
 }
 
 .bene-avatar--floating:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.1);
+  opacity: 1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 24px rgba(34, 197, 94, 0.06);
+  transform: scale(1.04);
 }
 
 .bene-avatar--breathing.bene-avatar--floating {
-  animation: beneBreathe 4s ease-in-out infinite;
+  animation: beneBreathe 5s ease-in-out infinite;
+}
+
+.bene-avatar--breathing.bene-avatar--floating:hover {
+  animation-play-state: paused;
 }
 
 @keyframes beneBreathe {
@@ -77,7 +84,7 @@ export default {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.03);
+    transform: scale(1.015);
   }
 }
 </style>

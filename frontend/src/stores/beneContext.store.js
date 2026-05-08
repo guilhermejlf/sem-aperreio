@@ -1,29 +1,29 @@
 import { reactive } from 'vue'
 
 const INSIGHT_COOLDOWN = 60000
-const INSIGHT_DISPLAY_MS = 6000
+const INSIGHT_DISPLAY_MS = 4500
 
 const INSIGHT_MESSAGES = {
   info: [
-    'Tá tudo certo 😄',
+    'Bora começar? 😄',
     'Quer registrar um gasto?',
-    'Posso ajudar com alguma coisa?',
-    'Dia produtivo por aí?',
+    'Posso ajudar com algo?',
+    'Dia produtivo?',
   ],
   success: [
-    'Falta pouco pra tua meta 🎯',
-    'Bom trabalho nas finanças!',
-    'Tá no caminho certo 👍',
+    'Falta pouco pra tua meta.',
+    'Bom trabalho! 👍',
+    'Tá no caminho certo 🎯',
   ],
   warning: [
-    'Mercado aumentou esse mês 👀',
-    'Dá uma olhada nos gastos fixos',
-    'Lembrou de registrar tudo?',
+    'Mercado subiu esse mês 👀',
+    'Dá uma olhada nos gastos',
+    'Registrou tudo?',
   ],
   neutral: [
     'Seu Bené por aqui 👋',
-    'Qualquer coisa é só chamar',
-    'To de olho nas contas 😉',
+    'Só chamar',
+    'De olho nas contas 😉',
   ],
 }
 
