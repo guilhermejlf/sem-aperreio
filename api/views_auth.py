@@ -1,10 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth.models import User
 
 from .serializers_auth import RegisterSerializer
+from .models import UserProfile
 
 
 class RegisterView(APIView):
@@ -29,8 +32,45 @@ class RegisterView(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        identifier = attrs.get('identifier', '')
+        password = attrs.get('password', '')
+
+        # Buscar usuário por email ou username
+        if '@' in identifier:
+            try:
+                user = User.objects.get(email=identifier)
+            except User.DoesNotExist:
+                raise serializers.ValidationError("Credenciais inválidas.", code='authorization')
+        else:
+            try:
+                user = User.objects.get(username=identifier)
+            except User.DoesNotExist:
+                raise serializers.ValidationError("Credenciais inválidas.", code='authorization')
+
+        # Verificar senha
+        if not user.check_password(password):
+            raise serializers.ValidationError("Credenciais inválidas.", code='authorization')
+
+        # Verificar email confirmado
+        try:
+            profile = user.profile
+            if not profile.email_verified:
+                raise serializers.ValidationError(
+                    "Confirme seu email antes de entrar. Verifique sua caixa de entrada.",
+                    code='authorization'
+                )
+        except UserProfile.DoesNotExist:
+            pass  # Usuários antigos sem profile podem logar
+
+        attrs['username'] = user.username
+        return super().validate(attrs)
+
+
 class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class RefreshView(TokenRefreshView):
