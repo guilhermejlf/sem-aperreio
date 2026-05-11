@@ -169,3 +169,15 @@ class MetaGasto(models.Model):
     def __str__(self):
         cat = self.get_categoria_display() if self.categoria else "Geral"
         return f"Meta {cat} - {self.mes}/{self.ano}: R$ {self.valor_meta}"
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    email_verified = models.BooleanField(default=False)
+    verification_token = models.CharField(max_length=64, blank=True, null=True)
+    verification_token_expires = models.DateTimeField(blank=True, null=True)
+    reset_token = models.CharField(max_length=64, blank=True, null=True)
+    reset_token_expires = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Profile: {self.user.username}"
