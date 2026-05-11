@@ -16,6 +16,12 @@
         <LoginForm v-if="activeTab === 'login'" @success="handleAuth" />
         <RegisterForm v-else @auth-success="handleAuth" />
       </div>
+
+      <div v-if="activeTab === 'login'" class="auth-footer">
+        <a href="#" class="forgot-link" @click.prevent="showForgotModal = true">Esqueci minha senha</a>
+      </div>
+
+      <ForgotPasswordModal v-if="showForgotModal" @close="showForgotModal = false" />
     </div>
   </div>
 </template>
@@ -23,11 +29,15 @@
 <script>
 import LoginForm from './LoginForm.vue'
 import RegisterForm from './RegisterForm.vue'
+import ForgotPasswordModal from './ForgotPasswordModal.vue'
 
 export default {
-  components: { LoginForm, RegisterForm },
+  components: { LoginForm, RegisterForm, ForgotPasswordModal },
   data() {
-    return { activeTab: 'login' }
+    return {
+      activeTab: 'login',
+      showForgotModal: false
+    }
   },
   methods: {
     handleAuth() {
@@ -121,6 +131,22 @@ export default {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.forgot-link {
+  color: #94a3b8;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgot-link:hover {
+  color: #22c55e;
 }
 
 @media (max-width: 480px) {
