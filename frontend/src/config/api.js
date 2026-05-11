@@ -124,7 +124,8 @@ export async function apiRequest(url, options = {}) {
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.erro || errorData.detail || `HTTP ${response.status}`)
+      const msg = errorData.erro || errorData.detail || (errorData.non_field_errors && errorData.non_field_errors[0]) || `HTTP ${response.status}`
+      throw new Error(msg)
     }
 
     // Handle empty responses (204 No Content)
