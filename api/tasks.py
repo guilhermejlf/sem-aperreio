@@ -167,3 +167,25 @@ Acesse o dashboard para ver detalhes: {getattr(settings, 'FRONTEND_URL', 'http:/
         send_mass_mail(email_messages, fail_silently=True)
 
     return f"Verificação concluída. {len(email_messages)} alerta(s) enviado(s)."
+
+
+@shared_task
+def send_email(subject, to_email, template_name, context=None):
+    """
+    Envia email usando template HTML.
+    """
+    from django.core.mail import send_mail
+    from django.template.loader import render_to_string
+    from django.utils.html import strip_tags
+
+    html_message = render_to_string(f'emails/{template_name}.html', context or {})
+    plain_message = strip_tags(html_message)
+
+    send_mail(
+        subject=subject,
+        message=plain_message,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@semaperreio.app'),
+        recipient_list=[to_email],
+        html_message=html_message,
+        fail_silently=True,
+    )
