@@ -43,13 +43,12 @@ Backlog items:
 - [x] Criar REQUIREMENTS.md para v2.0
 - [x] Criar ROADMAP.md para v2.0 (Phases 5–6)
 - [x] Phase 5 discuss-phase: decisões capturadas em `05-CONTEXT.md`
-- [x] Phase 5 plan-phase: `05-01-PLAN.md` (backend) e `05-02-PLAN.md` (frontend) criados
+- [x] **Fase 8:** Auth Polish — `08-01-SUMMARY.md`, `08-02-SUMMARY.md` (backend) e `05-02-PLAN.md` (frontend) criados
 - [x] Phase 5 ui-spec: `05-UI-SPEC.md` criado
-- [x] Phase 5 execute-phase: implementar Budget models, endpoints, e UI ✅
+- [x] Phase 5 execute-phase: implementar Budget models, endpoints, e UI 
 - [x] Phase 5 review: bugs fixed (formatarValor, category filtering, delete UI)
 - [x] Phase 6 discuss-phase: decisões capturadas em `06-CONTEXT.md`
 - [x] Phase 6 plan-phase: `06-01-PLAN.md` (backend notificações) e `06-02-PLAN.md` (infraestrutura/deploy) criados
-- [x] Phase 6 execute-phase: implementar notificações + PostgreSQL + CI/CD + deploy ✅
 - [x] Phase 7 discuss-phase: decisões capturadas em `07-CONTEXT.md`
 - [x] Phase 7 plan-phase: `07-01-PLAN.md` criado
 - [x] Phase 7 execute-phase: implementar IA parser + drawer chat + FAB ✅
