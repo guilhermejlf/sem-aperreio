@@ -1,8 +1,16 @@
 <template>
   <div class="page">
 
-    <!-- AUTH VIEW -->
-    <AuthView v-if="!isAuth" @authenticated="handleLoginSuccess" />
+    <!-- AUTH VIEWS -->
+    <template v-if="currentPath === '/reset-password'">
+      <PasswordResetView />
+    </template>
+    <template v-else-if="currentPath === '/verify-email'">
+      <VerifyEmailView />
+    </template>
+    <template v-else-if="!isAuth">
+      <AuthView @authenticated="handleLoginSuccess" />
+    </template>
 
     <!-- APP CONTENT -->
     <template v-else>
@@ -354,6 +362,8 @@ import BudgetView from './components/BudgetView.vue'
 import ExtratoView from './components/ExtratoView.vue'
 import BaseCard from './components/BaseCard.vue'
 import AIAssistant from './components/AIAssistant.vue'
+import PasswordResetView from './components/PasswordResetView.vue'
+import VerifyEmailView from './components/VerifyEmailView.vue'
 import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
@@ -380,6 +390,8 @@ export default {
     ExtratoView,
     BaseCard,
     AIAssistant,
+    PasswordResetView,
+    VerifyEmailView,
     BeneFloatingPresence,
     Toast,
     ConfirmDialog
@@ -427,6 +439,9 @@ export default {
   },
 
   computed: {
+    currentPath() {
+      return window.location.pathname
+    },
     gastosDoMes() {
       const mesAtual = new Date().getMonth() + 1
       const anoAtual = new Date().getFullYear()
