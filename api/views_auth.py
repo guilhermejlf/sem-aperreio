@@ -76,6 +76,15 @@ class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = CustomTokenObtainPairSerializer
 
+    def post(self, request, *args, **kwargs):
+        # Mapear identifier -> username para compatibilidade com o serializer base
+        data = request.data.copy()
+        if 'identifier' in data:
+            data['username'] = data.pop('identifier')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
 
 class RefreshView(TokenRefreshView):
     permission_classes = [AllowAny]
