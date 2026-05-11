@@ -113,22 +113,25 @@ This document evolves at phase transitions and milestone boundaries.
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Manter Options API no Vue | Código já usa Options API; migrar para Composition seria retrabalho sem ganho imediato | — Pending |
-| SQLite para MVP | Zero configuração para desenvolvimento local; migração para PostgreSQL é trivial com Django | — Pending |
+| Manter Options API no Vue | Código já usa Options API; migrar para Composition seria retrabalho sem ganho imediato | — Pending (candidato v2) |
+| SQLite para MVP / PostgreSQL produção | Zero config local; DATABASE_URL em produção trivial com Django | ✓ Good |
 | Lazy-load do modelo ML | pickle carregado sob demanda; evita startup lento se arquivo ausente | ✓ Good |
-| JWT ao invés de session cookies | Frontend SPA separado do backend; JWT facilita CORS e mobile futuro | — Pending |
-| Grupo familiar (User → Family) | Um gasto pertence a um User que pertence a uma Family; permite múltiplos usuários verem os mesmos gastos | — Pending |
+| JWT ao invés de session cookies | Frontend SPA separado do backend; JWT facilita CORS e mobile futuro | ✓ Good |
+| Grupo familiar (User → Family) | Um gasto pertence a um User que pertence a uma Family; permite múltiplos usuários verem os mesmos gastos | ✓ Good |
+| Endpoint + cron-job.org para tasks | Celery worker não roda no Railway free tier; endpoint com secret é suficiente | ✓ Good |
+| Fallback parser IA (regex) | OpenAI pode estar indisponível ou sem créditos; regex cobre 80% dos casos | ✓ Good |
+| Drawer lateral para chat IA | Modal bloqueia interação; drawer permite acesso ao dashboard enquanto conversa | ✓ Good |
 
-## Current Milestone: v2.0 — Quality & Scale
+## Current Milestone: Next
 
-**Goal:** Consolidar a base de produção com testes, performance e novas integrações.
+**Goal:** TBD — run `/gsd-new-milestone` to define next milestone.
 
-**Target features:**
-- Testes automatizados (TEST-01)
-- Cache Redis para dashboard e previsões (CACHE-01)
-- PWA com cache offline (MOB-01)
-- Avaliar integração bancária (Open Banking) (BANK-01)
-- Migrar cron jobs externos para Celery Beat
+**Active backlog:**
+- [ ] **TEST-01**: Testes automatizados (unitários + integração)
+- [ ] **CACHE-01**: Cache Redis para dashboard e previsões
+- [ ] **MOB-01**: PWA com cache offline
+- [ ] **BANK-01**: Integração bancária (Open Banking) — avaliar viabilidade regulatória
+- [ ] **CRON-01**: Migrar cron jobs externos para Celery Beat interno
 
 **Key context:**
 - Sistema em produção estável (Railway + Vercel + PostgreSQL + SendGrid)
@@ -138,4 +141,4 @@ This document evolves at phase transitions and milestone boundaries.
 - Deploy automatizado funcional — focar em qualidade e novas features
 
 ---
-*Last updated: 2026-05-08 after v1.1 production deploy with UI fixes, documentation refresh and v2.0 planning*
+*Last updated: 2026-05-11 after v3.0 milestone completion (AI assistant + notifications + deploy)*

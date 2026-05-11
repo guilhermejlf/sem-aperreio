@@ -2,33 +2,33 @@
 
 ## Current Milestone
 
-**Milestone:** v3.0 AI — Phase 7 IA-03
-**Phase:** 7 — Assistente Financeiro Conversacional com Continuidade
-**Plan:** `.planning/phases/07-ia-01/07-01-PLAN.md`
-**Status:** SHIPPED (backend + frontend) — Deploy 2026-05-07
-**Last activity:** 2026-05-07 — IA-03 implementado (continuidade conversacional + saudacoes + fim de conversa)
+**Milestone:** Next — TBD
+**Phase:** None
+**Status:** Planning next milestone
+**Last activity:** 2026-05-11 — v3.0 milestone completed and archived
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-30)
-See: `.planning/MILESTONES.md` (v1.0 retrospective)
+See: `.planning/PROJECT.md` (updated 2026-05-11)
+See: `.planning/MILESTONES.md` (v1.0 + v3.0 retrospective)
 
 **Core value:** Familiares conseguem registrar e visualizar todos os gastos do lar em um só lugar, com análises claras que revelam padrões de consumo e oportunidades de economia.
 
 ## Previous Milestones
 
 - ✅ v1.0 MVP — SHIPPED (2026-04-30) — Auth JWT, Family Groups, Dashboard, ML + Export
+- ✅ v3.0 AI — SHIPPED (2026-05-07) — Budget, Notifications, Deploy, AI Assistant
 
 ## What's Next
 
-Milestone v3.0 — IA:
+Run `/gsd-new-milestone` to define next milestone.
 
-1. ✅ `/gsd-new-milestone "v3.0 AI"` — iniciado
-2. ✅ Phase 5 — Orçamento e Metas (BUDG-01/02/03) — SHIPPED 2026-05-04
-3. ✅ Phase 6 — Notificações e Deploy (NOTF-01/02, INFR-01/02/03) — SHIPPED 2026-05-05
-4. ✅ Phase 7 — IA-01 Assistente Financeiro Conversacional — SHIPPED 2026-05-07
-5. ✅ Phase 7.1 — IA-02 Assistente Contextual Multi-Etapas — SHIPPED 2026-05-07
-6. ✅ Phase 7.2 — IA-03 Continuidade Conversacional — SHIPPED 2026-05-07
+Backlog items:
+- TEST-01: Testes automatizados
+- CACHE-01: Cache Redis
+- MOB-01: PWA offline
+- BANK-01: Open Banking avaliação
+- CRON-01: Celery Beat interno
 
 ## Recent Commits
 
@@ -59,9 +59,13 @@ Milestone v3.0 — IA:
 
 ## Accumulated Context
 
-- Options API no Vue — Composition API migration candidate for v2
-- SQLite → PostgreSQL migration required before production deploy
+- Options API no Vue — Composition API migration candidate for next milestone
+- PostgreSQL em produção (Railway) — SQLite mantido para dev
 - ML model on-demand training — consider Celery/persisted model for large datasets
 - No automated tests — only manual testing performed
-- GAST-04 pagination partial (simple limit, no full metadata)
+- Pagination partial (simple limit, no full metadata)
 - Git tag v1.0 pushado para origin
+- Git tag v3.0 criado (push pending)
+- Cron jobs externos (cron-job.org) — Celery Beat interno candidato para upgrade
+- Assistente IA funcional com fallback regex
+- Deploy automatizado (GitHub Actions → Railway + Vercel)

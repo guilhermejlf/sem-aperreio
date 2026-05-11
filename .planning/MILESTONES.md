@@ -50,3 +50,58 @@
 - Modelo: balanced (Sonnet para execução)
 - Sessions: ~4-5 sessões de desenvolvimento
 - Notável: Fase de dashboard (charts + reatividade) consumiu mais tokens que as outras combinadas
+
+---
+
+## Milestone: v3.0 AI — Orçamento, Notificações, Deploy e Assistente Conversacional
+
+**Shipped:** 2026-05-07
+**Tag:** `v3.0`
+**Phases:** 5-7 (incluindo 7.1, 7.2) | **Plans:** 6
+**Git range:** `8a0ac9f` → `dae643a`
+**Files changed:** 75 files, +11,256/-1,207 LOC
+**Timeline:** 2026-04-30 → 2026-05-07 (7 days)
+
+### What Was Built
+
+1. **Orçamento e Metas** — Modelo MetaGasto com CRUD completo, dashboard integration com progress bars color-coded, alertas visuais em 80% e crítico em 100%.
+2. **Notificações por Email** — Tasks semanais e alertas de média histórica via SendGrid, protegidas por endpoint com secret para cron-job.org.
+3. **Infraestrutura de Produção** — PostgreSQL no Railway, CI/CD via GitHub Actions, deploy automatizado backend (Railway) + frontend (Vercel).
+4. **Assistente IA Conversacional** — Parser OpenAI GPT-4o-mini com fallback regex, drawer chat com drawer lateral, FAB flutuante, confirmação de gastos/receitas.
+5. **IA Contextual Multi-Etapas** — Perguntas complementares quando faltam dados (ex: "Quanto você gastou com Internet?").
+6. **Continuidade Conversacional** — Detecta continuações ("e", "também"), saudações e despedidas, histórico de sessão.
+7. **Exportação PDF** — Exportação de extrato para PDF com reportlab e logo personalizado.
+8. **Receitas e Extrato** — CRUD de receitas com data de competência e visualização detalhada de gastos e receitas por período.
+
+### What Worked
+
+- Endpoint + cron-job.org como fallback para Celery no free tier funcionou bem
+- PostgreSQL migration via DATABASE_URL foi transparente com Django
+- Fallback parser IA funciona sem OpenAI API key (reconhecimento básico de valor e categoria)
+- Drawer de IA responsivo com tema dark consistente com o app
+
+### What Was Inefficient
+
+- Fases 6 e 7 não tiveram SUMMARY.md criados durante execução (adicionados retrospectivamente)
+- Zero testes automatizados continuam — risco técnico crescente
+- Cron jobs externos (cron-job.org) ao invés de Celery Beat interno
+
+### Patterns Established
+
+- Config de produção via variáveis de ambiente (DATABASE_URL, EMAIL_HOST_PASSWORD)
+- CORS fallback para FRONTEND_URL quando lista vazia
+- Parser IA com response padronizada (intent, confirmation_required, message, data)
+- sessionContext no frontend para gerenciar estado da conversa IA
+
+### Key Lessons
+
+- python-decouple lê .env primeiro — usar os.environ.get() para override em produção
+- Vercel SPA routing precisa de "handle": "filesystem" antes do catch-all
+- OpenAI GPT-4o-mini é suficiente para parsing simples de gastos; fallback regex cobre 80% dos casos
+- Drawer lateral funciona melhor que modal para conversas multi-mensagem
+
+### Cost Observations
+
+- Modelo: balanced
+- Sessions: ~3-4 sessões para fases 5-7
+- Notável: Fase 7 (IA) consumiu mais tokens devido à iteração de UX do chat

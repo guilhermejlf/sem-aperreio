@@ -15,14 +15,14 @@
 
 ### Notificações (NOTF)
 
-- [ ] **NOTF-01**: Sistema envia lembrete semanal para registrar gastos (email ou push)
-- [ ] **NOTF-02**: Alerta automático quando gasto do mês ultrapassa média histórica + 20%
+- [x] **NOTF-01**: Sistema envia lembrete semanal para registrar gastos (email ou push)
+- [x] **NOTF-02**: Alerta automático quando gasto do mês ultrapassa média histórica + 20%
 
 ### Infraestrutura e Deploy (INFR)
 
-- [ ] **INFR-01**: Migração SQLite → PostgreSQL para produção
-- [ ] **INFR-02**: CI/CD com GitHub Actions (testes + lint + deploy)
-- [ ] **INFR-03**: Deploy automatizado: backend Render/Railway + frontend Netlify/Vercel
+- [x] **INFR-01**: Migração SQLite → PostgreSQL para produção
+- [x] **INFR-02**: CI/CD com GitHub Actions (testes + lint + deploy)
+- [x] **INFR-03**: Deploy automatizado: backend Render/Railway + frontend Netlify/Vercel
 
 ---
 
@@ -47,11 +47,11 @@
 | BUDG-01 | Phase 5 | ✅ Done 2026-05-04 |
 | BUDG-02 | Phase 5 | ✅ Done 2026-05-04 |
 | BUDG-03 | Phase 5 | ✅ Done 2026-05-04 |
-| NOTF-01 | Phase 6 | Pending |
-| NOTF-02 | Phase 6 | Pending |
-| INFR-01 | Phase 6 | Pending |
-| INFR-02 | Phase 6 | Pending |
-| INFR-03 | Phase 6 | Pending |
+| NOTF-01 | Phase 6 | Done 2026-05-05 |
+| NOTF-02 | Phase 6 | Done 2026-05-05 |
+| INFR-01 | Phase 6 | Done 2026-05-05 |
+| INFR-02 | Phase 6 | Done 2026-05-05 |
+| INFR-03 | Phase 6 | Done 2026-05-05 |
 
 **Coverage:**
 - v2.0 requirements: 8 total
@@ -61,4 +61,4 @@
 ---
 
 *Requirements defined: 2026-04-30 after v2.0 milestone initialization*
-*Updated: 2026-05-04 — Phase 5 BUDG requirements completed*
+*Updated: 2026-05-11 — All v2.0 requirements completed (BUDG + NOTF + INFR)*

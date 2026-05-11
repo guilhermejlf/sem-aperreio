@@ -1,196 +1,67 @@
 # Roadmap: Sem Aperreio
 
-**Project:** Sem Aperreio — Controle de Gastos Doméstico
+**Project:** Sem Aperreio � Controle de Gastos Dom�stico
 **Defined:** 2026-04-24
-**Current Milestone:** v2 — Orçamento, Notificações e Deploy
+**Current Milestone:** Next
 
 ---
 
 ## Milestones
 
-- ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-04-30)
-- ✅ **v2.0 Production** — Shipped 2026-05-05
+- **v1.0 MVP** � Phases 1-4 (shipped 2026-04-30) � See .planning/milestones/v1.0-ROADMAP.md
+- **v3.0 AI** � Phases 5-7 (shipped 2026-05-07) � See .planning/milestones/v3.0-ROADMAP.md
 
 ---
 
 ## Phases
 
 <details>
-<summary>✅ v1.0 MVP (Phases 1-4) — SHIPPED 2026-04-30</summary>
+<summary>v1.0 MVP (Phases 1-4) � SHIPPED 2026-04-30</summary>
 
-### Phase 1 — Autenticação JWT (2 plans)
+### Phase 1 � Autentica��o JWT (2 plans)
 - [x] Backend JWT: djangorestframework-simplejwt, endpoints auth
 - [x] Frontend auth: telas login/cadastro, token storage, interceptador, logout
 
-### Phase 2 — Grupo Familiar + Refatoração de Gastos (2 plans)
+### Phase 2 � Grupo Familiar + Refatora��o de Gastos (2 plans)
 - [x] Backend: Family/FamilyMembership models, FamilyViewSet, gastos filtrados por family
 - [x] Frontend: FamilyView.vue, drawer, badge no header, gerenciamento de membros
 
-### Phase 3 — Dashboard Inteligente com Filtros (2 plans)
-- [x] Backend: endpoint `/api/dashboard/` com agregações, ranking, comparativo
-- [x] Frontend: seletor mês/ano, cards responsivos, gráficos Chart.js, estado vazio
+### Phase 3 � Dashboard Inteligente com Filtros (2 plans)
+- [x] Backend: endpoint /api/dashboard/ com agrega��es, ranking, comparativo
+- [x] Frontend: seletor m�s/ano, cards responsivos, gr�ficos Chart.js, estado vazio
 
-### Phase 4 — ML com Dados Reais + Exportação (1 plan)
-- [x] ML: previsão por categoria via LinearRegression, fallback média
+### Phase 4 � ML com Dados Reais + Exporta��o (1 plan)
+- [x] ML: previs�o por categoria via LinearRegression, fallback m�dia
 - [x] Export: CSV (StreamingHttpResponse), XLSX (openpyxl)
 
-See archive: `.planning/milestones/v1.0-ROADMAP.md`
+See archive: .planning/milestones/v1.0-ROADMAP.md
 </details>
 
-### Phase 5 — Orçamento e Metas ✅ SHIPPED 2026-05-04
+<details>
+<summary>v3.0 AI (Phases 5-7) � SHIPPED 2026-05-07</summary>
 
-**Goal:** Usuários podem definir metas de gasto por categoria e acompanhar progresso no dashboard.
+### Phase 5 � Or�amento e Metas (2 plans)
+- [x] Modelo MetaGasto, endpoints CRUD, dashboard integration
+- [x] Frontend BudgetView, BudgetEditModal, alertas 80%/100%
 
-**Depends on:** v1.0 (all phases)
+### Phase 6 � Notifica��es e Deploy (2 plans)
+- [x] Backend: tasks Celery/SendGrid, endpoint trigger, cron-job.org
+- [x] Infra: PostgreSQL, GitHub Actions CI/CD, Railway + Vercel
 
-**Requirements:** BUDG-01, BUDG-02, BUDG-03
+### Phase 7 � Assistente Financeiro Conversacional (1 plan)
+- [x] IA-01: parser OpenAI + fallback, drawer chat, FAB, confirma��o
+- [x] IA-02: contextual multi-etapas
+- [x] IA-03: continuidade conversacional, sauda��es, despedida
 
-**Deliverables:**
-- ✅ Modelo `MetaGasto` (categoria, valor meta, mês/ano, usuário)
-- ✅ Endpoint CRUD `/api/metas/` com campos computados (gasto_realizado, percentual, status)
-- ✅ Dashboard integration — `/api/dashboard/` retorna `metas` (geral + por_categoria)
-- ✅ Frontend: `BudgetView.vue` com seletor de período, meta geral, grid de categorias
-- ✅ Frontend: `BudgetEditModal.vue` com confirmação ao editar meta com gastos existentes
-- ✅ Dashboard mini block — progress bars de metas entre comportamento e gráficos
-- ✅ App.vue: nova aba "Metas" (`pi pi-bullseye`) com `BudgetView`
-- ✅ Dashboard: barra de progresso por categoria
-- ✅ Alerta visual quando gasto ultrapassa 80% da meta (toast + dashboard insights)
-- ✅ Alerta crítico quando > 100%
-
-**Verification:**
-- [x] Usuário define meta de R$ 500 para "Mercado"
-- [x] Dashboard mostra progresso "R$ 320 / R$ 500 (64%)"
-- [x] Alerta aparece quando gasto > 80% da meta (toast warn + dashboard warning)
-- [x] Alerta muda para crítico quando > 100% (toast error + dashboard alert)
+See archive: .planning/milestones/v3.0-ROADMAP.md
+</details>
 
 ---
 
-### Phase 6 — Notificações e Deploy ✅ SHIPPED 2026-05-05
+## Next Milestone
 
-**Goal:** Notificações push/email e infraestrutura de produção (PostgreSQL, CI/CD, deploy).
-
-**Depends on:** Phase 5
-
-**Requirements:** NOTF-01, NOTF-02, INFR-01, INFR-02, INFR-03
-
-**Deliverables:**
-- ✅ Tasks de notificação: `send_weekly_reminder`, `check_monthly_average` (`api/tasks.py`)
-- ✅ Endpoint `/api/tasks/trigger/` protegido por secret (para cron-job.org)
-- ✅ SendGrid SMTP configurado (settings + Railway env vars)
-- ✅ PostgreSQL via `DATABASE_URL` (Railway add-on)
-- ✅ CI/CD GitHub Actions: check + deploy backend + deploy frontend
-- ✅ Backend Railway: `campo-valor-production.up.railway.app`
-- ✅ Frontend Vercel: `https://sem-aperreio.vercel.app`
-
-**Verification:**
-- [x] Tasks de email prontas (`send_weekly_reminder`, `check_monthly_average`)
-- [x] Healthcheck `/api/health/` responde `{"status":"ok"}`
-- [x] PostgreSQL funcional em produção (`DATABASE_URL` override)
-- [x] Push no `main` dispara deploy automático
-- [x] Frontend acessível via HTTPS (Vercel)
-
-**Production URLs:**
-- Backend: `https://campo-valor-production.up.railway.app`
-- Frontend: `https://sem-aperreio.vercel.app`
+TBD � run /gsd-new-milestone to define next phase.
 
 ---
 
-### Phase 7 — IA-01 Assistente Financeiro Conversacional ✅ SHIPPED 2026-05-07
-
-**Goal:** Criar um assistente financeiro conversacional simples que interpreta linguagem natural para registrar gastos e receitas com confirmação do usuário.
-
-**Depends on:** v2.0 (all phases)
-
-**Requirements:** IA-01, IA-02, IA-03
-
-**Deliverables:**
-- [x] Backend: endpoint `POST /api/ai/chat/` com parser estruturado (OpenAI GPT-4o-mini + fallback)
-- [x] Backend: interpreta tipo (gasto/receita), valor, categoria, descrição
-- [x] Backend: resposta padronizada com `intent`, `confirmation_required`, `message`, `data`
-- [x] Backend: NÃO salva automaticamente — apenas interpreta e sugere
-- [x] Frontend: componente `AIAssistant.vue` (drawer lateral/chat)
-- [x] Frontend: FAB flutuante no canto inferior direito
-- [x] Frontend: bolhas de mensagem, card de confirmação com dados estruturados
-- [x] Frontend: botões Confirmar/Cancelar no card de confirmação
-- [x] Frontend: persistência via endpoints existentes (`/api/gastos/`, `/api/receitas/`)
-- [x] Frontend: integração com App.vue + recarregamento de dados após save
-- [x] UX: tema dark, animações suaves, mobile-responsive drawer
-
-**Verification:**
-- [x] Usuário digita "uber 25 reais" → IA sugere gasto de R$ 25,00 em Transporte
-- [x] Usuário digita "recebi 5 mil hoje" → IA sugere receita de R$ 5.000,00
-- [x] Confirmação do usuário persiste no banco via API existente
-- [x] Cancelamento descarta a sugestão sem salvar
-- [x] Fallback funciona sem OPENAI_API_KEY configurada
-- [x] Botão "Editar" abre modal de gasto pré-preenchido
-
----
-
-### Phase 7.1 — IA-02 Assistente Contextual Multi-Etapas ✅ SHIPPED 2026-05-07
-
-**Goal:** Evoluir o assistente para conversas multi-etapas com perguntas complementares quando faltam dados.
-
-**Depends on:** Phase 7 (IA-01)
-
-**Requirements:** IA-02
-
-**Deliverables:**
-- [x] Backend: endpoint aceita `context` no body (`awaiting_field`, `partial_data`)
-- [x] Backend: mensagens parciais (ex: "paguei internet") disparam pergunta de valor
-- [x] Backend: `_process_contextual` completa dados pendentes com resposta do usuário
-- [x] Backend: `_extract_value` para respostas curtas numéricas
-- [x] Frontend: `sessionContext` gerencia estado da conversa
-- [x] Frontend: envia contexto a cada requisição
-- [x] Frontend: chips de sugestões rápidas clicáveis no estado vazio
-- [x] Frontend: typing indicator com "Analisando..."
-- [x] Frontend: limpa contexto após confirmação/cancelamento/erro
-
-**Verification:**
-- [x] Usuário: "paguei internet" → IA: "Quanto você gastou com Internet?"
-- [x] Usuário: "140" → IA: "Entendi! Você gastou R$ 140,00 em Contas e serviços (Internet)."
-- [x] Usuário: "mercado" → IA: "Quanto você gastou com Mercado?"
-- [x] Usuário: "320" → IA confirmação
-- [x] Contexto é limpo após confirmação ou cancelamento
-
----
-
-### Phase 7.2 — IA-03 Continuidade Conversacional ✅ SHIPPED 2026-05-07
-
-**Goal:** Conversas contínuas e naturais, múltiplos lançamentos em sequência, saudações e fim de conversa amigável.
-
-**Depends on:** Phase 7.1 (IA-02)
-
-**Requirements:** IA-03
-
-**Deliverables:**
-- [x] Backend: `conversation_history` para contexto de sessão
-- [x] Backend: `_is_continuation` detecta "e", "também", "sim", "mais", "outro"
-- [x] Backend: `_is_greeting` detecta saudações ("oi", "bom dia", "opa")
-- [x] Backend: `_is_conversation_end` detecta recusas, gratidão, despedida
-- [x] Backend: fallback_parser usa histórico para continuações
-- [x] Backend: respostas com tom natural ("Perfeito!" em vez de "Entendi!")
-- [x] Frontend: envia `conversation_history` a cada requisição
-- [x] Frontend: chips de sugestões rápidas após salvar (+ Mercado, + Transporte, etc.)
-- [x] Frontend: chip "Nenhum" para encerrar conversa naturalmente
-- [x] Frontend: typing indicator com animação de dots
-- [x] Frontend: foco preservado no input após envio
-- [x] Frontend: botão Editar aparece em gastos e receitas
-
-**Verification:**
-- [x] "uber 25" → confirmar → "e mercado 120" → confirmação contínua
-- [x] "bom dia" → IA: "Oi! Como posso ajudar?"
-- [x] "obrigado" / "não" → IA: 👋
-- [x] Foco mantido no input durante toda a conversa
-
----
-
-## Milestone Summary
-
-| Milestone | Phases | Status |
-|-----------|--------|--------|
-| v1.0 | 1–4 | ✅ Shipped (2026-04-30) |
-| v2.0 | 5–6 | ✅ Shipped (2026-05-05) |
-| v3.0 | 7 | ✅ Shipped (2026-05-07) |
-
----
-*Last updated: 2026-05-07 after Phase 7.2 IA-03 deploy*
+*Last updated: 2026-05-11 after v3.0 milestone completion*
