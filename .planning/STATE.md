@@ -2,10 +2,11 @@
 
 ## Current Milestone
 
-**Milestone:** Next — TBD
-**Phase:** None
-**Status:** Planning next milestone
-**Last activity:** 2026-05-11 — v3.0 milestone completed and archived
+**Milestone:** v3.1 — Auth Polish
+**Phase:** 8 — Melhorias de Autenticação
+**Plan:** —
+**Status:** Defining requirements
+**Last activity:** 2026-05-11 — milestone v3.1 started
 
 ## Project Reference
 

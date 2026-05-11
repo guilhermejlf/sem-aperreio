@@ -2,7 +2,7 @@
 
 **Project:** Sem Aperreio — Controle de Gastos Doméstico
 **Defined:** 2026-04-24
-**Current Milestone:** Next
+**Current Milestone:** v3.1 — Auth Polish
 
 ---
 
@@ -10,6 +10,7 @@
 
 - **v1.0 MVP** — Phases 1-4 (shipped 2026-04-30) — See .planning/milestones/v1.0-ROADMAP.md
 - **v3.0 AI** — Phases 5-7 (shipped 2026-05-07) — See .planning/milestones/v3.0-ROADMAP.md
+- **v3.1 Auth Polish** — Phase 8 (in progress)
 
 ---
 
@@ -56,12 +57,40 @@ See archive: .planning/milestones/v1.0-ROADMAP.md
 See archive: .planning/milestones/v3.0-ROADMAP.md
 </details>
 
+### v3.1 Auth Polish (In Progress)
+
+#### Phase 8 — Melhorias de Autenticação (2 plans)
+
+**Goal:** Polir UX de autenticação com password reset, login por email, validação de senha e confirmação de email.
+
+**Requirements:** AUTH-04, AUTH-05, AUTH-06, AUTH-07, UI-02
+
+**Success Criteria:**
+1. Usuário pode solicitar reset de senha e receber email com link
+2. Campo de login aceita username ou email indistintamente
+3. Registro rejeita senhas fracas e exige confirmação
+4. Email de verificação enviado no cadastro; login bloqueado até confirmação
+5. Tela de login com feedback visual claro, estados de loading e mensagens de erro amigáveis
+
+**Plans:**
+- [ ] **08-01**: Backend — password reset token, email verification, login por email, validação de senha
+- [ ] **08-02**: Frontend — tela de forgot password, ajustes login/registro, verificação de email
+
 ---
 
-## Next Milestone
+## Progress
 
-TBD — run /gsd-new-milestone to define next phase.
+| Phase             | Milestone | Plans Complete | Status      | Completed  |
+| ----------------- | --------- | -------------- | ----------- | ---------- |
+| 1. Foundation     | v1.0      | 2/2            | Complete    | 2026-04-30 |
+| 2. Authentication | v1.0      | 2/2            | Complete    | 2026-04-30 |
+| 3. Core Features  | v1.0      | 2/2            | Complete    | 2026-04-30 |
+| 4. ML + Export    | v1.0      | 1/1            | Complete    | 2026-04-30 |
+| 5. Budget Goals   | v3.0      | 2/2            | Complete    | 2026-05-04 |
+| 6. Notifications  | v3.0      | 2/2            | Complete    | 2026-05-05 |
+| 7. AI Assistant   | v3.0      | 1/1            | Complete    | 2026-05-07 |
+| 8. Auth Polish    | v3.1      | 0/2            | Not started | —          |
 
 ---
 
-*Last updated: 2026-05-11 after v3.0 milestone completion*
+*Last updated: 2026-05-11 — milestone v3.1 started*

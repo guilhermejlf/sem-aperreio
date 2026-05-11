@@ -122,11 +122,18 @@ This document evolves at phase transitions and milestone boundaries.
 | Fallback parser IA (regex) | OpenAI pode estar indisponível ou sem créditos; regex cobre 80% dos casos | ✓ Good |
 | Drawer lateral para chat IA | Modal bloqueia interação; drawer permite acesso ao dashboard enquanto conversa | ✓ Good |
 
-## Current Milestone: Next
+## Current Milestone: v3.1 — Auth Polish
 
-**Goal:** TBD — run `/gsd-new-milestone` to define next milestone.
+**Goal:** Melhorar UX de autenticação com password reset, login por email, validação de senha e confirmação de email.
 
-**Active backlog:**
+**Target features:**
+- Password reset via email (esqueci minha senha)
+- Login com username OU email
+- Validação de senha forte + confirmação de senha no registro
+- Confirmação de email no cadastro
+- Melhorias visuais na tela de login/registro
+
+**Active backlog (future milestones):**
 - [ ] **TEST-01**: Testes automatizados (unitários + integração)
 - [ ] **CACHE-01**: Cache Redis para dashboard e previsões
 - [ ] **MOB-01**: PWA com cache offline
@@ -141,4 +148,4 @@ This document evolves at phase transitions and milestone boundaries.
 - Deploy automatizado funcional — focar em qualidade e novas features
 
 ---
-*Last updated: 2026-05-11 after v3.0 milestone completion (AI assistant + notifications + deploy)*
+*Last updated: 2026-05-11 — milestone v3.1 Auth Polish started*
