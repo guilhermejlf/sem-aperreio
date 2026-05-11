@@ -1,10 +1,10 @@
 <template>
   <form @submit.prevent="handleLogin" class="auth-form">
     <div class="form-group">
-      <label class="form-label">Usuário</label>
+      <label class="form-label">Usuário ou Email</label>
       <input
-        v-model="username" 
-        placeholder="seu_usuario"
+        v-model="identifier" 
+        placeholder="seu_usuario ou email@exemplo.com"
         class="form-input"
         :disabled="loading"
       />
@@ -27,7 +27,7 @@
       type="submit"
       :label="loading ? 'Entrando...' : 'Entrar'"
       class="btn-submit"
-      :disabled="loading || !username || !password"
+      :disabled="loading || !identifier || !password"
     />
   </form>
 </template>
@@ -43,7 +43,7 @@ export default {
 
   data() {
     return {
-      username: '',
+      identifier: '',
       password: '',
       loading: false,
       error: null
@@ -59,7 +59,7 @@ export default {
         const data = await apiRequest(API_ENDPOINTS.AUTH_LOGIN, {
           method: 'POST',
           body: JSON.stringify({
-            username: this.username,
+            identifier: this.identifier,
             password: this.password
           })
         })
@@ -71,7 +71,14 @@ export default {
           this.error = 'Resposta inesperada do servidor'
         }
       } catch (error) {
-        this.error = error.message || 'Erro ao fazer login. Verifique suas credenciais.'
+        const msg = error.message || ''
+        if (msg.includes('Confirme seu email')) {
+          this.error = 'Confirme seu email antes de entrar. Verifique sua caixa de entrada.'
+        } else if (msg.includes('Credenciais inválidas')) {
+          this.error = 'Usuário/email ou senha incorretos.'
+        } else {
+          this.error = msg || 'Erro ao fazer login. Tente novamente.'
+        }
         console.error('Login error:', error)
       } finally {
         this.loading = false
