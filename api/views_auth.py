@@ -132,12 +132,17 @@ class PasswordResetRequestView(APIView):
             from django.conf import settings
             reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
             from .tasks import send_email
-            send_email(
-                subject="Redefinição de senha - Sem Aperreio",
-                to_email=user.email,
-                template_name="password_reset",
-                context={"user": user, "reset_url": reset_url}
-            )
+            try:
+                send_email(
+                    subject="Redefinição de senha - Sem Aperreio",
+                    to_email=user.email,
+                    template_name="password_reset",
+                    context={"user": user, "reset_url": reset_url}
+                )
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Falha ao enviar email de reset para {user.email}: {e}")
         except User.DoesNotExist:
             pass  # Não revelar se email existe
 
@@ -177,6 +182,7 @@ class PasswordResetConfirmView(APIView):
 
             profile.reset_token = None
             profile.reset_token_expires = None
+            profile.email_verified = True
             profile.save()
 
             return Response({"mensagem": "Senha redefinida com sucesso! Você já pode fazer login."})
