@@ -90,13 +90,18 @@ export default {
 }
 
 .modal-card {
-  background: #0b1220;
-  border-radius: 16px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
   padding: 28px;
-  width: 100%;
-  max-width: 380px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  width: min(480px, 90vw);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .modal-header {
@@ -107,23 +112,31 @@ export default {
 }
 
 .modal-header h3 {
-  color: #e2e8f0;
   margin: 0;
-  font-size: 18px;
+  font-size: 22px;
+  background: linear-gradient(90deg, #60A637, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .close-btn {
-  background: none;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
   color: #94a3b8;
-  font-size: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 20px;
   cursor: pointer;
-  padding: 0;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .close-btn:hover {
-  color: white;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
 .modal-text {
@@ -144,19 +157,20 @@ export default {
 }
 
 .form-input {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #e5e7eb;
   font-size: 15px;
   width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-input:focus {
   outline: none;
   border-color: #60A637;
-  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(96, 166, 55, 0.15);
 }
 
 .form-input::placeholder {
@@ -185,11 +199,17 @@ export default {
   background: linear-gradient(135deg, #60A637, #4C8932) !important;
   border: none !important;
   padding: 14px !important;
-  border-radius: 8px !important;
+  border-radius: 14px !important;
   font-size: 15px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   color: white !important;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(96, 166, 55, 0.18);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-submit:hover:not(:disabled) {
+  filter: brightness(1.1);
 }
 
 .btn-submit:disabled {

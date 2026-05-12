@@ -1394,20 +1394,20 @@ export default {
 
 .form-input,
 .form-select {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e5e7eb;
+  padding: 12px 14px;
+  border-radius: 10px;
   font-size: 15px;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-input:focus,
 .form-select:focus {
   outline: none;
   border-color: #60A637;
-  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(96, 166, 55, 0.15);
 }
 
 .form-select option {
@@ -1416,20 +1416,21 @@ export default {
 }
 
 .btn-submit {
-  background: #60A637;
+  background: linear-gradient(135deg, #60A637, #4C8932);
   border: none;
   padding: 14px;
-  border-radius: 8px;
+  border-radius: 14px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   color: white;
   margin-top: 8px;
+  box-shadow: 0 4px 14px rgba(96, 166, 55, 0.18);
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #4C8932;
+  filter: brightness(1.1);
 }
 
 .btn-submit:disabled {

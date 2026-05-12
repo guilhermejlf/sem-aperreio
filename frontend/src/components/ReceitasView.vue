@@ -553,20 +553,21 @@ export default {
 }
 
 .btn-submit {
-  background: #60A637;
+  background: linear-gradient(135deg, #60A637, #4C8932);
   border: none;
   padding: 14px;
-  border-radius: 8px;
+  border-radius: 14px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   color: white;
   margin-top: 8px;
+  box-shadow: 0 4px 14px rgba(96, 166, 55, 0.18);
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #4C8932;
+  filter: brightness(1.1);
 }
 
 .btn-submit:disabled {
