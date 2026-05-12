@@ -1,95 +1,92 @@
 <template>
-  <div v-if="visible" class="modal-overlay" @click.self="onCancel">
-    <div class="modal-card">
-      <!-- Step 1: Form -->
-      <template v-if="etapa === 'form'">
-        <div class="modal-header">
-          <h2>{{ titulo }}</h2>
-          <button @click="onCancel" class="modal-close">×</button>
-        </div>
+  <ModalBase
+    :visible="visible"
+    :title="titulo"
+    highlight="Meta"
+    :subtitle="subtitulo"
+    size="small"
+    @close="onCancel"
+  >
+    <!-- Step 1: Form -->
+    <template v-if="etapa === 'form'">
+      <div v-if="metaLocal.gasto_realizado > 0" class="modal-contexto">
+        Você já gastou <strong>{{ formatarValor(metaLocal.gasto_realizado) }}</strong>
+        nesta categoria neste mês.
+      </div>
 
-        <div v-if="metaLocal.gasto_realizado > 0" class="modal-contexto">
-          Você já gastou <strong>{{ formatarValor(metaLocal.gasto_realizado) }}</strong>
-          nesta categoria neste mês.
+      <div class="form-group">
+        <label>Valor</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">R$</span>
+          <input
+            v-model="valorInput"
+            type="number"
+            step="0.01"
+            min="0.01"
+            class="input-field"
+            placeholder="0,00"
+            @keyup.enter="onContinue"
+          />
         </div>
+        <span v-if="erro" class="erro-msg">{{ erro }}</span>
+      </div>
 
-        <div class="form-group">
-          <label>Valor da Meta (R$)</label>
-          <div class="input-wrapper">
-            <span class="input-prefix">R$</span>
-            <input
-              v-model="valorInput"
-              type="number"
-              step="0.01"
-              min="0.01"
-              class="input-field"
-              placeholder="0,00"
-              @keyup.enter="onContinue"
-            />
-          </div>
-          <span v-if="erro" class="erro-msg">{{ erro }}</span>
-        </div>
-
-        <div v-if="metaLocal.modo === 'criar' || metaLocal.modo === 'criar_categoria'" class="form-group">
-          <label>Período</label>
-          <div class="period-selectors">
-            <select v-model="mesSelecionado" class="input-field select-field period-select">
-              <option v-for="(nome, idx) in mesesNomes" :key="idx" :value="idx + 1">{{ nome }}</option>
-            </select>
-            <select v-model="anoSelecionado" class="input-field select-field period-select">
-              <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
-            </select>
-          </div>
-        </div>
-
-        <div v-if="metaLocal.modo === 'criar_categoria'" class="form-group">
-          <label>Categoria</label>
-          <select v-model="categoriaSelecionada" class="input-field select-field">
-            <option value="" disabled>Selecione uma categoria</option>
-            <option v-for="(label, value) in categoriasDisponiveis" :key="value" :value="value">
-              {{ label }}
-            </option>
+      <div v-if="metaLocal.modo === 'criar' || metaLocal.modo === 'criar_categoria'" class="form-group">
+        <label>Período</label>
+        <div class="period-selectors">
+          <select v-model="mesSelecionado" class="input-field select-field period-select">
+            <option v-for="(nome, idx) in mesesNomes" :key="idx" :value="idx + 1">{{ nome }}</option>
+          </select>
+          <select v-model="anoSelecionado" class="input-field select-field period-select">
+            <option v-for="ano in anosDisponiveis" :key="ano" :value="ano">{{ ano }}</option>
           </select>
         </div>
+      </div>
 
-        <div class="modal-actions">
-          <button class="btn-secondary" @click="onCancel">Cancelar</button>
-          <button class="btn-primary" @click="onContinue" :disabled="!valido">
-            Salvar Meta
-          </button>
-        </div>
+      <div v-if="metaLocal.modo === 'criar_categoria'" class="form-group">
+        <label>Categoria</label>
+        <select v-model="categoriaSelecionada" class="input-field select-field">
+          <option value="" disabled>Selecione uma categoria</option>
+          <option v-for="(label, value) in categoriasDisponiveis" :key="value" :value="value">
+            {{ label }}
+          </option>
+        </select>
+      </div>
+    </template>
+
+    <!-- Step 2: Confirmation -->
+    <template v-else-if="etapa === 'confirmar'">
+      <div class="confirmacao-texto">
+        <p>
+          Você já gastou <strong>{{ formatarValor(metaLocal.gasto_realizado) }}</strong>
+          em <strong>{{ metaLocal.categoria_nome || 'Geral' }}</strong> este mês.
+        </p>
+        <p>
+          Alterar a meta de <strong>{{ formatarValor(metaLocal.valor_meta_original) }}</strong>
+          para <strong>{{ formatarValor(valorNumerico) }}</strong>?
+        </p>
+      </div>
+    </template>
+
+    <template #footer>
+      <template v-if="etapa === 'form'">
+        <button class="btn-secondary" @click="onCancel">Cancelar</button>
+        <button class="btn-primary" @click="onContinue" :disabled="!valido">
+          Salvar Meta
+        </button>
       </template>
-
-      <!-- Step 2: Confirmation -->
       <template v-else-if="etapa === 'confirmar'">
-        <div class="modal-header confirmacao">
-          <h2>Confirme a alteração</h2>
-          <button @click="onCancel" class="modal-close">×</button>
-        </div>
-
-        <div class="confirmacao-texto">
-          <p>
-            Você já gastou <strong>{{ formatarValor(metaLocal.gasto_realizado) }}</strong>
-            em <strong>{{ metaLocal.categoria_nome || 'Geral' }}</strong> este mês.
-          </p>
-          <p>
-            Alterar a meta de <strong>{{ formatarValor(metaLocal.valor_meta_original) }}</strong>
-            para <strong>{{ formatarValor(valorNumerico) }}</strong>?
-          </p>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-secondary" @click="etapa = 'form'">Voltar</button>
-          <button class="btn-primary" @click="onConfirmar">
-            Confirmar
-          </button>
-        </div>
+        <button class="btn-secondary" @click="etapa = 'form'">Voltar</button>
+        <button class="btn-primary" @click="onConfirmar">
+          Confirmar
+        </button>
       </template>
-    </div>
-  </div>
+    </template>
+  </ModalBase>
 </template>
 
 <script>
+import ModalBase from './ModalBase.vue'
 const CATEGORIA_OPTIONS = {
   moradia: 'Moradia',
   mercado: 'Mercado',
@@ -110,6 +107,7 @@ const MES_NOMES = [
 
 export default {
   name: 'BudgetEditModal',
+  components: { ModalBase },
   props: {
     visible: { type: Boolean, default: false },
     meta: { type: Object, default: null },
@@ -131,7 +129,12 @@ export default {
     titulo() {
       if (this.metaLocal.modo === 'criar') return 'Definir Meta Geral'
       if (this.metaLocal.modo === 'criar_categoria') return 'Adicionar Meta de Categoria'
-      return `Editar Meta — ${this.metaLocal.categoria_nome || 'Geral'}`
+      return 'Editar Meta'
+    },
+    subtitulo() {
+      if (this.metaLocal.modo === 'criar') return 'Bora organizar esse mês e chegar lá!'
+      if (this.metaLocal.modo === 'criar_categoria') return 'Defina um limite para essa categoria.'
+      return `Ajustando meta de ${this.metaLocal.categoria_nome || 'Geral'}.`
     },
     valorNumerico() {
       const v = parseFloat(this.valorInput)
@@ -216,96 +219,23 @@ export default {
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal-card {
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 28px;
-  width: min(480px, 90vw);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
-  animation: scaleIn 0.3s ease;
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 22px;
-  background: linear-gradient(90deg, #60A637, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.modal-header.confirmacao h2 {
-  background: linear-gradient(90deg, #f59e0b, #ef4444);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.modal-close {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #94a3b8;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-}
-
+/* Contexto info box */
 .modal-contexto {
-  background: rgba(59, 130, 246, 0.1);
-  border-left: 3px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 12px;
   padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
+  margin-bottom: 24px;
+  font-size: 14px;
   color: #93c5fd;
   line-height: 1.5;
 }
 
+/* Confirmation text */
 .confirmacao-texto {
-  margin-bottom: 24px;
   line-height: 1.6;
-  color: #e5e7eb;
+  color: rgba(248, 250, 252, 0.82);
+  font-size: 15px;
 }
 
 .confirmacao-texto p {
@@ -316,20 +246,22 @@ export default {
   color: #fbbf24;
 }
 
+/* Form groups */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .form-group label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 13px;
   font-weight: 600;
-  color: #94a3b8;
-  margin-bottom: 8px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: rgba(248, 250, 252, 0.72);
+  margin-bottom: 10px;
 }
 
+/* Input wrapper */
 .input-wrapper {
   position: relative;
   display: flex;
@@ -338,27 +270,45 @@ export default {
 
 .input-prefix {
   position: absolute;
-  left: 14px;
-  color: #64748b;
+  left: 16px;
+  color: rgba(248, 250, 252, 0.45);
   font-weight: 500;
-  font-size: 1.1rem;
+  font-size: 15px;
+  pointer-events: none;
+  z-index: 1;
 }
 
+/* Inputs */
 .input-field {
   width: 100%;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  padding: 12px 14px 12px 44px;
-  color: #e5e7eb;
-  font-size: 1.1rem;
-  text-align: center;
+  height: 56px;
+  padding: 0 16px;
+  padding-left: 44px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 16px;
+  font-weight: 500;
+  color: #F8FAFC;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.input-field::placeholder {
+  color: rgba(248, 250, 252, 0.35);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #60A637;
+  box-shadow: 0 0 0 4px rgba(96, 166, 55, 0.12);
+}
+
 .select-field {
-  padding-left: 14px;
-  text-align: left;
+  padding-left: 16px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(248,250,252,0.45)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
 }
 
 .period-selectors {
@@ -370,64 +320,53 @@ export default {
   flex: 1;
 }
 
-.input-field:focus {
-  outline: none;
-  border-color: #60A637;
-  box-shadow: 0 0 0 3px rgba(96, 166, 55, 0.15);
-}
-
+/* Error message */
 .erro-msg {
   display: block;
-  margin-top: 6px;
-  font-size: 0.85rem;
+  margin-top: 8px;
+  font-size: 13px;
   color: #f87171;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
-}
-
+/* Buttons */
 .btn-secondary {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #94a3b8;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(248, 250, 252, 0.82);
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  color: #e5e7eb;
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .btn-primary {
-  background: #60A637;
-  color: white;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+  color: #FFFFFF;
   border: none;
-  border-radius: 10px;
-  padding: 10px 24px;
-  font-size: 0.9rem;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #4C8932;
-  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .btn-primary:disabled {
-  background: #374151;
+  opacity: 0.5;
   cursor: not-allowed;
-  opacity: 0.6;
+  filter: grayscale(0.4);
 }
 </style>

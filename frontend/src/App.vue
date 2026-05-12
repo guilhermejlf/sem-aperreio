@@ -252,86 +252,91 @@
     </main>
 
     <!-- ADD/EDIT EXPENSE MODAL -->
-    <div v-if="showAddModal" class="modal-overlay" @click.self="fecharModal">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h2>{{ editingGasto ? 'Editar gasto' : 'Adicionar Novo Gasto' }}</h2>
-          <button @click="fecharModal" class="modal-close">×</button>
-        </div>
-
-        <form @submit.prevent="editingGasto ? salvarEdicao() : adicionarGasto()" class="gasto-form">
-          <div class="form-group">
-            <label class="form-label">Valor</label>
-            <InputNumber
-              v-model="novo.valor"
-              placeholder="R$ 0,00"
-              mode="currency"
-              currency="BRL"
-              locale="pt-BR"
-              :min="0.01"
-              :maxFractionDigits="2"
-              class="form-input"
+    <ModalBase
+      :visible="showAddModal"
+      :title="editingGasto ? 'Editar Gasto' : 'Adicionar Gasto'"
+      :highlight="'Gasto'"
+      size="medium"
+      @close="fecharModal"
+    >
+      <form @submit.prevent="editingGasto ? salvarEdicao() : adicionarGasto()" class="gasto-form">
+        <div class="form-group">
+          <label class="form-label">Valor</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">R$</span>
+            <input
+              v-model.number="novo.valor"
+              type="number"
+              step="0.01"
+              min="0.01"
+              class="form-input input-field"
+              placeholder="0,00"
               ref="inputValor"
               autofocus
             />
           </div>
+        </div>
 
-          <div class="form-group">
-            <label class="form-label">Onde você gastou?</label>
-            <select v-model="novo.categoria" class="form-select">
-              <option value="">Selecione uma categoria</option>
-              <option v-for="cat in categorias" :key="cat.value" :value="cat.value">
-                {{ cat.label }}
-              </option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select v-model="novo.categoria" class="form-select">
+            <option value="">Selecione uma categoria</option>
+            <option v-for="cat in categorias" :key="cat.value" :value="cat.value">
+              {{ cat.label }}
+            </option>
+          </select>
+        </div>
 
-          <div class="form-group">
-            <label class="form-label">Descrição</label>
-            <InputText
-              v-model="novo.descricao"
-              placeholder="Ex: Mercado, Uber, McDonald's..."
-              class="form-input"
-            />
-          </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <input
+            v-model="novo.descricao"
+            type="text"
+            placeholder="Ex: Mercado, Uber, McDonald's..."
+            class="form-input"
+          />
+        </div>
 
-          <div class="form-group">
-            <label class="form-label">Mês do gasto</label>
+        <div class="form-group">
+          <label class="form-label">Data do gasto</label>
+          <input
+            type="date"
+            v-model="novo.data_competencia"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="form-checkbox">
             <input
-              type="date"
-              v-model="novo.data_competencia"
-              class="form-input"
+              type="checkbox"
+              v-model="novo.pago"
             />
-          </div>
+            <span>Já paguei esse gasto</span>
+          </label>
+        </div>
 
-          <div class="form-group checkbox-group">
-            <label class="form-checkbox">
-              <input
-                type="checkbox"
-                v-model="novo.pago"
-              />
-              <span>Já paguei esse gasto</span>
-            </label>
-          </div>
+        <div class="form-group" v-if="novo.pago">
+          <label class="form-label">Data do pagamento</label>
+          <input
+            type="date"
+            v-model="novo.data_pagamento"
+            class="form-input"
+          />
+        </div>
+      </form>
 
-          <div class="form-group" v-if="novo.pago">
-            <label class="form-label">Quando foi pago</label>
-            <input
-              type="date"
-              v-model="novo.data_pagamento"
-              class="form-input"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            :label="editingGasto ? 'Salvar alterações' : 'Salvar gasto'"
-            :icon="editingGasto ? 'pi pi-check' : 'pi pi-plus'"
-            class="btn-submit"
-            :disabled="loading || !formValido" />
-        </form>
-      </div>
-    </div>
+      <template #footer>
+        <button class="btn-secondary" @click="fecharModal">Cancelar</button>
+        <button
+          class="btn-primary"
+          :disabled="loading || !formValido"
+          @click="editingGasto ? salvarEdicao() : adicionarGasto()"
+        >
+          {{ editingGasto ? 'Salvar alterações' : 'Salvar gasto' }}
+        </button>
+      </template>
+    </ModalBase>
 
     <Toast position="top-right" />
     <ConfirmDialog />
@@ -352,8 +357,6 @@
 
 <script>
 import Button from 'primevue/button'
-import InputNumber from 'primevue/inputnumber'
-import InputText from 'primevue/inputtext'
 import DashboardCharts from './components/DashboardCharts.vue'
 import AuthView from './components/AuthView.vue'
 import FamilyView from './components/FamilyView.vue'
@@ -365,6 +368,7 @@ import AIAssistant from './components/AIAssistant.vue'
 import PasswordResetView from './components/PasswordResetView.vue'
 import VerifyEmailView from './components/VerifyEmailView.vue'
 import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
+import ModalBase from './components/ModalBase.vue'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
 import logo from './assets/logo.png'
@@ -380,8 +384,6 @@ import {
 export default {
   components: {
     Button,
-    InputNumber,
-    InputText,
     DashboardCharts,
     AuthView,
     FamilyView,
@@ -393,6 +395,7 @@ export default {
     PasswordResetView,
     VerifyEmailView,
     BeneFloatingPresence,
+    ModalBase,
     Toast,
     ConfirmDialog
   },
@@ -512,6 +515,7 @@ export default {
         valor: parseFloat(gasto.valor),
         categoria: gasto.categoria,
         descricao: gasto.descricao || '',
+        data: new Date().toISOString().split('T')[0],
         data_competencia: gasto.data_competencia || '',
         data_pagamento: gasto.data_pagamento || '',
         pago: gasto.pago || false
@@ -527,6 +531,7 @@ export default {
         valor: null,
         categoria: '',
         descricao: '',
+        data: new Date().toISOString().split('T')[0],
         data_competencia: '',
         data_pagamento: '',
         pago: false
@@ -1373,40 +1378,77 @@ export default {
   font-weight: 600;
 }
 
+/* Modal form styles - Design System v2.0 */
 .gasto-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
 }
 
 .form-label {
-  color: #e5e7eb;
-  font-weight: 500;
   font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(248, 250, 252, 0.72);
+  margin-bottom: 10px;
 }
 
 .form-input,
 .form-select {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #e5e7eb;
-  padding: 12px 14px;
-  border-radius: 10px;
-  font-size: 15px;
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 16px;
+  font-weight: 500;
+  color: #F8FAFC;
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input::placeholder {
+  color: rgba(248, 250, 252, 0.35);
 }
 
 .form-input:focus,
 .form-select:focus {
   outline: none;
   border-color: #60A637;
-  box-shadow: 0 0 0 3px rgba(96, 166, 55, 0.15);
+  box-shadow: 0 0 0 4px rgba(96, 166, 55, 0.12);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 16px;
+  color: rgba(248, 250, 252, 0.45);
+  font-weight: 500;
+  font-size: 15px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-field {
+  padding-left: 44px;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='rgba(248,250,252,0.45)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
 }
 
 .form-select option {
@@ -1414,27 +1456,67 @@ export default {
   color: white;
 }
 
-.btn-submit {
-  background: linear-gradient(135deg, #60A637, #4C8932);
-  border: none;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 700;
+/* Checkbox */
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  color: white;
-  margin-top: 8px;
-  box-shadow: 0 4px 14px rgba(96, 166, 55, 0.18);
+  color: rgba(248, 250, 252, 0.82);
+  font-size: 15px;
+  font-weight: 400;
 }
 
-.btn-submit:hover:not(:disabled) {
-  filter: brightness(1.1);
+.form-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  accent-color: #60A637;
+  cursor: pointer;
 }
 
-.btn-submit:disabled {
+/* Buttons */
+.btn-secondary {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(248, 250, 252, 0.82);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.btn-primary {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+  color: #FFFFFF;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  filter: grayscale(0.4);
 }
 
 /* ANIMATIONS */
@@ -1616,83 +1698,5 @@ export default {
   }
 }
 
-/* MODAL */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 20px;
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-card {
-  background: rgba(30, 41, 59, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 30px;
-  max-width: 480px;
-  width: 100%;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 22px;
-  background: linear-gradient(90deg, #60A637, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.modal-close {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #94a3b8;
-  font-size: 24px;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 768px) {
-  .modal-card {
-    padding: 20px;
-  }
-}
+/* Modal styles are now handled by ModalBase.vue */
 </style>

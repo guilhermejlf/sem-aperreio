@@ -38,7 +38,7 @@
           </template>
           <template #actions>
             <template v-if="podeEditarReceita(r)">
-              <button @click="abrirEdicao(r)" class="edit-btn" title="Editar">
+              <button @click="abrirEdicao(r)" class="edit-btn" title="Editar ">
                 <i class="pi pi-pencil"></i>
               </button>
               <button @click="excluirReceita(r.id)" class="delete-btn" title="Excluir">
@@ -54,76 +54,75 @@
     <Toast position="top-right" />
 
     <!-- Modal Add/Edit Receita -->
-    <Teleport to="body">
-      <div v-if="showModal" class="modal-overlay" @click.self="fecharModal">
-        <div class="modal-card">
-          <div class="modal-header">
-            <h2>{{ editingReceita || isDraft ? 'Editar receita' : 'Adicionar Nova Receita' }}</h2>
-            <button @click="fecharModal" class="modal-close">×</button>
+    <ModalBase
+      :visible="showModal"
+      :title="editingReceita || isDraft ? 'Editar Receita' : 'Adicionar Receita'"
+      :highlight="'Receita'"
+      size="small"
+      @close="fecharModal"
+    >
+      <form @submit.prevent="editingReceita ? salvarEdicao() : salvarReceita()" class="receita-form">
+        <div class="form-group">
+          <label class="form-label">Valor</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">R$</span>
+            <input
+              v-model.number="nova.valor"
+              type="number"
+              step="0.01"
+              min="0.01"
+              class="form-input input-field"
+              placeholder="0,00"
+            />
           </div>
-
-          <form @submit.prevent="editingReceita ? salvarEdicao() : salvarReceita()" class="receita-form">
-            <div class="form-group">
-              <label class="form-label">Valor</label>
-              <InputNumber
-                v-model="nova.valor"
-                placeholder="0,00"
-                mode="currency"
-                currency="BRL"
-                locale="pt-BR"
-                :min="0.01"
-                :maxFractionDigits="2"
-                class="form-input"
-              />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Descrição</label>
-              <InputText
-                v-model="nova.descricao"
-                placeholder="Ex: Salário, Freelance..."
-                class="form-input"
-              />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Data</label>
-              <input
-                type="date"
-                v-model="nova.data"
-                class="form-input"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              :label="editingReceita ? 'Salvar alterações' : (isDraft ? 'Confirmar Receita' : 'Adicionar Receita')"
-              :icon="editingReceita ? 'pi pi-check' : 'pi pi-plus'"
-              class="btn-submit"
-              :disabled="loadingForm || !formValido" />
-          </form>
         </div>
-      </div>
-    </Teleport>
+
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <input
+            v-model="nova.descricao"
+            type="text"
+            placeholder="Ex: Salário, Freelance..."
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input
+            type="date"
+            v-model="nova.data"
+            class="form-input"
+          />
+        </div>
+      </form>
+
+      <template #footer>
+        <button class="btn-secondary" @click="fecharModal">Cancelar</button>
+        <button
+          class="btn-primary"
+          :disabled="loadingForm || !formValido"
+          @click="editingReceita ? salvarEdicao() : salvarReceita()"
+        >
+          {{ editingReceita ? 'Salvar alterações' : (isDraft ? 'Confirmar Receita' : 'Salvar Receita') }}
+        </button>
+      </template>
+    </ModalBase>
   </div>
 </template>
 
 <script>
-import Button from 'primevue/button'
-import InputNumber from 'primevue/inputnumber'
-import InputText from 'primevue/inputtext'
 import Toast from 'primevue/toast'
 import BaseCard from './BaseCard.vue'
+import ModalBase from './ModalBase.vue'
 import { fetchReceitas, addReceita, updateReceita, deleteReceita } from '../config/api.js'
 
 export default {
   name: 'ReceitasView',
   components: {
-    Button,
-    InputNumber,
-    InputText,
     Toast,
-    BaseCard
+    BaseCard,
+    ModalBase
   },
   props: {
     initialEditData: {
@@ -410,168 +409,109 @@ export default {
   line-height: 1.6;
 }
 
-/* MODAL */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 20px;
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-card {
-  background: rgba(30, 41, 59, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 30px;
-  max-width: 480px;
-  width: 100%;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 22px;
-  background: linear-gradient(90deg, #60A637, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.modal-close {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #94a3b8;
-  font-size: 24px;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 768px) {
-  .modal-card {
-    padding: 20px;
-  }
-}
-
+/* Modal form styles - Design System v2.0 */
 .receita-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
 }
 
 .form-label {
-  color: #e5e7eb;
-  font-weight: 500;
   font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(248, 250, 252, 0.72);
+  margin-bottom: 10px;
 }
 
 .form-input {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 15px;
-  transition: all 0.2s ease;
   width: 100%;
+  height: 56px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 16px;
+  font-weight: 500;
+  color: #F8FAFC;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input::placeholder {
+  color: rgba(248, 250, 252, 0.35);
 }
 
 .form-input:focus {
   outline: none;
   border-color: #60A637;
-  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 4px rgba(96, 166, 55, 0.12);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 16px;
+  color: rgba(248, 250, 252, 0.45);
+  font-weight: 500;
+  font-size: 15px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-field {
+  padding-left: 44px;
+}
+
+.btn-secondary {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(248, 250, 252, 0.82);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #60A637, #4C8932);
-  color: white;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+  color: #FFFFFF;
   border: none;
-  padding: 15px 30px;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 14px rgba(96, 166, 55, 0.18);
-}
-
-.btn-primary:hover {
-  filter: brightness(1.1);
-}
-
-.btn-primary.btn-sm {
-  padding: 10px 20px;
-  font-size: 14px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-submit {
-  background: linear-gradient(135deg, #60A637, #4C8932);
-  border: none;
-  padding: 14px;
-  border-radius: 14px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  color: white;
-  margin-top: 8px;
-  box-shadow: 0 4px 14px rgba(96, 166, 55, 0.18);
+  transition: all 0.2s ease;
+  box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
 }
 
-.btn-submit:hover:not(:disabled) {
-  filter: brightness(1.1);
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.05);
 }
 
-.btn-submit:disabled {
+.btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  filter: grayscale(0.4);
 }
 
 @media (max-width: 768px) {
