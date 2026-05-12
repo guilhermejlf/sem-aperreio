@@ -41,7 +41,7 @@ export default {
     title: { type: String, default: '' },
     subtitle: { type: String, default: '' },
     value: { type: String, default: '' },
-    valueColor: { type: String, default: '#22c55e' },
+    valueColor: { type: String, default: '#60A637' },
     isGroup: { type: Boolean, default: false }
   },
   computed: {
@@ -69,7 +69,7 @@ export default {
 }
 
 .base-card--group {
-  border-left: 3px solid #22c55e;
+  border-left: 3px solid #60A637;
 }
 
 .base-card__info {

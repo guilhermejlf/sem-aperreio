@@ -7,12 +7,12 @@
       </div>
 
       <div v-if="loading" class="loading-state">
-        <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #22c55e;"></i>
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #60A637;"></i>
         <p>Processando...</p>
       </div>
 
       <div v-else-if="success" class="success-state">
-        <i class="pi pi-check-circle" style="font-size: 3rem; color: #22c55e;"></i>
+        <i class="pi pi-check-circle" style="font-size: 3rem; color: #60A637;"></i>
         <h2>Senha redefinida!</h2>
         <p>{{ success }}</p>
         <button class="btn-primary" @click="goToLogin">Ir para login</button>
@@ -150,7 +150,7 @@ export default {
 
 .auth-icon {
   font-size: 2.5rem;
-  color: #22c55e;
+  color: #60A637;
   margin-bottom: 12px;
 }
 
@@ -158,7 +158,7 @@ export default {
   font-size: 24px;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(90deg, #a78bfa, #22c55e);
+  background: linear-gradient(90deg, #a78bfa, #60A637);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -170,7 +170,7 @@ export default {
 }
 
 .success-state h2 {
-  color: #22c55e;
+  color: #60A637;
   margin: 16px 0 8px;
 }
 
@@ -180,7 +180,7 @@ export default {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, #60A637, #4C8932);
   border: none;
   padding: 14px 28px;
   border-radius: 8px;
@@ -220,7 +220,7 @@ export default {
 
 .form-input:focus {
   outline: none;
-  border-color: #22c55e;
+  border-color: #60A637;
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -237,7 +237,7 @@ export default {
 }
 
 .password-rules li.valid {
-  color: #22c55e;
+  color: #60A637;
 }
 
 .form-error {
@@ -248,7 +248,7 @@ export default {
 
 .btn-submit {
   width: 100%;
-  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+  background: linear-gradient(135deg, #60A637, #4C8932) !important;
   border: none !important;
   padding: 14px !important;
   border-radius: 8px !important;

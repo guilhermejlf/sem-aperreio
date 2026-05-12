@@ -260,7 +260,7 @@ export default {
 .modal-header h2 {
   margin: 0;
   font-size: 22px;
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -372,8 +372,8 @@ export default {
 
 .input-field:focus {
   outline: none;
-  border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+  border-color: #60A637;
+  box-shadow: 0 0 0 3px rgba(96, 166, 55, 0.15);
 }
 
 .erro-msg {
@@ -409,7 +409,7 @@ export default {
 }
 
 .btn-primary {
-  background: #22c55e;
+  background: #60A637;
   color: white;
   border: none;
   border-radius: 10px;
@@ -421,7 +421,7 @@ export default {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #16a34a;
+  background: #4C8932;
   transform: translateY(-1px);
 }
 

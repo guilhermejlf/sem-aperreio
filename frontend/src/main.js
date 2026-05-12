@@ -11,6 +11,9 @@ import Aura from '@primevue/themes/aura'
 // ícones
 import 'primeicons/primeicons.css'
 
+// brand design system
+import './styles/brand.css'
+
 const app = createApp(App)
 
 app.use(PrimeVue, {

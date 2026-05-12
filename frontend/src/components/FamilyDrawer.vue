@@ -543,7 +543,7 @@ export default {
 }
 
 .native-input:focus {
-  border-color: #22c55e;
+  border-color: #60A637;
 }
 
 .native-input::placeholder {
@@ -597,7 +597,7 @@ export default {
   font-family: monospace;
   font-size: 1.25rem;
   letter-spacing: 0.15em;
-  color: #22c55e;
+  color: #60A637;
   font-weight: 600;
 }
 
@@ -671,7 +671,7 @@ export default {
 }
 
 .badge.admin {
-  background: #22c55e;
+  background: #60A637;
   color: #ffffff;
 }
 

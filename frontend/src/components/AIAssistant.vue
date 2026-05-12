@@ -515,12 +515,12 @@ export default {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.08);
+  box-shadow: 0 0 20px rgba(96, 166, 55, 0.08);
   transition: box-shadow 0.3s ease;
 }
 
 .ai-header-info:hover .ai-avatar {
-  box-shadow: 0 0 28px rgba(34, 197, 94, 0.14);
+  box-shadow: 0 0 28px rgba(96, 166, 55, 0.14);
 }
 
 .ai-title {
@@ -620,7 +620,7 @@ export default {
 }
 
 .ai-message--user .ai-bubble {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, #60A637, #4C8932);
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -718,7 +718,7 @@ export default {
 }
 
 .ai-confirm-value--highlight {
-  color: #22c55e;
+  color: #60A637;
   font-size: 15px;
   font-weight: 600;
 }
@@ -751,12 +751,12 @@ export default {
 }
 
 .ai-btn--confirm {
-  color: #22c55e;
+  color: #60A637;
 }
 
 .ai-btn--confirm:hover:not(:disabled) {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.25);
+  background: rgba(96, 166, 55, 0.1);
+  border-color: rgba(96, 166, 55, 0.25);
 }
 
 .ai-btn--edit {
@@ -819,7 +819,7 @@ export default {
   height: 36px;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #a78bfa, #22c55e);
+  background: linear-gradient(135deg, #a78bfa, #60A637);
   color: white;
   display: flex;
   align-items: center;
@@ -855,7 +855,7 @@ export default {
   height: 56px;
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, #a78bfa, #22c55e);
+  background: linear-gradient(135deg, #a78bfa, #60A637);
   color: white;
   font-size: 22px;
   display: flex;

@@ -73,7 +73,7 @@ export default {
   background: rgba(11, 18, 32, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  padding: 32px;
+  padding: 24px 32px;
   border-radius: 24px;
   box-shadow:
     0 8px 32px rgba(0,0,0,0.4),
@@ -84,30 +84,30 @@ export default {
 
 .auth-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .auth-logo {
-  width: 220px;
-  height: 220px;
+  width: 250px;
+  height: 250px;
   object-fit: contain;
   display: block;
-  margin: -16px auto 0;
+  margin: -38px auto 0;
 }
 
 .auth-tagline {
-  margin: 10px 0 0;
+  margin: -32px 0 0;
   padding: 0;
-  line-height: 1.4;
+  line-height: 1.3;
   font-size: 14px;
-  color: rgba(148,163,184,0.7);
+  color: rgba(148,163,184,0.9);
   letter-spacing: 0.2px;
 }
 
 .auth-tabs {
   display: flex;
   gap: 4px;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   background: rgba(255,255,255,0.03);
   border-radius: 14px;
   padding: 5px;
@@ -134,7 +134,7 @@ export default {
 .auth-tab.active {
   background: transparent;
   color: white;
-  box-shadow: 0 0 0 2px rgba(34,197,94,0.05), 0 0 12px rgba(34,197,94,0.04);
+  box-shadow: 0 0 0 2px rgba(96,166,55,0.04), 0 0 10px rgba(96,166,55,0.03);
 }
 
 .auth-form-container {
@@ -164,7 +164,7 @@ export default {
 }
 
 .forgot-link:hover {
-  color: rgba(34,197,94,0.8);
+  color: rgba(96,166,55,0.8);
 }
 
 .forgot-icon {
@@ -176,8 +176,8 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  margin-top: 12px;
+  margin-bottom: 12px;
   font-size: 13px;
   color: rgba(148,163,184,0.5);
 }
@@ -189,14 +189,14 @@ export default {
 }
 
 .bene-avatar {
-  width: 68px;
-  height: 68px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .bene-name {
-  color: #22c55e;
+  color: #60A637;
   font-weight: 500;
 }
 

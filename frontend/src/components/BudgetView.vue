@@ -380,7 +380,7 @@ export default {
 
 .period-select:focus {
   outline: none;
-  border-color: #22c55e;
+  border-color: #60A637;
 }
 
 /* Meta Geral */
@@ -551,8 +551,8 @@ export default {
   font-size: 0.85rem;
   font-weight: 600;
   color: #e5e7eb;
-  background: rgba(34, 197, 94, 0.12);
-  border: 1px solid rgba(34, 197, 94, 0.25);
+  background: rgba(96, 166, 55, 0.12);
+  border: 1px solid rgba(96, 166, 55, 0.25);
   border-radius: 20px;
   padding: 4px 12px;
   display: inline-flex;
@@ -636,8 +636,8 @@ export default {
 }
 
 .nova-meta:hover {
-  border-color: #22c55e;
-  background: rgba(34, 197, 94, 0.05);
+  border-color: #60A637;
+  background: rgba(96, 166, 55, 0.05);
 }
 
 .nova-meta-content {
@@ -656,7 +656,7 @@ export default {
 /* Criar Meta Geral */
 /* Buttons */
 .btn-primary {
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   color: white;
   border: none;
   border-radius: 12px;
@@ -668,12 +668,12 @@ export default {
   align-items: center;
   gap: 8px;
   transition: all 0.2s;
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 4px 15px rgba(96, 166, 55, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 8px 25px rgba(96, 166, 55, 0.4);
 }
 
 .btn-primary.btn-sm {

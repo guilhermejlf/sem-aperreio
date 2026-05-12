@@ -759,7 +759,7 @@ export default {
 
 .insights-list li.sucesso {
   background: rgba(16, 185, 129, 0.1);
-  color: #34d399;
+  color: #60A637;
   border-left: 3px solid #10b981;
 }
 
@@ -830,7 +830,7 @@ export default {
 
 .period-select:focus {
   outline: none;
-  border-color: #22c55e;
+  border-color: #60A637;
 }
 
 .period-select option {

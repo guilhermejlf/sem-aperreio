@@ -150,9 +150,9 @@ export default {
 
 .form-input:focus {
   outline: none;
-  border-color: rgba(34,197,94,0.4) !important;
+  border-color: rgba(96,166,55,0.4) !important;
   background: rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 0 0 2px rgba(34,197,94,0.06), 0 0 12px rgba(34,197,94,0.04);
+  box-shadow: 0 0 0 2px rgba(96,166,55,0.06), 0 0 12px rgba(96,166,55,0.04);
 }
 
 .password-toggle {
@@ -185,17 +185,17 @@ export default {
 
 .btn-submit {
   width: 100%;
-  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+  background: linear-gradient(135deg, #60A637, #4C8932) !important;
   border: none !important;
   padding: 14px !important;
   border-radius: 14px !important;
   font-size: 15px !important;
-  font-weight: 600 !important;
-  color: white !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   margin-top: 8px;
-  box-shadow: 0 4px 14px rgba(34,197,94,0.18);
+  box-shadow: 0 4px 14px rgba(96,166,55,0.18);
 }
 
 .btn-submit:hover:not(:disabled) {

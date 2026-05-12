@@ -2,13 +2,13 @@
   <div class="auth-page">
     <div class="auth-card">
       <div v-if="loading" class="state">
-        <i class="pi pi-spin pi-spinner" style="font-size: 3rem; color: #22c55e;"></i>
+        <i class="pi pi-spin pi-spinner" style="font-size: 3rem; color: #60A637;"></i>
         <h2>Verificando seu email...</h2>
       </div>
 
       <div v-else-if="success" class="state">
-        <i class="pi pi-check-circle" style="font-size: 3rem; color: #22c55e;"></i>
-        <h2 style="color: #22c55e;">Email confirmado!</h2>
+        <i class="pi pi-check-circle" style="font-size: 3rem; color: #60A637;"></i>
+        <h2 style="color: #60A637;">Email confirmado!</h2>
         <p>{{ success }}</p>
         <button class="btn-primary" @click="goToLogin">Fazer login</button>
       </div>
@@ -97,7 +97,7 @@ export default {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, #60A637, #4C8932);
   border: none;
   padding: 14px 28px;
   border-radius: 8px;

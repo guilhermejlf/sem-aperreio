@@ -7,7 +7,7 @@
       </div>
 
       <div v-if="success" class="modal-success">
-        <i class="pi pi-check-circle" style="font-size: 2rem; color: #22c55e;"></i>
+        <i class="pi pi-check-circle" style="font-size: 2rem; color: #60A637;"></i>
         <p>{{ success }}</p>
       </div>
 
@@ -155,7 +155,7 @@ export default {
 
 .form-input:focus {
   outline: none;
-  border-color: #22c55e;
+  border-color: #60A637;
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -175,14 +175,14 @@ export default {
 }
 
 .modal-success p {
-  color: #22c55e;
+  color: #60A637;
   margin-top: 12px;
   font-size: 14px;
 }
 
 .btn-submit {
   width: 100%;
-  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+  background: linear-gradient(135deg, #60A637, #4C8932) !important;
   border: none !important;
   padding: 14px !important;
   border-radius: 8px !important;

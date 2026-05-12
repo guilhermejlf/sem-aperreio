@@ -953,8 +953,8 @@ export default {
 }
 
 .nav-item.active {
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.08);
+  color: #60A637;
+  background: rgba(96, 166, 55, 0.08);
 }
 
 /* GASTOS CONTAINER */
@@ -986,7 +986,7 @@ export default {
 .gastos-header h2 {
   font-size: 28px;
   margin: 0;
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -1005,7 +1005,7 @@ export default {
 }
 
 .stat-badge.primary {
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
 }
 
 /* EMPTY STATE */
@@ -1034,7 +1034,7 @@ export default {
 }
 
 .btn-primary {
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   color: white;
   border: none;
   padding: 15px 30px;
@@ -1043,12 +1043,12 @@ export default {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 4px 15px rgba(96, 166, 55, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 8px 25px rgba(96, 166, 55, 0.4);
 }
 
 .btn-primary.btn-sm {
@@ -1161,7 +1161,7 @@ export default {
   justify-content: center;
   font-size: 12px;
   font-weight: 600;
-  background: #22c55e;
+  background: #60A637;
   color: #ffffff;
   flex-shrink: 0;
 }
@@ -1246,7 +1246,7 @@ export default {
 
 .group-name {
   font-size: 13px;
-  color: #22c55e;
+  color: #60A637;
   font-weight: 600;
 }
 
@@ -1300,17 +1300,17 @@ export default {
 }
 
 .filter-tab.active {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.3);
-  color: #22c55e;
+  background: rgba(96, 166, 55, 0.1);
+  border-color: rgba(96, 166, 55, 0.3);
+  color: #60A637;
 }
 
 .group-badge {
   font-size: 10px;
   padding: 2px 8px;
   border-radius: 4px;
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: rgba(96, 166, 55, 0.15);
+  color: #60A637;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1327,7 +1327,7 @@ export default {
   display: inline-block;
   margin-top: 4px;
   padding: 2px 8px;
-  background: linear-gradient(90deg, #22c55e, #4ade80);
+  background: linear-gradient(90deg, #60A637, #4C8932);
   color: white;
   font-size: 11px;
   font-weight: 600;
@@ -1406,7 +1406,7 @@ export default {
 .form-input:focus,
 .form-select:focus {
   outline: none;
-  border-color: #22c55e;
+  border-color: #60A637;
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -1416,7 +1416,7 @@ export default {
 }
 
 .btn-submit {
-  background: #22c55e;
+  background: #60A637;
   border: none;
   padding: 14px;
   border-radius: 8px;
@@ -1429,7 +1429,7 @@ export default {
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #16a34a;
+  background: #4C8932;
 }
 
 .btn-submit:disabled {
@@ -1512,22 +1512,22 @@ export default {
 }
 
 .family-btn.has-family {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.3);
-  color: #22c55e;
+  background: rgba(96, 166, 55, 0.1);
+  border-color: rgba(96, 166, 55, 0.3);
+  color: #60A637;
 }
 
 .family-btn.has-family:hover {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(96, 166, 55, 0.15);
 }
 
 .family-badge {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #22c55e;
+  background: rgba(96, 166, 55, 0.15);
+  border: 1px solid rgba(96, 166, 55, 0.3);
+  color: #60A637;
   padding: 2px 8px;
   border-radius: 6px;
   font-size: 12px;
@@ -1535,7 +1535,7 @@ export default {
 }
 
 .family-dot {
-  color: #22c55e;
+  color: #60A637;
   font-size: 10px;
 }
 
@@ -1654,7 +1654,7 @@ export default {
 .modal-header h2 {
   margin: 0;
   font-size: 22px;
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

@@ -31,7 +31,7 @@
           :title="r.descricao || 'Receita'"
           :subtitle="formatarData(r.data)"
           :value="formatarValor(r.valor)"
-          valueColor="#22c55e"
+          valueColor="#60A637"
         >
           <template #meta>
             <small v-if="r.user_name" class="receita-user">@{{ r.user_name }}</small>
@@ -448,7 +448,7 @@ export default {
 .modal-header h2 {
   margin: 0;
   font-size: 22px;
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -521,12 +521,12 @@ export default {
 
 .form-input:focus {
   outline: none;
-  border-color: #22c55e;
+  border-color: #60A637;
   background: rgba(255, 255, 255, 0.05);
 }
 
 .btn-primary {
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   color: white;
   border: none;
   padding: 15px 30px;
@@ -535,12 +535,12 @@ export default {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 4px 15px rgba(96, 166, 55, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 8px 25px rgba(96, 166, 55, 0.4);
 }
 
 .btn-primary.btn-sm {
@@ -553,7 +553,7 @@ export default {
 }
 
 .btn-submit {
-  background: #22c55e;
+  background: #60A637;
   border: none;
   padding: 14px;
   border-radius: 8px;
@@ -566,7 +566,7 @@ export default {
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #16a34a;
+  background: #4C8932;
 }
 
 .btn-submit:disabled {

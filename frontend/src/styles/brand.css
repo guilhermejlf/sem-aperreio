@@ -1,0 +1,11 @@
+/* Sem Aperreio — Brand Design System v1.0 */
+/* Official green palette */
+
+:root {
+  --brand-green: #60A637;
+  --brand-green-dark: #4C8932;
+  --brand-green-light: #7BC455;
+  --brand-green-glow: rgba(96, 166, 55, 0.12);
+  --brand-green-glow-soft: rgba(96, 166, 55, 0.08);
+  --brand-green-glow-subtle: rgba(96, 166, 55, 0.04);
+}

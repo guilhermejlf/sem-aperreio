@@ -499,7 +499,7 @@ export default {
 }
 
 .native-input:focus {
-  border-color: #22c55e;
+  border-color: #60A637;
 }
 
 .native-input::placeholder {
@@ -553,7 +553,7 @@ export default {
   font-family: monospace;
   font-size: 1.25rem;
   letter-spacing: 0.15em;
-  color: #22c55e;
+  color: #60A637;
   font-weight: 600;
 }
 
@@ -595,7 +595,7 @@ export default {
 }
 
 .badge.admin {
-  background: #22c55e;
+  background: #60A637;
   color: #ffffff;
 }
 
@@ -619,7 +619,7 @@ export default {
 
 /* Primary buttons matching 'Adicionar Primeiro Gasto' pattern */
 .btn-primary {
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   color: white;
   border: none;
   padding: 15px 30px;
@@ -628,13 +628,13 @@ export default {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 4px 15px rgba(96, 166, 55, 0.3);
   align-self: center;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 8px 25px rgba(96, 166, 55, 0.4);
 }
 
 .btn-primary:disabled {
@@ -663,7 +663,7 @@ export default {
   inset: 0;
   border-radius: 12px;
   padding: 2px;
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #60A637, #3b82f6);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -672,7 +672,7 @@ export default {
 }
 
 .btn-primary-outlined:hover {
-  background: rgba(34, 197, 94, 0.08);
+  background: rgba(96, 166, 55, 0.08);
   transform: translateY(-2px);
 }
 

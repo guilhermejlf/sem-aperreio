@@ -507,7 +507,7 @@ export default {
 }
 
 .summary-receitas {
-  border-left: 3px solid #22c55e;
+  border-left: 3px solid #60A637;
 }
 
 .summary-gastos {
@@ -519,7 +519,7 @@ export default {
 }
 
 .saldo-positivo .summary-value {
-  color: #22c55e;
+  color: #60A637;
 }
 
 .saldo-negativo .summary-value {
@@ -724,8 +724,8 @@ export default {
 }
 
 .status-pago {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
+  background: rgba(96, 166, 55, 0.1);
+  color: #60A637;
 }
 
 .status-pendente {
@@ -741,7 +741,7 @@ export default {
 }
 
 .valor-receita {
-  color: #22c55e;
+  color: #60A637;
 }
 
 .valor-gasto {
