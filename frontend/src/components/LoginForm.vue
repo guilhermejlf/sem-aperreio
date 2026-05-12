@@ -113,7 +113,7 @@ export default {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .form-label {
@@ -150,9 +150,9 @@ export default {
 
 .form-input:focus {
   outline: none;
-  border-color: rgba(34,197,94,0.5) !important;
+  border-color: rgba(34,197,94,0.4) !important;
   background: rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 0 0 3px rgba(34,197,94,0.08), 0 0 18px rgba(34,197,94,0.06);
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.06), 0 0 12px rgba(34,197,94,0.04);
 }
 
 .password-toggle {
@@ -195,7 +195,7 @@ export default {
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   margin-top: 8px;
-  box-shadow: 0 4px 16px rgba(34,197,94,0.25);
+  box-shadow: 0 4px 14px rgba(34,197,94,0.18);
 }
 
 .btn-submit:hover:not(:disabled) {

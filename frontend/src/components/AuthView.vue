@@ -3,7 +3,7 @@
     <div class="auth-card">
       <div class="auth-header">
         <img src="../assets/logo-pdf.png" alt="Sem Aperreio" class="auth-logo" />
-        <p class="auth-tagline">Seu Bené deixa sua vida financeira sem aperreio. 😄</p>
+        <p class="auth-tagline">Seu Bené deixa sua vida financeira sem aperreio 😄</p>
       </div>
 
       <div class="auth-tabs">
@@ -24,8 +24,11 @@
       </div>
 
       <div class="auth-bene">
-        <span class="bene-emoji">😄</span>
-        <span class="bene-text">Qualquer coisa, <span class="bene-name">Seu Bené</span> tá por aqui.</span>
+        <img src="../assets/bene-avatar.png" alt="Seu Bené" class="bene-avatar" />
+        <div class="bene-text">
+          <span>Qualquer coisa,</span>
+          <span><span class="bene-name">Seu Bené</span> tá por aqui 😄</span>
+        </div>
       </div>
 
       <ForgotPasswordModal v-if="showForgotModal" @close="showForgotModal = false" />
@@ -70,7 +73,7 @@ export default {
   background: rgba(11, 18, 32, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  padding: 40px 32px 28px;
+  padding: 32px;
   border-radius: 24px;
   box-shadow:
     0 8px 32px rgba(0,0,0,0.4),
@@ -81,7 +84,7 @@ export default {
 
 .auth-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .auth-logo {
@@ -89,11 +92,13 @@ export default {
   height: 220px;
   object-fit: contain;
   display: block;
-  margin: 0 auto;
+  margin: -16px auto 0;
 }
 
 .auth-tagline {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
+  padding: 0;
+  line-height: 1.4;
   font-size: 14px;
   color: rgba(148,163,184,0.7);
   letter-spacing: 0.2px;
@@ -127,9 +132,9 @@ export default {
 }
 
 .auth-tab.active {
-  background: rgba(255,255,255,0.07);
+  background: transparent;
   color: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.05), 0 0 12px rgba(34,197,94,0.04);
 }
 
 .auth-form-container {
@@ -170,14 +175,24 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 10px;
   margin-top: 16px;
+  margin-bottom: 16px;
   font-size: 13px;
   color: rgba(148,163,184,0.5);
 }
 
-.bene-emoji {
-  font-size: 15px;
+.bene-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.4;
+}
+
+.bene-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .bene-name {
@@ -187,7 +202,7 @@ export default {
 
 @media (max-width: 480px) {
   .auth-card {
-    padding: 24px 20px;
+    padding: 20px;
   }
 }
 </style>
