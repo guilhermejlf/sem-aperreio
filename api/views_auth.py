@@ -38,7 +38,7 @@ class RegisterView(APIView):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        identifier = attrs.get('identifier', '')
+        identifier = attrs.get('identifier') or attrs.get('username', '')
         password = attrs.get('password', '')
 
         # Buscar usuário por email ou username
