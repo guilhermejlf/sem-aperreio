@@ -2,9 +2,7 @@
   <div class="auth-page">
     <div class="auth-card">
       <div class="auth-header">
-        <i class="pi pi-wallet auth-icon"></i>
-        <h1 class="auth-title">Sem Aperreio</h1>
-        <p class="auth-subtitle">Controle seus gastos domésticos</p>
+        <img src="../assets/logo-pdf.png" alt="Sem Aperreio" class="auth-logo" />
       </div>
 
       <div class="auth-tabs">
@@ -69,28 +67,14 @@ export default {
 
 .auth-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 4px;
 }
 
-.auth-icon {
-  font-size: 2.5rem;
-  color: #22c55e;
-  margin-bottom: 12px;
-}
-
-.auth-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 6px 0;
-  background: linear-gradient(90deg, #a78bfa, #22c55e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.auth-subtitle {
-  color: #94a3b8;
-  font-size: 14px;
-  margin: 0;
+.auth-logo {
+  width: 180px;
+  height: 180px;
+  margin-bottom: 4px;
+  object-fit: contain;
 }
 
 .auth-tabs {
