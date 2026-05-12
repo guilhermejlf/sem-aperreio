@@ -1034,21 +1034,20 @@ export default {
 }
 
 .btn-primary {
-  background: linear-gradient(90deg, #60A637, #3b82f6);
+  background: linear-gradient(135deg, #60A637, #4C8932);
   color: white;
   border: none;
   padding: 15px 30px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(96, 166, 55, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(96, 166, 55, 0.18);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(96, 166, 55, 0.4);
+  filter: brightness(1.1);
 }
 
 .btn-primary.btn-sm {
