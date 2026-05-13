@@ -1602,3 +1602,12 @@ def check_budget_alert(user, gasto):
             }
     
     return None
+
+
+@api_view(["DELETE"])
+def flush_users(request):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    count = User.objects.count()
+    User.objects.all().delete()
+    return Response({"status": "ok", "deleted": count})

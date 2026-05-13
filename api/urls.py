@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import prever_gasto, gastos, gasto_detail, dashboard, receitas, receita_detail, exportar_csv, exportar_xlsx, exportar_pdf, listar_metas, criar_meta, atualizar_meta, deletar_meta, extrato
+from .views import prever_gasto, gastos, gasto_detail, dashboard, receitas, receita_detail, exportar_csv, exportar_xlsx, exportar_pdf, listar_metas, criar_meta, atualizar_meta, deletar_meta, extrato, flush_users
 from .views_auth import (
     RegisterView, LoginView, RefreshView, UserView,
     VerifyEmailView, PasswordResetRequestView, PasswordResetConfirmView
@@ -38,5 +38,6 @@ urlpatterns = [
     path("notificacoes/status/", notificacoes_status, name="notificacoes_status"),
     path("tasks/trigger/", trigger_tasks, name="trigger_tasks"),
     path("ai/chat/", ai_chat, name="ai_chat"),
+    path("admin/flush-users/", flush_users, name="flush_users"),
     path("", include(router.urls)),
 ]
