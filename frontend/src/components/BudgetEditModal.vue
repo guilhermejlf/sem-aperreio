@@ -10,7 +10,7 @@
     <!-- Step 1: Form -->
     <template v-if="etapa === 'form'">
       <div v-if="metaLocal.gasto_realizado > 0" class="modal-contexto">
-        Você já gastou <strong>{{ formatarValor(metaLocal.gasto_realizado) }}</strong>
+        Você já despendeu <strong>{{ formatarValor(metaLocal.gasto_realizado) }}</strong>
         nesta categoria neste mês.
       </div>
 
@@ -58,7 +58,7 @@
     <template v-else-if="etapa === 'confirmar'">
       <div class="confirmacao-texto">
         <p>
-          Você já gastou <strong>{{ formatarValor(metaLocal.gasto_realizado) }}</strong>
+          Você já despendeu <strong>{{ formatarValor(metaLocal.gasto_realizado) }}</strong>
           em <strong>{{ metaLocal.categoria_nome || 'Geral' }}</strong> este mês.
         </p>
         <p>

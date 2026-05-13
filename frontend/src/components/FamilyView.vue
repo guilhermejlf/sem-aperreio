@@ -10,7 +10,7 @@
     <div v-else-if="pageState === 'no-group'" class="family-empty">
       <i class="pi pi-users empty-icon"></i>
       <h3 class="empty-title">Nenhum grupo criado</h3>
-      <p class="empty-sub">Crie um grupo ou entre em um existente para compartilhar gastos com sua família.</p>
+      <p class="empty-sub">Crie um grupo ou entre em um existente para compartilhar despesas com sua família.</p>
 
       <button
         class="btn-primary"
@@ -372,7 +372,7 @@ export default {
     },
     confirmDeleteGroup() {
       this.$confirm.require({
-        message: 'Todos os membros serão removidos e os gastos permanecerão vinculados apenas aos criadores.',
+        message: 'Todos os membros serão removidos e as despesas permanecerão vinculadas apenas aos criadores.',
         header: 'Excluir Grupo?',
         icon: 'pi pi-exclamation-triangle',
         acceptLabel: 'Excluir',

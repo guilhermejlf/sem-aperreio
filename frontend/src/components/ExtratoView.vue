@@ -46,7 +46,7 @@
             <select v-model="filters.tipo" class="filter-select" @change="carregarExtrato">
               <option value="">Todos</option>
               <option value="receitas">Receitas</option>
-              <option value="gastos">Gastos</option>
+              <option value="gastos">Despesas</option>
             </select>
           </div>
 
@@ -106,7 +106,7 @@
         <div class="summary-card summary-gastos">
           <span class="summary-icon">💳</span>
           <div class="summary-info">
-            <span class="summary-label">Gastos</span>
+            <span class="summary-label">Despesas</span>
             <span class="summary-value">{{ formatarValor(resumo.total_gastos) }}</span>
           </div>
         </div>
@@ -133,7 +133,7 @@
       <div v-if="itens.length === 0" class="empty-state">
         <i class="pi pi-list empty-icon"></i>
         <h3>Nenhum registro encontrado</h3>
-        <p>Adicione receitas ou gastos para ver o extrato financeiro.</p>
+        <p>Adicione receitas ou despesas para ver o extrato financeiro.</p>
       </div>
 
       <!-- LIST -->

@@ -21,7 +21,7 @@
       <i class="pi pi-inbox"></i>
       <h3>Nenhum movimento neste período</h3>
       <p v-if="dashboardData.periodo">
-        Adicione uma receita ou gasto para ver o dashboard de {{ dashboardData.periodo.mes_nome }} {{ dashboardData.periodo.ano }}.
+        Adicione uma receita ou despesa para ver o painel de {{ dashboardData.periodo.mes_nome }} {{ dashboardData.periodo.ano }}.
       </p>
     </div>
 
@@ -91,7 +91,7 @@
           <div class="stat-icon">💰</div>
           <div class="stat-content">
             <h3>{{ formatarValor(dashboardData.total_mes || 0) }}</h3>
-            <p>Total gasto no mês</p>
+            <p>Total de despesas no mês</p>
             <small>{{ dashboardData.quantidade_gastos || 0 }} registros</small>
           </div>
         </div>
@@ -100,8 +100,8 @@
           <div class="stat-icon">🏆</div>
           <div class="stat-content">
             <h3>{{ categoriaDominante.nome }}</h3>
-            <p>Seu maior foco de gastos</p>
-            <small>{{ categoriaDominante.percentual }}% dos gastos</small>
+            <p>Seu maior foco de despesas</p>
+            <small>{{ categoriaDominante.percentual }}% das despesas</small>
           </div>
         </div>
 
@@ -140,7 +140,7 @@
       <!-- Gráficos -->
       <div class="charts-grid">
         <div class="chart-container">
-          <h3>Gastos por Categoria</h3>
+          <h3>Despesas por Categoria</h3>
           <div class="chart-wrapper">
             <canvas ref="categoriaChart"></canvas>
           </div>
@@ -288,7 +288,7 @@ export default {
       if (Math.abs(variacao) > 0.1) {
         lista.push({
           tipo: variacao > 0 ? 'alerta' : 'sucesso',
-          mensagem: `Você gastou ${Math.abs(variacao).toFixed(1)}% ${variacao > 0 ? 'a mais' : 'a menos'} que no mês passado`
+          mensagem: `Você despendeu ${Math.abs(variacao).toFixed(1)}% ${variacao > 0 ? 'a mais' : 'a menos'} que no mês passado`
         })
       }
 
@@ -439,7 +439,7 @@ export default {
                 pointHoverRadius: 7
               },
               {
-                label: 'Gastos',
+                label: 'Despesas',
                 data: dadosGastos,
                 borderColor: '#ef4444',
                 backgroundColor: 'rgba(239, 68, 68, 0.05)',

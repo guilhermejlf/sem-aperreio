@@ -27,7 +27,7 @@
             @click="activeTab = 'dashboard'"
           >
             <i class="pi pi-home"></i>
-            <span>Dashboard</span>
+            <span>Painel</span>
           </button>
           <button
             :class="['nav-item', { active: activeTab === 'extrato' }]"
@@ -41,7 +41,7 @@
             @click="activeTab = 'gastos'"
           >
             <i class="pi pi-arrow-up-right"></i>
-            <span>Gastos</span>
+            <span>Despesas</span>
           </button>
           <button
             :class="['nav-item', { active: activeTab === 'receitas' }]"
@@ -149,10 +149,10 @@
         <div class="gastos-container">
           <div v-if="gastos.length === 0" class="empty-state">
             <i class="pi pi-inbox"></i>
-            <h3>Nenhum gasto cadastrado</h3>
-            <p>Comece adicionando seu primeiro gasto para ver o dashboard completo!</p>
+            <h3>Nenhuma despesa cadastrada</h3>
+            <p>Comece adicionando seu primeiro gasto para ver o painel completo!</p>
             <button @click="showAddModal = true" class="btn-primary">
-              Adicionar Primeiro Gasto
+              Adicionar Primeira Despesa
             </button>
           </div>
 
@@ -179,13 +179,13 @@
                 </button>
               </div>
               <button @click="showAddModal = true" class="btn-primary btn-sm">
-                <i class="pi pi-plus"></i> Novo Gasto
+                <i class="pi pi-plus"></i> Nova Despesa
               </button>
             </div>
 
             <div class="gastos-list">
               <div v-if="gastosFiltrados.length === 0" class="empty-filter">
-                <p>Nenhum gasto nesta categoria.</p>
+                <p>Nenhuma despesa nesta categoria.</p>
               </div>
               <BaseCard
                 v-for="g in gastosFiltrados"
@@ -201,7 +201,7 @@
                 </template>
                 <template #extras>
                   <small v-if="g.data_competencia && g.data_competencia !== g.data" class="gasto-desc">
-                    Mês do gasto: {{ formatarData(g.data_competencia) }}
+                    Mês da despesa: {{ formatarData(g.data_competencia) }}
                   </small>
                   <small v-if="g.data_pagamento" class="gasto-desc">
                     Quando foi pago: {{ formatarData(g.data_pagamento) }}
@@ -254,7 +254,7 @@
     <!-- ADD/EDIT EXPENSE MODAL -->
     <ModalBase
       :visible="showAddModal"
-      :title="editingGasto ? 'Editar Gasto' : 'Adicionar Gasto'"
+      :title="editingGasto ? 'Editar Despesa' : 'Adicionar Despesa'"
       :highlight="'Gasto'"
       size="medium"
       @close="fecharModal"
@@ -298,7 +298,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Data do gasto</label>
+          <label class="form-label">Data da despesa</label>
           <input
             type="date"
             v-model="novo.data_competencia"
@@ -312,7 +312,7 @@
               type="checkbox"
               v-model="novo.pago"
             />
-            <span>Já paguei esse gasto</span>
+            <span>Já paguei essa despesa</span>
           </label>
         </div>
 
@@ -333,7 +333,7 @@
           :disabled="loading || !formValido"
           @click="editingGasto ? salvarEdicao() : adicionarGasto()"
         >
-          {{ editingGasto ? 'Salvar alterações' : 'Salvar gasto' }}
+          {{ editingGasto ? 'Salvar alterações' : 'Salvar despesa' }}
         </button>
       </template>
     </ModalBase>

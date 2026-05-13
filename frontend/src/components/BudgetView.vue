@@ -21,7 +21,7 @@
       <i class="pi pi-bullseye"></i>
       <h3>Nenhuma meta definida</h3>
       <p v-if="periodo">
-        Defina metas para acompanhar seus gastos de {{ mesNome }} {{ periodo.ano }}.
+        Defina metas para acompanhar suas despesas de {{ mesNome }} {{ periodo.ano }}.
       </p>
       <button class="btn-primary btn-lg" @click="abrirCriarMetaGeral">
         Adicionar Meta Geral

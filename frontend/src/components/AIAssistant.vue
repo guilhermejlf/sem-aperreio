@@ -81,7 +81,7 @@
                 <div class="ai-confirm-data">
                   <div class="ai-confirm-row">
                     <span class="ai-confirm-label">Tipo</span>
-                    <span class="ai-confirm-value">{{ msg.confirmation.intent === 'add_expense' ? 'Gasto' : 'Receita' }}</span>
+                    <span class="ai-confirm-value">{{ msg.confirmation.intent === 'add_expense' ? 'Despesa' : 'Receita' }}</span>
                   </div>
                   <div class="ai-confirm-row">
                     <span class="ai-confirm-label">Valor</span>

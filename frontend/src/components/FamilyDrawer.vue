@@ -16,7 +16,7 @@
       <div v-else-if="drawerState === 'no-group'" class="drawer-empty">
         <i class="pi pi-users empty-icon"></i>
         <p class="empty-text">Você não está em nenhum<br>grupo familiar.</p>
-        <p class="empty-sub">Crie um grupo ou entre em um<br>existente para compartilhar<br>gastos com sua família.</p>
+        <p class="empty-sub">Crie um grupo ou entre em um<br>existente para compartilhar<br>despesas com sua família.</p>
 
         <Button
           label="Criar Grupo Familiar"
@@ -415,7 +415,7 @@ export default {
     },
     confirmDeleteGroup() {
       this.$confirm.require({
-        message: 'Todos os membros serão removidos e os gastos permanecerão vinculados apenas aos criadores.',
+        message: 'Todos os membros serão removidos e as despesas permanecerão vinculadas apenas aos criadores.',
         header: 'Excluir Grupo?',
         icon: 'pi pi-exclamation-triangle',
         acceptLabel: 'Excluir',
