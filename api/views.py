@@ -18,7 +18,7 @@ from decimal import Decimal
 from .models import Gasto, FamilyMembership, Receita, Family, MetaGasto
 from .serializers import GastoSerializer, ReceitaSerializer, MetaGastoSerializer
 from .permissions import GastoPermission
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
 
 from reportlab.lib.pagesizes import A4
