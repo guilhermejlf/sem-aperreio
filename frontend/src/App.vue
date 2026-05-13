@@ -351,6 +351,11 @@
       :chat-open="beneStore?.visible || false"
       @open-chat="openAIAssistant"
     />
+    <BottomNav
+      :active-tab="activeTab"
+      @navigate="activeTab = $event"
+      class="bottom-nav-mobile"
+    />
   </template>
 </div>
 </template>
@@ -369,6 +374,7 @@ import PasswordResetView from './components/PasswordResetView.vue'
 import VerifyEmailView from './components/VerifyEmailView.vue'
 import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
 import ModalBase from './components/ModalBase.vue'
+import BottomNav from './components/BottomNav.vue'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
 import logo from './assets/logo.png'
@@ -396,6 +402,7 @@ export default {
     VerifyEmailView,
     BeneFloatingPresence,
     ModalBase,
+    BottomNav,
     Toast,
     ConfirmDialog
   },
@@ -1628,15 +1635,24 @@ export default {
   justify-self: end;
 }
 
+/* BOTTOM NAV — desktop hidden */
+.bottom-nav-mobile {
+  display: none;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .header-content {
-    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    grid-template-columns: none;
   }
 
   .logo {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 
   .brand {
@@ -1649,21 +1665,7 @@ export default {
   }
 
   .nav-menu {
-    gap: 2px;
-  }
-
-  .nav-item {
-    padding: 8px 10px;
-    font-size: 0;
-    gap: 0;
-  }
-
-  .nav-item span {
     display: none;
-  }
-
-  .nav-item i {
-    font-size: 18px;
   }
 
   .logout-btn {
@@ -1672,7 +1674,7 @@ export default {
   }
 
   .main-content {
-    padding: 20px 15px;
+    padding: 16px 15px calc(16px + 56px + env(safe-area-inset-bottom));
   }
 
   .gastos-container,
@@ -1683,6 +1685,29 @@ export default {
   .gastos-header {
     flex-direction: column;
     text-align: center;
+  }
+
+  .bottom-nav-mobile {
+    display: flex;
+  }
+
+  /* Header minimalista: só avatar, sem texto */
+  .user-name {
+    padding: 4px;
+    gap: 0;
+    background: none;
+    border: none;
+  }
+
+  .user-name .user-label,
+  .user-name .pi-chevron-down {
+    display: none;
+  }
+
+  .user-name .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
   }
 }
 

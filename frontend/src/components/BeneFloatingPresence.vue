@@ -145,7 +145,7 @@ export default {
 
 @media (max-width: 768px) {
   .bene-presence {
-    bottom: 16px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
     right: 16px;
   }
 }
