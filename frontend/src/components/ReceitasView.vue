@@ -363,8 +363,8 @@ export default {
 
 .edit-btn,
 .delete-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: none;
   color: #94a3b8;
   width: 32px;
   height: 32px;
@@ -372,19 +372,18 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .edit-btn:hover {
   background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.3);
   color: #3b82f6;
 }
 
 .delete-btn:hover {
   background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.3);
   color: #ef4444;
 }
 
