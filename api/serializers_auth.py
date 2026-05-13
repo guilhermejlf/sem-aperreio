@@ -1,5 +1,6 @@
 import secrets
 import logging
+import threading
 from datetime import timedelta
 
 from rest_framework import serializers
@@ -62,17 +63,20 @@ class RegisterSerializer(serializers.Serializer):
             verification_token=token,
             verification_token_expires=timezone.now() + timedelta(hours=48)
         )
-        # Enviar email de verificação
-        try:
-            from django.conf import settings
-            verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
-            send_email(
-                subject="Confirme seu email - Sem Aperreio",
-                to_email=user.email,
-                template_name="email_verification",
-                context={"user": user, "verify_url": verify_url}
-            )
-        except Exception as e:
-            logger.error(f"Falha ao enviar email de verificação para {user.email}: {e}")
+        # Enviar email de verificação em background (não bloquear resposta)
+        def _send_verification_email():
+            try:
+                from django.conf import settings
+                verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+                send_email(
+                    subject="Confirme seu email - Sem Aperreio",
+                    to_email=user.email,
+                    template_name="email_verification",
+                    context={"user": user, "verify_url": verify_url}
+                )
+            except Exception as e:
+                logger.error(f"Falha ao enviar email de verificação para {user.email}: {e}")
+
+        threading.Thread(target=_send_verification_email, daemon=True).start()
 
         return user
