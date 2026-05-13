@@ -28,6 +28,7 @@ export default {
         { tab: 'dashboard', label: 'Início', icon: 'pi pi-home' },
         { tab: 'extrato', label: 'Extrato', icon: 'pi pi-list' },
         { tab: 'gastos', label: 'Despesas', icon: 'pi pi-arrow-up-right' },
+        { tab: 'receitas', label: 'Receitas', icon: 'pi pi-chart-line' },
         { tab: 'metas', label: 'Metas', icon: 'pi pi-bullseye' },
         { tab: 'grupo', label: 'Grupo', icon: 'pi pi-users' },
       ]
