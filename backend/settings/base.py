@@ -60,11 +60,16 @@ if DEBUG:
 else:
     _raw_cors = config('CORS_ALLOWED_ORIGINS', default='').split(',')
     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors if origin.strip()]
-    # Fallback: se CORS_ALLOWED_ORIGINS vazio, adiciona FRONTEND_URL
+
+    # Sempre inclui FRONTEND_URL (do .env ou variável de ambiente)
+    _frontend = config('FRONTEND_URL', default=os.environ.get('FRONTEND_URL', ''))
+    if _frontend and _frontend not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(_frontend)
+
+    # Fallback hardcoded para produção (se nenhuma origin definida)
     if not CORS_ALLOWED_ORIGINS:
-        _frontend = os.environ.get('FRONTEND_URL', '')
-        if _frontend:
-            CORS_ALLOWED_ORIGINS.append(_frontend)
+        CORS_ALLOWED_ORIGINS = ['https://sem-aperreio.vercel.app']
+
     CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------
