@@ -999,6 +999,7 @@ export default {
   font-size: 28px;
   margin: 0;
   background: linear-gradient(90deg, #60A637, #3b82f6);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -1085,7 +1086,7 @@ export default {
 }
 
 .gasto-desc {
-  color: #64748b;
+  color: rgba(148, 163, 184, 0.92);
   font-style: italic;
   display: block;
   margin-bottom: 4px;
@@ -1093,34 +1094,44 @@ export default {
 }
 
 .gasto-time {
-  color: #64748b;
-  font-size: 11px;
+  color: rgba(148, 163, 184, 0.92);
+  font-size: 12px;
 }
 
 .delete-btn {
   background: none;
   border: none;
   color: #64748b;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   transition: color 0.2s ease;
   padding: 4px;
   line-height: 1;
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .delete-btn:hover {
-  color: #3b82f6;
+  color: #ef4444;
 }
 
 .edit-btn {
   background: none;
   border: none;
   color: #64748b;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   transition: color 0.2s ease;
   padding: 4px;
   line-height: 1;
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .edit-btn:hover {
@@ -1330,30 +1341,30 @@ export default {
 .gasto-user {
   display: block;
   margin-top: 4px;
-  color: #64748b;
-  font-size: 11px;
+  color: rgba(148, 163, 184, 0.88);
+  font-size: 12px;
 }
 
 .pago-badge {
   display: inline-block;
   margin-top: 4px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   background: linear-gradient(90deg, #60A637, #4C8932);
   color: white;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 999px;
 }
 
 .pendente-badge {
   display: inline-block;
   margin-top: 4px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   background: linear-gradient(90deg, #ef4444, #f87171);
   color: #ffffff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 999px;
 }
 
 .empty-filter {
@@ -1646,7 +1657,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 16px;
+    padding: 6px 12px;
     grid-template-columns: none;
   }
 
@@ -1674,12 +1685,13 @@ export default {
   }
 
   .main-content {
-    padding: 16px 15px calc(16px + 56px + env(safe-area-inset-bottom));
+    padding: 16px 15px calc(16px + 64px + env(safe-area-inset-bottom));
   }
 
   .gastos-container,
   .form-card {
     padding: 20px;
+    background: linear-gradient(180deg, rgba(30,41,59,0.88) 0%, rgba(15,23,42,0.92) 100%);
   }
 
   .gastos-header {

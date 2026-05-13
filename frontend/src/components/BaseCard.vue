@@ -191,10 +191,26 @@ export default {
     flex-direction: column;
     gap: 15px;
     text-align: center;
+    background: linear-gradient(180deg, rgba(30,41,59,0.88) 0%, rgba(15,23,42,0.92) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .base-card__header {
     justify-content: center;
+  }
+
+  .base-card__subtitle {
+    color: rgba(148, 163, 184, 0.92);
+  }
+
+  .base-card__extras :deep(small),
+  .base-card__extras :deep(.base-card__extra-item) {
+    color: rgba(148, 163, 184, 0.85);
+  }
+
+  .base-card__meta :deep(.base-card__meta-item) {
+    color: rgba(148, 163, 184, 0.85);
+    font-size: 12px;
   }
 
   .base-card__right {
@@ -204,6 +220,13 @@ export default {
 
   .base-card__badges {
     justify-content: center;
+  }
+
+  .base-card__actions :deep(.edit-btn),
+  .base-card__actions :deep(.delete-btn) {
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 16px;
   }
 }
 </style>

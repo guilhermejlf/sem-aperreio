@@ -52,6 +52,7 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    height: 64px;
     background: rgba(15, 23, 42, 0.92);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -66,8 +67,8 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 4px;
+  gap: 3px;
+  padding: 6px 2px;
   background: none;
   border: none;
   color: rgba(248, 250, 252, 0.58);
@@ -75,11 +76,10 @@ export default {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.25s ease;
-  min-height: 56px;
 }
 
 .bottom-nav-item i {
-  font-size: 20px;
+  font-size: 22px;
   transition: all 0.25s ease;
 }
 
@@ -88,6 +88,6 @@ export default {
 }
 
 .bottom-nav-item.active i {
-  filter: drop-shadow(0 0 6px rgba(96, 166, 55, 0.25));
+  filter: drop-shadow(0 0 4px rgba(96, 166, 55, 0.08));
 }
 </style>
