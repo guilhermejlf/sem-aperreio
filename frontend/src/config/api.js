@@ -124,7 +124,21 @@ export async function apiRequest(url, options = {}) {
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      const msg = errorData.erro || errorData.detail || (errorData.non_field_errors && errorData.non_field_errors[0]) || `HTTP ${response.status}`
+      let msg = errorData.erro || errorData.detail || (errorData.non_field_errors && errorData.non_field_errors[0]) || `HTTP ${response.status}`
+      
+      // Se houver detalhes de validação (ex: serializer.errors), incluí-los na mensagem
+      if (errorData.detalhes && typeof errorData.detalhes === 'object') {
+        const partes = []
+        for (const [campo, erros] of Object.entries(errorData.detalhes)) {
+          const label = campo === 'password2' ? 'Confirmar senha' : campo === 'non_field_errors' ? '' : campo
+          const texto = Array.isArray(erros) ? erros.join(', ') : String(erros)
+          partes.push(label ? `${label}: ${texto}` : texto)
+        }
+        if (partes.length) {
+          msg = partes.join('; ')
+        }
+      }
+      
       throw new Error(msg)
     }
 
