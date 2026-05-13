@@ -1648,14 +1648,22 @@ export default {
     justify-content: flex-end;
   }
 
+  .nav-menu {
+    gap: 2px;
+  }
+
   .nav-item {
-    padding: 6px 8px;
-    font-size: 12px;
-    gap: 6px;
+    padding: 8px 10px;
+    font-size: 0;
+    gap: 0;
+  }
+
+  .nav-item span {
+    display: none;
   }
 
   .nav-item i {
-    font-size: 12px;
+    font-size: 18px;
   }
 
   .logout-btn {
