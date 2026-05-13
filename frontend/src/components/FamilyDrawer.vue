@@ -20,7 +20,6 @@
 
         <Button
           label="Criar Grupo Familiar"
-          icon="pi pi-plus"
           severity="success"
           class="w-full"
           @click="drawerState = 'create-form'"

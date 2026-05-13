@@ -13,16 +13,20 @@
         <i class="pi pi-wallet empty-icon"></i>
         <h3>Nenhuma receita cadastrada</h3>
         <p>Comece adicionando sua primeira receita!</p>
-        <button @click="abrirModal" class="btn-primary">
-          Adicionar Primeira Receita
-        </button>
+        <div class="mobile-primary-action">
+          <button @click="abrirModal" class="btn-primary">
+            Adicionar Primeira Receita
+          </button>
+        </div>
       </div>
 
       <div v-else>
         <div class="receitas-toolbar">
-          <button @click="abrirModal" class="btn-primary btn-sm">
-            <i class="pi pi-plus"></i> Nova Receita
-          </button>
+          <div class="mobile-primary-action">
+            <button @click="abrirModal" class="btn-primary btn-sm">
+              Nova Receita
+            </button>
+          </div>
         </div>
         <div class="receitas-list">
           <BaseCard

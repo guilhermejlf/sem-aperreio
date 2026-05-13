@@ -12,12 +12,14 @@
       <h3 class="empty-title">Nenhum grupo criado</h3>
       <p class="empty-sub">Crie um grupo ou entre em um existente para compartilhar despesas com sua família.</p>
 
-      <button
-        class="btn-primary"
-        @click="pageState = 'create-form'"
-      >
-        Criar Grupo Familiar
-      </button>
+      <div class="mobile-primary-action">
+        <button
+          class="btn-primary"
+          @click="pageState = 'create-form'"
+        >
+          Criar Grupo Familiar
+        </button>
+      </div>
 
       <div class="divider">
         <span>ou</span>

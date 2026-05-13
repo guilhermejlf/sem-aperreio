@@ -151,9 +151,11 @@
             <i class="pi pi-inbox"></i>
             <h3>Nenhuma despesa cadastrada</h3>
             <p>Comece adicionando seu primeiro gasto para ver o painel completo!</p>
-            <button @click="showAddModal = true" class="btn-primary">
-              Adicionar Primeira Despesa
-            </button>
+            <div class="mobile-primary-action">
+              <button @click="showAddModal = true" class="btn-primary">
+                Adicionar Primeira Despesa
+              </button>
+            </div>
           </div>
 
           <div v-else>
@@ -178,9 +180,11 @@
                   Meus ({{ gastosMeus.length }})
                 </button>
               </div>
-              <button @click="showAddModal = true" class="btn-primary btn-sm">
-                <i class="pi pi-plus"></i> Nova Despesa
-              </button>
+              <div class="mobile-primary-action">
+                <button @click="showAddModal = true" class="btn-primary btn-sm">
+                  Nova Despesa
+                </button>
+              </div>
             </div>
 
             <div class="gastos-list">
@@ -1081,6 +1085,10 @@ export default {
   gap: 12px;
 }
 
+.gastos-toolbar .mobile-primary-action {
+  margin-left: auto;
+}
+
 .gastos-toolbar .btn-sm {
   margin-left: auto;
 }
@@ -1699,6 +1707,23 @@ export default {
     text-align: center;
   }
 
+  .gastos-toolbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .gasto-filter-tabs {
+    justify-content: center;
+  }
+
+  .gastos-toolbar .mobile-primary-action {
+    display: block;
+    text-align: center;
+    margin: 12px 0 16px;
+  }
+
   .bottom-nav-mobile {
     display: flex;
   }
@@ -1720,6 +1745,36 @@ export default {
     width: 36px;
     height: 36px;
     font-size: 14px;
+  }
+
+  /* Mobile Primary Action Wrapper */
+  .mobile-primary-action {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0 24px;
+    width: 100%;
+  }
+
+  .mobile-primary-action .btn-primary,
+  .mobile-primary-action .btn-primary.btn-sm {
+    width: fit-content;
+    min-width: 200px;
+    max-width: 240px;
+    height: 52px;
+    padding: 0 24px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+    box-shadow: 0 0 18px rgba(96,166,55,0.12);
+    font-size: 17px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .mobile-primary-action .btn-primary i {
+    font-size: 20px;
   }
 }
 

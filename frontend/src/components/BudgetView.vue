@@ -23,9 +23,11 @@
       <p v-if="periodo">
         Defina metas para acompanhar suas despesas de {{ mesNome }} {{ periodo.ano }}.
       </p>
-      <button class="btn-primary btn-lg" @click="abrirCriarMetaGeral">
-        Adicionar Meta Geral
-      </button>
+      <div class="mobile-primary-action">
+        <button class="btn-primary btn-lg" @click="abrirCriarMetaGeral">
+          Adicionar Meta Geral
+        </button>
+      </div>
     </div>
 
     <!-- Conteúdo -->
@@ -35,9 +37,11 @@
         <div class="block-title">Orçamento Geral</div>
       </div>
       <div v-if="!metaGeral" class="nova-meta-section">
-        <button @click="abrirCriarMetaGeral" class="btn-primary">
-          <i class="pi pi-plus"></i> Definir Meta Geral
-        </button>
+        <div class="mobile-primary-action">
+          <button @click="abrirCriarMetaGeral" class="btn-primary">
+            Definir Meta Geral
+          </button>
+        </div>
       </div>
       <div v-else class="meta-geral-card" :class="metaGeral.status">
         <div class="meta-header">
@@ -72,9 +76,11 @@
       <!-- Bloco Categorias -->
       <div class="section-header">
         <div class="block-title">Metas por Categoria</div>
-        <button @click="abrirCriarCategoria" class="btn-primary btn-sm">
-          <i class="pi pi-plus"></i> Adicionar Meta
-        </button>
+        <div class="mobile-primary-action">
+          <button @click="abrirCriarCategoria" class="btn-primary btn-sm">
+            Adicionar Meta
+          </button>
+        </div>
       </div>
       <div class="categorias-grid">
         <div

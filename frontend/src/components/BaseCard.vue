@@ -1,34 +1,36 @@
 <template>
   <div class="base-card" :class="{ 'base-card--group': isGroup }">
-    <div class="base-card__info">
-      <div class="base-card__header">
-        <span v-if="icon && !$slots.icon" class="base-card__icon">{{ icon }}</span>
-        <slot name="icon"></slot>
-        <h4 class="base-card__title">
-          <slot name="title">{{ title }}</slot>
-        </h4>
-        <slot name="header-badge"></slot>
+    <div class="base-card__body">
+      <div class="base-card__info">
+        <div class="base-card__header">
+          <span v-if="icon && !$slots.icon" class="base-card__icon">{{ icon }}</span>
+          <slot name="icon"></slot>
+          <h4 class="base-card__title">
+            <slot name="title">{{ title }}</slot>
+          </h4>
+          <slot name="header-badge"></slot>
+        </div>
+        <p v-if="subtitle || $slots.subtitle" class="base-card__subtitle">
+          <slot name="subtitle">{{ subtitle }}</slot>
+        </p>
+        <div class="base-card__extras">
+          <slot name="extras"></slot>
+        </div>
+        <div class="base-card__meta">
+          <slot name="meta"></slot>
+        </div>
       </div>
-      <p v-if="subtitle || $slots.subtitle" class="base-card__subtitle">
-        <slot name="subtitle">{{ subtitle }}</slot>
-      </p>
-      <div class="base-card__extras">
-        <slot name="extras"></slot>
-      </div>
-      <div class="base-card__meta">
-        <slot name="meta"></slot>
+      <div class="base-card__summary">
+        <div class="base-card__value" :style="valueStyle">
+          <slot name="value">{{ value }}</slot>
+        </div>
+        <div class="base-card__badges">
+          <slot name="badges"></slot>
+        </div>
       </div>
     </div>
-    <div class="base-card__right">
-      <div class="base-card__value" :style="valueStyle">
-        <slot name="value">{{ value }}</slot>
-      </div>
-      <div class="base-card__badges">
-        <slot name="badges"></slot>
-      </div>
-      <div v-if="$slots.actions" class="base-card__actions">
-        <slot name="actions"></slot>
-      </div>
+    <div v-if="$slots.actions" class="base-card__actions-col">
+      <slot name="actions"></slot>
     </div>
   </div>
 </template>
@@ -134,13 +136,33 @@ export default {
   display: block;
 }
 
-.base-card__right {
+.base-card__body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.base-card__summary {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
   flex-shrink: 0;
   margin-left: 16px;
+}
+
+.base-card__actions-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-left: 16px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
 }
 
 .base-card__value {
@@ -188,45 +210,90 @@ export default {
 
 @media (max-width: 768px) {
   .base-card {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
+    gap: 12px;
+    padding: 14px;
     background: linear-gradient(180deg, rgba(30,41,59,0.88) 0%, rgba(15,23,42,0.92) 100%);
     border: 1px solid rgba(255, 255, 255, 0.05);
+    align-items: stretch;
+  }
+
+  .base-card__info {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
   }
 
   .base-card__header {
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .base-card__subtitle {
     color: rgba(148, 163, 184, 0.92);
+    text-align: left;
   }
 
   .base-card__extras :deep(small),
   .base-card__extras :deep(.base-card__extra-item) {
     color: rgba(148, 163, 184, 0.85);
+    text-align: left;
   }
 
   .base-card__meta :deep(.base-card__meta-item) {
     color: rgba(148, 163, 184, 0.85);
     font-size: 12px;
+    text-align: left;
   }
 
-  .base-card__right {
-    align-items: center;
+  .base-card__body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .base-card__summary {
+    align-items: flex-start;
     margin-left: 0;
+    gap: 6px;
+  }
+
+  .base-card__value {
+    font-size: 16px;
   }
 
   .base-card__badges {
+    justify-content: flex-start;
+  }
+
+  .base-card__actions-col {
+    margin-left: 8px;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255,255,255,0.05);
     justify-content: center;
   }
 
-  .base-card__actions :deep(.edit-btn),
-  .base-card__actions :deep(.delete-btn) {
+  .base-card__actions-col :deep(.edit-btn),
+  .base-card__actions-col :deep(.delete-btn) {
     min-width: 40px;
     min-height: 40px;
-    font-size: 16px;
+    font-size: 18px;
+    color: rgba(248, 250, 252, 0.58);
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .base-card__actions-col :deep(.edit-btn:hover) {
+    color: rgba(248, 250, 252, 0.82);
+  }
+
+  .base-card__actions-col :deep(.delete-btn:hover) {
+    color: #ef4444;
   }
 }
 </style>
