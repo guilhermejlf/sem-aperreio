@@ -18,7 +18,7 @@ from decimal import Decimal
 from .models import Gasto, FamilyMembership, Receita, Family, MetaGasto
 from .serializers import GastoSerializer, ReceitaSerializer, MetaGastoSerializer
 from .permissions import GastoPermission
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 
 from reportlab.lib.pagesizes import A4
@@ -1602,17 +1602,3 @@ def check_budget_alert(user, gasto):
             }
     
     return None
-
-
-from rest_framework.views import APIView
-
-class FlushUsersView(APIView):
-    authentication_classes = []
-    permission_classes = [AllowAny]
-
-    def delete(self, request):
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        count = User.objects.count()
-        User.objects.all().delete()
-        return Response({"status": "ok", "deleted": count})
