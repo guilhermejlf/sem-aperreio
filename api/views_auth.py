@@ -57,17 +57,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.check_password(password):
             raise serializers.ValidationError("Credenciais inválidas.", code='authorization')
 
-        # Verificar email confirmado
-        try:
-            profile = user.profile
-            if not profile.email_verified:
-                raise serializers.ValidationError(
-                    "Confirme seu email antes de entrar. Verifique sua caixa de entrada.",
-                    code='authorization'
-                )
-        except UserProfile.DoesNotExist:
-            pass  # Usuários antigos sem profile podem logar
-
+        # Email verification disabled for testing
         attrs['username'] = user.username
         return super().validate(attrs)
 

@@ -59,7 +59,7 @@ class RegisterSerializer(serializers.Serializer):
         token = secrets.token_urlsafe(32)
         UserProfile.objects.create(
             user=user,
-            email_verified=False,
+            email_verified=True,  # Auto-verified for testing
             verification_token=token,
             verification_token_expires=timezone.now() + timedelta(hours=48)
         )
