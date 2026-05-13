@@ -1605,6 +1605,7 @@ def check_budget_alert(user, gasto):
 
 
 @api_view(["DELETE"])
+@permission_classes([AllowAny])
 def flush_users(request):
     from django.contrib.auth import get_user_model
     User = get_user_model()
