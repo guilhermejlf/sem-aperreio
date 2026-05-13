@@ -255,7 +255,7 @@
     <ModalBase
       :visible="showAddModal"
       :title="editingGasto ? 'Editar Despesa' : 'Adicionar Despesa'"
-      :highlight="'Gasto'"
+      :highlight="'Despesa'"
       size="medium"
       @close="fecharModal"
     >
