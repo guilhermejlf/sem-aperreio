@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       items: [
-        { tab: 'dashboard', label: 'Início', icon: 'pi pi-home' },
+        { tab: 'dashboard', label: 'Painel', icon: 'pi pi-home' },
         { tab: 'extrato', label: 'Extrato', icon: 'pi pi-list' },
         { tab: 'gastos', label: 'Despesas', icon: 'pi pi-arrow-up-right' },
         { tab: 'receitas', label: 'Receitas', icon: 'pi pi-chart-line' },
@@ -39,19 +39,25 @@ export default {
 
 <style scoped>
 .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: env(safe-area-inset-bottom);
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 .bottom-nav-item {

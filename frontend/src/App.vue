@@ -1651,8 +1651,8 @@ export default {
   }
 
   .logo {
-    width: 40px;
-    height: 40px;
+    width: 96px;
+    height: 96px;
   }
 
   .brand {

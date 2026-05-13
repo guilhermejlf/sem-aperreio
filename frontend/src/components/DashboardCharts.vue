@@ -794,6 +794,8 @@ export default {
   border-radius: 16px;
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .chart-container h3 {
@@ -806,7 +808,13 @@ export default {
 
 .chart-wrapper {
   position: relative;
+  width: 100%;
   height: 280px;
+  overflow: hidden;
+}
+
+.chart-wrapper canvas {
+  max-width: 100% !important;
 }
 
 /* Period Selector */
