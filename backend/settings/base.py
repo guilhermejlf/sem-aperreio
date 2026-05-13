@@ -55,22 +55,8 @@ MIDDLEWARE = [
 # ---------------------------
 # CORS CONFIG (ESSENCIAL)
 # ---------------------------
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    _raw_cors = config('CORS_ALLOWED_ORIGINS', default='').split(',')
-    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors if origin.strip()]
-
-    # Sempre inclui FRONTEND_URL (do .env ou variável de ambiente)
-    _frontend = config('FRONTEND_URL', default=os.environ.get('FRONTEND_URL', ''))
-    if _frontend and _frontend not in CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS.append(_frontend)
-
-    # Fallback hardcoded para produção (se nenhuma origin definida)
-    if not CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS = ['https://sem-aperreio.vercel.app']
-
-    CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------
 # URLS
