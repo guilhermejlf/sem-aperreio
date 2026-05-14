@@ -39,32 +39,37 @@
         </div>
       </div>
       <div v-else class="meta-geral-card" :class="metaGeral.status">
-        <div class="meta-header">
-          <span class="meta-icon"><i class="pi pi-bullseye"></i></span>
-          <span class="meta-titulo">Meta Geral — {{ mesNome }} {{ periodo.ano }}</span>
-          <button class="btn-edit" @click="abrirEditar(metaGeral)" title="Editar meta geral">
-            <i class="pi pi-pencil"></i>
-          </button>
-          <button class="btn-edit delete-btn" @click="onDeleteMeta(metaGeral)" title="Deletar meta geral">
-            <i class="pi pi-trash"></i>
-          </button>
-        </div>
-        <div class="meta-valores">
-          <span class="meta-gasto">{{ formatarValor(metaGeral.gasto_realizado) }}</span>
-          <span class="meta-sep"> / </span>
-          <span class="meta-meta">{{ formatarValor(metaGeral.valor_meta) }}</span>
-        </div>
-        <div class="meta-bar-container">
-          <div class="meta-bar-fill" :class="metaGeral.status" :style="{width: pctClamped(metaGeral.percentual_usado) + '%'}"></div>
-        </div>
-        <div class="meta-footer">
-          <span class="meta-pct" :class="metaGeral.status">{{ metaGeral.percentual_usado }}%</span>
-          <span v-if="metaGeral.gasto_realizado > metaGeral.valor_meta" class="meta-aviso">
-            🔴 Meta ultrapassada em {{ formatarValor(metaGeral.gasto_realizado - metaGeral.valor_meta) }}
-          </span>
-          <span v-else class="meta-restante">
-            Restam {{ formatarValor(metaGeral.valor_meta - metaGeral.gasto_realizado) }} para o limite
-          </span>
+        <div class="meta-card__body">
+          <div class="meta-card__left">
+            <div class="meta-card__info">
+              <div class="meta-card__header">
+                <span class="meta-card__icon"><i class="pi pi-bullseye"></i></span>
+                <h4 class="meta-card__title">Meta Geral — {{ mesNome }} {{ periodo.ano }}</h4>
+              </div>
+              <p class="meta-card__subtitle">
+                <span :class="metaGeral.status">{{ formatarValor(metaGeral.gasto_realizado) }}</span>
+                <span class="meta-sep"> / </span>
+                <span>{{ formatarValor(metaGeral.valor_meta) }}</span>
+              </p>
+            </div>
+            <div class="meta-bar-container">
+              <div class="meta-bar-fill" :class="metaGeral.status" :style="{width: pctClamped(metaGeral.percentual_usado) + '%'}"></div>
+            </div>
+            <div class="meta-footer">
+              <span class="meta-pct" :class="metaGeral.status">{{ metaGeral.percentual_usado }}%</span>
+            </div>
+          </div>
+          <div class="meta-card__summary">
+            <div class="meta-card__value" :class="metaGeral.status">{{ metaGeral.percentual_usado }}%</div>
+          </div>
+          <div class="meta-card__actions">
+            <button class="btn-edit" @click="abrirEditar(metaGeral)" title="Editar meta geral">
+              <i class="pi pi-pencil"></i>
+            </button>
+            <button class="btn-edit delete-btn" @click="onDeleteMeta(metaGeral)" title="Deletar meta geral">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -84,9 +89,29 @@
           class="categoria-card"
           :class="meta.status"
         >
-          <div class="categoria-header">
-            <span class="categoria-nome">{{ categoriaEmoji(meta.categoria) }} {{ formatarCategoriaDisplay(meta.categoria, meta.categoria_nome) }}</span>
-            <div class="categoria-actions">
+          <div class="meta-card__body">
+            <div class="meta-card__left">
+              <div class="meta-card__info">
+                <div class="meta-card__header">
+                  <h4 class="meta-card__title">{{ categoriaEmoji(meta.categoria) }} {{ formatarCategoriaDisplay(meta.categoria, meta.categoria_nome) }}</h4>
+                </div>
+                <p class="meta-card__subtitle">
+                  <span :class="meta.status">{{ formatarValor(meta.gasto_realizado) }}</span>
+                  <span class="categoria-sep"> / </span>
+                  <span>{{ formatarValor(meta.valor_meta) }}</span>
+                </p>
+              </div>
+              <div class="categoria-bar-container">
+                <div class="categoria-bar-fill" :class="meta.status" :style="{width: pctClamped(meta.percentual_usado) + '%'}"></div>
+              </div>
+              <div class="categoria-footer">
+                <span class="categoria-pct" :class="meta.status">{{ meta.percentual_usado }}%</span>
+              </div>
+            </div>
+            <div class="meta-card__summary">
+              <div class="meta-card__value" :class="meta.status">{{ meta.percentual_usado }}%</div>
+            </div>
+            <div class="meta-card__actions">
               <button class="btn-edit" @click="abrirEditar(meta)" title="Editar meta">
                 <i class="pi pi-pencil"></i>
               </button>
@@ -94,23 +119,6 @@
                 <i class="pi pi-trash"></i>
               </button>
             </div>
-          </div>
-          <div class="categoria-valores">
-            <span class="categoria-gasto" :class="meta.status">{{ formatarValor(meta.gasto_realizado) }}</span>
-            <span class="categoria-sep"> / </span>
-            <span class="categoria-meta">{{ formatarValor(meta.valor_meta) }}</span>
-          </div>
-          <div class="categoria-bar-container">
-            <div class="categoria-bar-fill" :class="meta.status" :style="{width: pctClamped(meta.percentual_usado) + '%'}"></div>
-          </div>
-          <div class="categoria-footer">
-            <span class="categoria-pct" :class="meta.status">{{ meta.percentual_usado }}%</span>
-            <span v-if="meta.gasto_realizado > meta.valor_meta" class="categoria-aviso">
-              🔴 Meta ultrapassada
-            </span>
-            <span v-else-if="meta.percentual_usado > 80" class="categoria-aviso">
-              ⚠️ {{ (100 - meta.percentual_usado).toFixed(0) }}% restante
-            </span>
           </div>
         </div>
       </div>
@@ -387,78 +395,128 @@ export default {
 
 /* Meta Geral */
 .meta-geral-card {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border-radius: 20px;
-  padding: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 6px solid #10b981;
-  margin-bottom: 24px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
 }
 
 .meta-geral-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.meta-geral-card.ok { border-left-color: #10b981; }
-.meta-geral-card.warning { border-left-color: #f59e0b; }
-.meta-geral-card.danger { border-left-color: #ef4444; }
-.meta-geral-card.critical { border-left-color: #dc2626; }
+.meta-card__body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+}
 
-.meta-header {
+.meta-card__left {
+  flex: 1;
+  min-width: 0;
+}
+
+.meta-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.meta-card__header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
 }
 
-.meta-icon {
-  font-size: 2rem;
+.meta-card__icon {
+  font-size: 18px;
+  line-height: 1;
 }
 
-.meta-titulo {
-  flex: 1;
-  font-size: 1.1rem;
-  font-weight: 600;
+.meta-card__title {
+  margin: 0;
   color: #e5e7eb;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.meta-card__subtitle {
+  margin: 0 0 4px 0;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.meta-card__subtitle .ok,
+.meta-card__value.ok { color: #10b981; }
+.meta-card__subtitle .warning,
+.meta-card__value.warning { color: #f59e0b; }
+.meta-card__subtitle .danger,
+.meta-card__value.danger { color: #ef4444; }
+.meta-card__subtitle .critical,
+.meta-card__value.critical { color: #dc2626; }
+
+.meta-card__summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.meta-card__value {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.meta-card__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-left: 16px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
 }
 
 .btn-edit {
-  background: transparent;
+  background: none;
   border: none;
-  color: #94a3b8;
+  color: #64748b;
+  font-size: 16px;
   cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  transition: color 0.2s, background 0.2s;
+  transition: color 0.2s ease;
+  padding: 4px;
+  line-height: 1;
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-edit:hover {
-  color: #e5e7eb;
-  background: rgba(255, 255, 255, 0.1);
+  color: #3b82f6;
 }
 
-.meta-valores {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: #e5e7eb;
+.delete-btn:hover {
+  color: #ef4444;
 }
-
-.meta-gasto.ok { color: #10b981; }
-.meta-gasto.warning { color: #f59e0b; }
-.meta-gasto.danger { color: #ef4444; }
-.meta-gasto.critical { color: #dc2626; }
 
 .meta-sep {
   color: #64748b;
   font-weight: 400;
-}
-
-.meta-meta {
-  color: #94a3b8;
-  font-weight: 500;
 }
 
 .meta-bar-container {
@@ -518,72 +576,20 @@ export default {
 }
 
 .categoria-card {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border-radius: 16px;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #10b981;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
 }
 
 .categoria-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.05);
 }
-
-.categoria-card.ok { border-left-color: #10b981; }
-.categoria-card.warning { border-left-color: #f59e0b; }
-.categoria-card.danger { border-left-color: #ef4444; }
-.categoria-card.critical { border-left-color: #dc2626; }
-
-.categoria-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.categoria-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.categoria-nome {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #e5e7eb;
-  background: rgba(96, 166, 55, 0.12);
-  border: 1px solid rgba(96, 166, 55, 0.25);
-  border-radius: 20px;
-  padding: 4px 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  letter-spacing: 0.02em;
-}
-
-.categoria-valores {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: #e5e7eb;
-}
-
-.categoria-gasto.ok { color: #10b981; }
-.categoria-gasto.warning { color: #f59e0b; }
-.categoria-gasto.danger { color: #ef4444; }
-.categoria-gasto.critical { color: #dc2626; }
 
 .categoria-sep {
   color: #64748b;
   font-weight: 400;
-}
-
-.categoria-meta {
-  color: #94a3b8;
-  font-weight: 500;
-  font-size: 1rem;
 }
 
 .categoria-bar-container {
@@ -721,10 +727,6 @@ export default {
 
   .meta-geral-card {
     padding: 20px;
-  }
-
-  .meta-valores {
-    font-size: 1.4rem;
   }
 
   .categorias-grid {
