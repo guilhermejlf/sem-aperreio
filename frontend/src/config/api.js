@@ -13,7 +13,11 @@ export const API_ENDPOINTS = {
   AUTH_VERIFY_EMAIL: `${API_BASE_URL}/api/auth/verify-email/`,
   AUTH_PASSWORD_RESET: `${API_BASE_URL}/api/auth/password-reset/`,
   AUTH_PASSWORD_RESET_CONFIRM: `${API_BASE_URL}/api/auth/password-reset/confirm/`,
-  
+
+  // Profile
+  PROFILE: `${API_BASE_URL}/api/profile/`,
+  PASSWORD_CHANGE: `${API_BASE_URL}/api/password/`,
+
   // Gastos
   GASTOS_LIST: `${API_BASE_URL}/api/gastos/`,
   GASTO_DETAIL: (id) => `${API_BASE_URL}/api/gastos/${id}/`,
@@ -154,6 +158,24 @@ export async function apiRequest(url, options = {}) {
     console.error('API Error:', error)
     throw error
   }
+}
+
+export async function fetchProfile() {
+  return await apiRequest(API_ENDPOINTS.PROFILE)
+}
+
+export async function updateProfile(data) {
+  return await apiRequest(API_ENDPOINTS.PROFILE, {
+    method: 'PATCH',
+    body: JSON.stringify(data)
+  })
+}
+
+export async function changePassword(data) {
+  return await apiRequest(API_ENDPOINTS.PASSWORD_CHANGE, {
+    method: 'PATCH',
+    body: JSON.stringify(data)
+  })
 }
 
 export async function fetchDashboard(mes, ano) {

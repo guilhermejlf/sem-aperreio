@@ -6,6 +6,7 @@ from .views_auth import (
     VerifyEmailView, PasswordResetRequestView, PasswordResetConfirmView
 )
 from .views_family import FamilyViewSet
+from .views_profile import ProfileView, PasswordChangeView
 from .views_notificacoes import healthcheck, notificacoes_status, trigger_tasks
 from .views_ai import ai_chat
 
@@ -20,6 +21,8 @@ urlpatterns = [
     path("auth/verify-email/", VerifyEmailView.as_view(), name="verify_email"),
     path("auth/password-reset/", PasswordResetRequestView.as_view(), name="password_reset"),
     path("auth/password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
+    path("profile/", ProfileView.as_view(), name="profile"),
+    path("password/", PasswordChangeView.as_view(), name="password_change"),
     path("prever/", prever_gasto, name="prever_gasto"),
     path("export/csv/", exportar_csv, name="exportar_csv"),
     path("export/xlsx/", exportar_xlsx, name="exportar_xlsx"),

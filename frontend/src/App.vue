@@ -86,7 +86,7 @@
                 <span class="group-name">{{ currentFamily.name }}</span>
               </div>
               <div class="dropdown-divider"></div>
-              <button class="dropdown-item" @click="showUserMenu = false">
+              <button class="dropdown-item" @click="navigateTo('perfil')">
                 <i class="pi pi-user"></i>
                 <span>Meu Perfil</span>
               </button>
@@ -253,6 +253,13 @@
         </div>
       </div>
 
+      <!-- PERFIL TAB -->
+      <div v-if="activeTab === 'perfil'" class="tab-content">
+        <div class="gastos-container">
+          <ProfileView />
+        </div>
+      </div>
+
     </main>
 
     <!-- ADD/EDIT EXPENSE MODAL -->
@@ -377,6 +384,7 @@ import AIAssistant from './components/AIAssistant.vue'
 import PasswordResetView from './components/PasswordResetView.vue'
 import VerifyEmailView from './components/VerifyEmailView.vue'
 import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
+import ProfileView from './components/ProfileView.vue'
 import ModalBase from './components/ModalBase.vue'
 import BottomNav from './components/BottomNav.vue'
 import Toast from 'primevue/toast'
@@ -405,6 +413,7 @@ export default {
     PasswordResetView,
     VerifyEmailView,
     BeneFloatingPresence,
+    ProfileView,
     ModalBase,
     BottomNav,
     Toast,
@@ -852,6 +861,11 @@ export default {
       }
       this.editingGasto = null
       this.showAddModal = true
+    },
+
+    navigateTo(tab) {
+      this.activeTab = tab
+      this.showUserMenu = false
     },
 
     handleEditIncome(data) {
