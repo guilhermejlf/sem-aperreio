@@ -814,6 +814,10 @@ export default {
       }
     },
 
+    handleBottomNavNavigate(tab) {
+      this.activeTab = tab
+    },
+
     handleFamilyAction({ action }) {
       if (action === 'created' || action === 'joined') {
         this.fetchFamily()
