@@ -318,16 +318,16 @@ export default {
     async handleCreate() {
       const name = this.newGroupName.trim()
       if (!name) {
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: 'Digite um nome para o grupo.', life: 3000 })
+        this.$toast.error('Digite um nome para o grupo.')
         return
       }
       this.actionLoading = true
       try {
         const data = await createFamily(name)
         this.$emit('family-action', { action: 'created', data })
-        this.$toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Grupo criado!', life: 3000 })
+        this.$toast.success('Grupo criado!')
       } catch (error) {
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: error.message, life: 3000 })
+        this.$toast.error(error.message)
       } finally {
         this.actionLoading = false
       }
@@ -335,16 +335,16 @@ export default {
     async handleJoin() {
       const code = this.joinCode.trim().toUpperCase()
       if (code.length !== 6) {
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: 'O código deve ter 6 caracteres.', life: 3000 })
+        this.$toast.error('O código deve ter 6 caracteres.')
         return
       }
       this.actionLoading = true
       try {
         const data = await joinFamily(code)
         this.$emit('family-action', { action: 'joined', data })
-        this.$toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Você entrou no grupo!', life: 3000 })
+        this.$toast.success('Você entrou no grupo!')
       } catch (error) {
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: error.message, life: 3000 })
+        this.$toast.error(error.message)
       } finally {
         this.actionLoading = false
       }
@@ -354,9 +354,9 @@ export default {
       try {
         const data = await regenerateFamilyCode()
         this.$emit('family-action', { action: 'code-regenerated', data })
-        this.$toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Novo código gerado!', life: 3000 })
+        this.$toast.success('Novo código gerado!')
       } catch (error) {
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: error.message, life: 3000 })
+        this.$toast.error(error.message)
       } finally {
         this.actionLoading = false
       }
@@ -366,9 +366,9 @@ export default {
       try {
         await leaveFamily()
         this.$emit('family-action', { action: 'left' })
-        this.$toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Você saiu do grupo.', life: 3000 })
+        this.$toast.success('Você saiu do grupo.')
       } catch (error) {
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: error.message, life: 3000 })
+        this.$toast.error(error.message)
       } finally {
         this.actionLoading = false
       }
@@ -378,9 +378,9 @@ export default {
       try {
         await removeFamilyMember(member.user.id)
         this.$emit('family-action', { action: 'member-removed', data: member })
-        this.$toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Membro removido.', life: 3000 })
+        this.$toast.success('Membro removido.')
       } catch (error) {
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: error.message, life: 3000 })
+        this.$toast.error(error.message)
       } finally {
         this.actionLoading = false
       }
@@ -390,16 +390,16 @@ export default {
       try {
         await deleteFamily()
         this.$emit('family-action', { action: 'deleted' })
-        this.$toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Grupo excluído.', life: 3000 })
+        this.$toast.success('Grupo excluído.')
       } catch (error) {
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: error.message, life: 3000 })
+        this.$toast.error(error.message)
       } finally {
         this.actionLoading = false
       }
     },
     copyCode() {
       navigator.clipboard.writeText(this.familyData.code)
-      this.$toast.add({ severity: 'success', summary: 'Copiado!', detail: 'Código copiado.', life: 2000 })
+      this.$toast.success('Código copiado.')
     },
     confirmLeave() {
       this.$confirm.require({

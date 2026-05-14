@@ -312,11 +312,11 @@ export default {
             if (meta && meta.id) {
               await deleteMeta(meta.id)
               this.carregarMetas()
-              this.$toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Meta deletada!', life: 3000 })
+              this.$toast.success('Meta deletada!')
             }
           } catch (error) {
             console.error('Erro ao deletar meta:', error)
-            this.$toast.add({ severity: 'error', summary: 'Erro', detail: error.message || 'Erro ao deletar meta', life: 3000 })
+            this.$toast.error(error.message || 'Erro ao deletar meta')
           }
         }
       })
@@ -335,10 +335,10 @@ export default {
         }
         this.modalVisible = false
         this.carregarMetas()
-        this.$toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Meta salva!', life: 3000 })
+        this.$toast.success('Meta salva!')
       } catch (error) {
         console.error('Erro ao salvar meta:', error)
-        this.$toast.add({ severity: 'error', summary: 'Erro', detail: error.message || 'Erro ao salvar meta', life: 5000 })
+        this.$toast.error(error.message || 'Erro ao salvar meta')
       }
     }
   }

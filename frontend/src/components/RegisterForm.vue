@@ -120,6 +120,7 @@
 <script>
 import Button from 'primevue/button'
 import { API_ENDPOINTS, apiRequest, setTokens } from '../config/api.js'
+import { toastStore } from '../stores/toast.store.js'
 
 export default {
   components: {
@@ -213,7 +214,7 @@ export default {
 
       const erroValidacao = this.validarLocal()
       if (erroValidacao) {
-        this.error = erroValidacao
+        toastStore.warning(erroValidacao)
         this.loading = false
         return
       }
@@ -231,10 +232,10 @@ export default {
           })
         })
 
-        this.success = 'Conta criada! Verifique seu email para ativar sua conta antes de fazer login.'
+        toastStore.success('Conta criada! Verifique seu email para ativar sua conta 😄')
         // Não faz login automático — usuário precisa verificar email
       } catch (error) {
-        this.error = error.message || 'Erro ao criar conta. Tente novamente.'
+        toastStore.error(error.message || 'Erro ao criar conta. Tente novamente.')
         console.error('Register error:', error)
       } finally {
         this.loading = false

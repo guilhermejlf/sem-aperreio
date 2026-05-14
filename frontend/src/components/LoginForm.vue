@@ -49,6 +49,7 @@
 <script>
 import Button from 'primevue/button'
 import { API_ENDPOINTS, apiRequest, setTokens } from '../config/api.js'
+import { toastStore } from '../stores/toast.store.js'
 
 export default {
   components: {
@@ -81,18 +82,19 @@ export default {
 
         if (data.access && data.refresh) {
           setTokens(data.access, data.refresh)
+          toastStore.success('Bem-vindo de volta! 😄')
           this.$emit('success')
         } else {
-          this.error = 'Resposta inesperada do servidor'
+          toastStore.error('Resposta inesperada do servidor')
         }
       } catch (error) {
         const msg = error.message || ''
         if (msg.includes('Confirme seu email')) {
-          this.error = 'Confirme seu email antes de entrar. Verifique sua caixa de entrada.'
+          toastStore.warning('Confirme seu email antes de entrar. Verifique sua caixa de entrada.')
         } else if (msg.includes('Credenciais inválidas')) {
-          this.error = 'Usuário/email ou senha incorretos.'
+          toastStore.error('Usuário/email ou senha incorretos.')
         } else {
-          this.error = msg || 'Erro ao fazer login. Tente novamente.'
+          toastStore.error(msg || 'Erro ao fazer login. Tente novamente.')
         }
         console.error('Login error:', error)
       } finally {

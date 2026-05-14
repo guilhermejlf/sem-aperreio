@@ -182,7 +182,7 @@ import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 export default {
   name: 'AIAssistant',
   components: { BeneAvatar },
-  emits: ['saved', 'edit-expense'],
+  emits: ['saved', 'edit-expense', 'edit-income'],
 
   props: {
     hideFab: {

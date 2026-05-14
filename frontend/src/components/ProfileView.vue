@@ -62,8 +62,6 @@
             <span v-else>Salvar Alterações</span>
           </button>
         </div>
-        <p v-if="successMsg" class="success-msg">{{ successMsg }}</p>
-        <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
       </div>
 
       <!-- Segurança -->
@@ -108,8 +106,6 @@
             <span v-else>Alterar Senha</span>
           </button>
         </div>
-        <p v-if="passwordSuccess" class="success-msg">{{ passwordSuccess }}</p>
-        <p v-if="passwordError" class="error-msg">{{ passwordError }}</p>
       </div>
     </div>
   </div>
@@ -119,6 +115,7 @@
 import { reactive, computed, onMounted, ref, watch } from 'vue'
 import { profileStore } from '../stores/profile.store.js'
 import { changePassword } from '../config/api.js'
+import { toastStore } from '../stores/toast.store.js'
 
 const form = reactive({
   first_name: '',
@@ -133,10 +130,6 @@ const passwordForm = reactive({
 
 const saving = ref(false)
 const changingPassword = ref(false)
-const successMsg = ref('')
-const errorMsg = ref('')
-const passwordSuccess = ref('')
-const passwordError = ref('')
 
 const benePhrases = [
   'Qualquer coisa, Seu Bené tá por aqui 😄',
@@ -173,25 +166,21 @@ watch(() => profileStore.data, (data) => {
 })
 
 async function saveProfile() {
-  successMsg.value = ''
-  errorMsg.value = ''
   saving.value = true
   try {
     await profileStore.update({
       first_name: form.first_name,
       username: form.username,
     })
-    successMsg.value = 'Perfil atualizado 😄'
+    toastStore.success('Perfil atualizado 😄')
   } catch (err) {
-    errorMsg.value = err.message
+    toastStore.error(err.message || 'Erro ao atualizar perfil')
   } finally {
     saving.value = false
   }
 }
 
 async function savePassword() {
-  passwordSuccess.value = ''
-  passwordError.value = ''
   changingPassword.value = true
   try {
     await changePassword({
@@ -199,12 +188,12 @@ async function savePassword() {
       new_password: passwordForm.new_password,
       confirm_password: passwordForm.confirm_password,
     })
-    passwordSuccess.value = 'Senha alterada com sucesso!'
+    toastStore.success('Senha alterada com sucesso!')
     passwordForm.current_password = ''
     passwordForm.new_password = ''
     passwordForm.confirm_password = ''
   } catch (err) {
-    passwordError.value = err.message
+    toastStore.error(err.message || 'Erro ao alterar senha')
   } finally {
     changingPassword.value = false
   }

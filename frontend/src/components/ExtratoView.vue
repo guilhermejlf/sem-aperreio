@@ -167,17 +167,13 @@
       </div>
     </template>
 
-    <Toast position="top-right" />
   </div>
 </template>
 
 <script>
 import { fetchExtrato, downloadExport } from '../config/api.js'
-import Toast from 'primevue/toast'
-
 export default {
   name: 'ExtratoView',
-  components: { Toast },
 
   data() {
     const hoje = new Date()
@@ -246,12 +242,7 @@ export default {
         this.resumo = data.resumo || null
       } catch (error) {
         console.error('Erro ao carregar extrato:', error)
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Não foi possível carregar o extrato.',
-          life: 3000
-        })
+        this.$toast.error('Não foi possível carregar o extrato.', { title: 'Erro' })
       } finally {
         this.loading = false
       }
@@ -292,20 +283,10 @@ export default {
         if (this.filters.pago !== '') params.pago = this.filters.pago
 
         await downloadExport(formato, params)
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Exportado',
-          detail: `Arquivo ${formato.toUpperCase()} baixado com sucesso!`,
-          life: 3000
-        })
+        this.$toast.success(`Arquivo ${formato.toUpperCase()} baixado com sucesso!`, { title: 'Exportado' })
       } catch (error) {
         console.error('Erro ao exportar:', error)
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao exportar o extrato.',
-          life: 3000
-        })
+        this.$toast.error('Erro ao exportar o extrato.', { title: 'Erro' })
       }
     },
 

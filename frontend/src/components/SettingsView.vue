@@ -140,7 +140,6 @@
         </div>
       </div>
 
-      <p v-if="saved" class="save-toast">Configurações salvas automaticamente 😄</p>
     </div>
   </div>
 </template>
@@ -148,10 +147,10 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { settingsStore } from '../stores/settings.store.js'
+import { toastStore } from '../stores/toast.store.js'
 import SettingsToggle from './SettingsToggle.vue'
 
 const settings = settingsStore
-const saved = ref(false)
 
 const frequencies = [
   { value: 'low', label: 'Baixa' },
@@ -160,8 +159,7 @@ const frequencies = [
 ]
 
 watch(settings, () => {
-  saved.value = true
-  setTimeout(() => { saved.value = false }, 2000)
+  toastStore.success('Configurações salvas automaticamente 😄')
 }, { deep: true })
 </script>
 

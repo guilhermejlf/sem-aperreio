@@ -49,6 +49,7 @@ export default {
   data() {
     return {
       store: beneStore,
+      settingsStore,
       cycleTimer: null,
     }
   },

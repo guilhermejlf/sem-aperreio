@@ -1,5 +1,6 @@
 <template>
   <div class="page">
+    <ToastProvider />
 
     <!-- AUTH VIEWS -->
     <template v-if="currentPath === '/reset-password'">
@@ -356,7 +357,6 @@
       </template>
     </ModalBase>
 
-    <Toast position="top-right" />
     <ConfirmDialog />
     <AIAssistant
       ref="aiAssistant"
@@ -371,8 +371,7 @@
     />
     <BottomNav
       :active-tab="activeTab"
-      @navigate="activeTab = $event"
-      class="bottom-nav-mobile"
+      @navigate="handleBottomNavNavigate"
     />
   </template>
 </div>
@@ -395,7 +394,7 @@ import ProfileView from './components/ProfileView.vue'
 import SettingsView from './components/SettingsView.vue'
 import ModalBase from './components/ModalBase.vue'
 import BottomNav from './components/BottomNav.vue'
-import Toast from 'primevue/toast'
+import ToastProvider from './components/ToastProvider.vue'
 import ConfirmDialog from 'primevue/confirmdialog'
 import logo from './assets/logo.png'
 import {
@@ -425,7 +424,7 @@ export default {
     SettingsView,
     ModalBase,
     BottomNav,
-    Toast,
+    ToastProvider,
     ConfirmDialog
   },
 
@@ -589,20 +588,11 @@ export default {
           body: JSON.stringify(payload)
         })
 
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Gasto adicionado!',
-          life: 3000
-        })
+        this.$toast.success('Gasto adicionado!', { title: 'Sucesso' })
 
         if (response.alerta_meta) {
-          this.$toast.add({
-            severity: response.alerta_meta.status === 'critical' ? 'error' : 'warn',
-            summary: 'Meta de Gastos',
-            detail: response.alerta_meta.mensagem,
-            life: 6000
-          })
+          const alertVariant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
+          this.$toast[alertVariant](response.alerta_meta.mensagem, { title: 'Meta de Gastos' })
         }
 
         this.fecharModal()
@@ -639,20 +629,11 @@ export default {
           body: JSON.stringify(payload)
         })
 
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Gasto atualizado!',
-          life: 3000
-        })
+        this.$toast.success('Gasto atualizado!', { title: 'Sucesso' })
 
         if (response.alerta_meta) {
-          this.$toast.add({
-            severity: response.alerta_meta.status === 'critical' ? 'error' : 'warn',
-            summary: 'Meta de Gastos',
-            detail: response.alerta_meta.mensagem,
-            life: 6000
-          })
+          const alertVariant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
+          this.$toast[alertVariant](response.alerta_meta.mensagem, { title: 'Meta de Gastos' })
         }
 
         this.fecharModal()
@@ -797,12 +778,7 @@ export default {
             // Remove o gasto da lista localmente
             this.gastos = this.gastos.filter(g => g.id !== id)
 
-            this.$toast.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: 'Gasto excluído!',
-              life: 3000
-            })
+            this.$toast.success('Gasto excluído!', { title: 'Sucesso' })
           } catch (error) {
             this.error = 'Erro ao excluir gasto: ' + error.message
             console.error('Erro ao excluir gasto:', error)
@@ -1677,11 +1653,6 @@ export default {
   justify-self: end;
 }
 
-/* BOTTOM NAV — desktop hidden */
-.bottom-nav-mobile {
-  display: none;
-}
-
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .header-content {
@@ -1745,10 +1716,6 @@ export default {
     display: block;
     text-align: center;
     margin: 12px 0 16px;
-  }
-
-  .bottom-nav-mobile {
-    display: flex;
   }
 
   /* Header minimalista: só avatar, sem texto */

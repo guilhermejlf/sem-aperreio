@@ -55,7 +55,6 @@
       </div>
     </template>
 
-    <Toast position="top-right" />
 
     <!-- Modal Add/Edit Receita -->
     <ModalBase
@@ -116,7 +115,6 @@
 </template>
 
 <script>
-import Toast from 'primevue/toast'
 import BaseCard from './BaseCard.vue'
 import ModalBase from './ModalBase.vue'
 import { fetchReceitas, addReceita, updateReceita, deleteReceita } from '../config/api.js'
@@ -124,7 +122,6 @@ import { fetchReceitas, addReceita, updateReceita, deleteReceita } from '../conf
 export default {
   name: 'ReceitasView',
   components: {
-    Toast,
     BaseCard,
     ModalBase
   },
@@ -199,20 +196,10 @@ export default {
         })
         this.fecharModal()
         await this.carregarReceitas()
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Receita adicionada!',
-          life: 3000
-        })
+        this.$toast.success('Receita adicionada!')
       } catch (error) {
         console.error('Erro ao adicionar receita:', error)
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao adicionar receita: ' + error.message,
-          life: 5000
-        })
+        this.$toast.error('Erro ao adicionar receita: ' + error.message)
       } finally {
         this.loadingForm = false
       }
@@ -228,20 +215,10 @@ export default {
         })
         this.fecharModal()
         await this.carregarReceitas()
-        this.$toast.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Receita atualizada!',
-          life: 3000
-        })
+        this.$toast.success('Receita atualizada!')
       } catch (error) {
         console.error('Erro ao editar receita:', error)
-        this.$toast.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao editar receita: ' + error.message,
-          life: 5000
-        })
+        this.$toast.error('Erro ao editar receita: ' + error.message)
       } finally {
         this.loadingForm = false
       }
@@ -287,20 +264,10 @@ export default {
           try {
             await deleteReceita(id)
             this.receitas = this.receitas.filter(r => r.id !== id)
-            this.$toast.add({
-              severity: 'success',
-              summary: 'Sucesso',
-              detail: 'Receita excluída!',
-              life: 3000
-            })
+            this.$toast.success('Receita excluída!')
           } catch (error) {
             console.error('Erro ao excluir receita:', error)
-            this.$toast.add({
-              severity: 'error',
-              summary: 'Erro',
-              detail: 'Erro ao excluir receita: ' + error.message,
-              life: 5000
-            })
+            this.$toast.error('Erro ao excluir receita: ' + error.message)
           }
         }
       })

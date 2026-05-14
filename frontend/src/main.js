@@ -2,11 +2,9 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import PrimeVue from 'primevue/config'
-import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice'
-
-// 👇 NOVO JEITO (PrimeVue v4)
 import Aura from '@primevue/themes/aura'
+import { toastStore } from './stores/toast.store.js'
 
 // ícones
 import 'primeicons/primeicons.css'
@@ -22,7 +20,8 @@ app.use(PrimeVue, {
     }
 })
 
-app.use(ToastService)
 app.use(ConfirmationService)
+
+app.config.globalProperties.$toast = toastStore
 
 app.mount('#app')
