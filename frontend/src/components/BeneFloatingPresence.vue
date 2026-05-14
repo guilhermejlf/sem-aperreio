@@ -1,9 +1,9 @@
 <template>
-  <div class="bene-presence">
+  <div v-if="settingsStore.bene.showPresence" class="bene-presence">
     <!-- Micro tooltip -->
     <Transition name="bene-tooltip">
       <div
-        v-if="hasInsight"
+        v-if="hasInsight && settingsStore.bene.showInsights"
         class="bene-presence__tooltip-wrapper"
       >
         <BeneInsight
@@ -34,9 +34,10 @@ import { toRaw } from 'vue'
 import BeneAvatar from './BeneAvatar.vue'
 import BeneInsight from './BeneInsight.vue'
 import beneStore from '../stores/beneContext.store.js'
+import { settingsStore } from '../stores/settings.store.js'
 
-const INITIAL_DELAY = 8000
-const CYCLE_INTERVAL = 45000
+const FREQ_DELAYS = { low: 18000, normal: 8000, high: 4000 }
+const FREQ_CYCLES = { low: 75000, normal: 45000, high: 25000 }
 
 export default {
   name: 'BeneFloatingPresence',
@@ -60,11 +61,12 @@ export default {
     },
   },
   mounted() {
-    // Primeiro insight após delay inicial
+    if (!settingsStore.bene.showPresence) return
+    const delay = FREQ_DELAYS[settingsStore.bene.frequency] || FREQ_DELAYS.normal
     setTimeout(() => {
       this.showRandomInsight()
       this.startCycle()
-    }, INITIAL_DELAY)
+    }, delay)
   },
   beforeUnmount() {
     clearInterval(this.cycleTimer)
@@ -76,18 +78,19 @@ export default {
       this.$emit('open-chat')
     },
     showRandomInsight() {
-      if (this.chatOpen) return
+      if (this.chatOpen || !settingsStore.bene.showInsights) return
       const variants = ['neutral', 'info', 'success', 'warning']
       const weights = [0.35, 0.25, 0.25, 0.15]
       const variant = this.weightedPick(variants, weights)
       this.store.showInsight(variant)
     },
     startCycle() {
+      const cycle = FREQ_CYCLES[settingsStore.bene.frequency] || FREQ_CYCLES.normal
       this.cycleTimer = setInterval(() => {
         if (!this.chatOpen && !this.store.currentInsight) {
           this.showRandomInsight()
         }
-      }, CYCLE_INTERVAL)
+      }, cycle)
     },
     weightedPick(items, weights) {
       const total = weights.reduce((a, b) => a + b, 0)

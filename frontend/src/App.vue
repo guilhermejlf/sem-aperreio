@@ -90,7 +90,7 @@
                 <i class="pi pi-user"></i>
                 <span>Meu Perfil</span>
               </button>
-              <button class="dropdown-item" @click="showUserMenu = false">
+              <button class="dropdown-item" @click="navigateTo('configuracoes')">
                 <i class="pi pi-cog"></i>
                 <span>Configurações</span>
               </button>
@@ -260,6 +260,13 @@
         </div>
       </div>
 
+      <!-- CONFIGURACOES TAB -->
+      <div v-if="activeTab === 'configuracoes'" class="tab-content">
+        <div class="gastos-container">
+          <SettingsView />
+        </div>
+      </div>
+
     </main>
 
     <!-- ADD/EDIT EXPENSE MODAL -->
@@ -385,6 +392,7 @@ import PasswordResetView from './components/PasswordResetView.vue'
 import VerifyEmailView from './components/VerifyEmailView.vue'
 import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
 import ProfileView from './components/ProfileView.vue'
+import SettingsView from './components/SettingsView.vue'
 import ModalBase from './components/ModalBase.vue'
 import BottomNav from './components/BottomNav.vue'
 import Toast from 'primevue/toast'
@@ -414,6 +422,7 @@ export default {
     VerifyEmailView,
     BeneFloatingPresence,
     ProfileView,
+    SettingsView,
     ModalBase,
     BottomNav,
     Toast,
