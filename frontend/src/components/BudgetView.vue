@@ -16,19 +16,14 @@
       <p>Carregando metas...</p>
     </div>
 
-    <!-- Empty State -->
-    <div v-else-if="!temMetas" class="empty-state">
-      <i class="pi pi-bullseye"></i>
-      <h3>Nenhuma meta definida</h3>
-      <p v-if="periodo">
-        Defina metas para acompanhar suas despesas de {{ mesNome }} {{ periodo.ano }}.
-      </p>
-      <div class="mobile-primary-action">
-        <button class="btn-primary btn-lg" @click="abrirCriarMetaGeral">
-          Adicionar Meta Geral
-        </button>
-      </div>
-    </div>
+    <EmptyState
+      v-else-if="!temMetas"
+      title="Nenhuma meta definida"
+      :description="periodo ? `Definir metas ajuda a evitar aperreio 👀` : 'Defina metas pra acompanhar tuas despesas.'"
+      icon="pi pi-bullseye"
+      action-label="Definir meta"
+      @action="abrirCriarMetaGeral"
+    />
 
     <!-- Conteúdo -->
     <template v-else>
@@ -138,6 +133,7 @@
 <script>
 import { fetchMetas, createMeta, updateMeta, deleteMeta } from '../config/api.js'
 import BudgetEditModal from './BudgetEditModal.vue'
+import EmptyState from './EmptyState.vue'
 
 const MES_NOMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -159,7 +155,7 @@ const CATEGORIA_EMOJIS = {
 
 export default {
   name: 'BudgetView',
-  components: { BudgetEditModal },
+  components: { BudgetEditModal, EmptyState },
   data() {
     const hoje = new Date()
     return {
@@ -715,32 +711,6 @@ export default {
   font-size: 2rem;
   margin-bottom: 12px;
   display: block;
-}
-
-/* Empty State */
-.empty-state {
-  background: rgba(30, 41, 59, 0.3);
-  border-radius: 20px;
-  padding: 60px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-  color: #94a3b8;
-}
-
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  display: block;
-  color: #64748b;
-}
-
-.empty-state h3 {
-  color: #e5e7eb;
-  margin: 0 0 8px 0;
-}
-
-.empty-state p {
-  margin: 0 0 20px 0;
 }
 
 /* Responsive */

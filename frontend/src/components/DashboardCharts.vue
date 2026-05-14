@@ -16,14 +16,12 @@
       <p>Carregando...</p>
     </div>
 
-    <!-- Estado Vazio -->
-    <div v-else-if="dashboardData && dashboardData.quantidade_gastos === 0 && (dashboardData.total_receitas || 0) === 0" class="empty-state">
-      <i class="pi pi-inbox"></i>
-      <h3>Nenhum movimento neste período</h3>
-      <p v-if="dashboardData.periodo">
-        Adicione uma receita ou despesa para ver o painel de {{ dashboardData.periodo.mes_nome }} {{ dashboardData.periodo.ano }}.
-      </p>
-    </div>
+    <EmptyState
+      v-else-if="dashboardData && dashboardData.quantidade_gastos === 0 && (dashboardData.total_receitas || 0) === 0"
+      title="Nenhum movimento neste período"
+      :description="dashboardData.periodo ? `Adicione uma receita ou despesa pra ver o painel de ${dashboardData.periodo.mes_nome} ${dashboardData.periodo.ano}.` : 'Adicione uma receita ou despesa pra ver o painel.'"
+      icon="pi pi-inbox"
+    />
 
     <!-- Conteúdo do Dashboard -->
     <template v-else-if="dashboardData">
@@ -160,6 +158,7 @@
 
 <script>
 import { Chart, registerables } from 'chart.js'
+import EmptyState from './EmptyState.vue'
 import { fetchDashboard } from '../config/api.js'
 
 Chart.register(...registerables)
@@ -171,6 +170,7 @@ const MES_NOMES = [
 
 export default {
   name: 'DashboardCharts',
+  components: { EmptyState },
   data() {
     const hoje = new Date()
     return {
@@ -857,14 +857,6 @@ export default {
   font-size: 2rem;
   margin-bottom: 12px;
   display: block;
-}
-
-/* Empty State */
-.dashboard .empty-state {
-  background: rgba(30, 41, 59, 0.3);
-  border-radius: 20px;
-  padding: 60px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Responsive */

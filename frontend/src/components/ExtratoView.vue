@@ -129,12 +129,12 @@
         </div>
       </div>
 
-      <!-- EMPTY STATE -->
-      <div v-if="itens.length === 0" class="empty-state">
-        <i class="pi pi-list empty-icon"></i>
-        <h3>Nenhum registro encontrado</h3>
-        <p>Adicione receitas ou despesas para ver o extrato financeiro.</p>
-      </div>
+      <EmptyState
+        v-if="itens.length === 0"
+        title="Tá vazio por aqui 😄"
+        description="Adicione receitas ou despesas pra ver o extrato financeiro."
+        icon="pi pi-list"
+      />
 
       <!-- LIST -->
       <div v-else class="extrato-list">
@@ -171,8 +171,10 @@
 </template>
 
 <script>
+import EmptyState from './EmptyState.vue'
 import { fetchExtrato, downloadExport } from '../config/api.js'
 export default {
+  components: { EmptyState },
   name: 'ExtratoView',
 
   data() {
@@ -606,30 +608,6 @@ export default {
 .export-option:hover {
   background: rgba(255, 255, 255, 0.06);
   color: #e5e7eb;
-}
-
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #94a3b8;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
-
-.empty-state h3 {
-  margin: 0 0 8px 0;
-  color: #e5e7eb;
-  font-size: 1.2rem;
-}
-
-.empty-state p {
-  margin: 0;
-  font-size: 14px;
 }
 
 /* List */

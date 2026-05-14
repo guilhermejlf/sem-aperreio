@@ -7,31 +7,26 @@
     </div>
 
     <!-- Sem Grupo -->
-    <div v-else-if="pageState === 'no-group'" class="family-empty">
-      <i class="pi pi-users empty-icon"></i>
-      <h3 class="empty-title">Nenhum grupo criado</h3>
-      <p class="empty-sub">Crie um grupo ou entre em um existente para compartilhar despesas com sua família.</p>
-
-      <div class="mobile-primary-action">
+    <template v-else-if="pageState === 'no-group'">
+      <div class="family-empty-state">
+        <EmptyState
+          title="Nenhum grupo criado"
+          description="Convide alguém pra compartilhar o controle financeiro."
+          icon="pi pi-users"
+          action-label="Criar Grupo Familiar"
+          @action="pageState = 'create-form'"
+        />
+        <div class="divider">
+          <span>ou</span>
+        </div>
         <button
-          class="btn-primary"
-          @click="pageState = 'create-form'"
+          class="btn-primary-outlined"
+          @click="pageState = 'join-form'"
         >
-          Criar Grupo Familiar
+          Entrar com Código
         </button>
       </div>
-
-      <div class="divider">
-        <span>ou</span>
-      </div>
-
-      <button
-        class="btn-primary-outlined"
-        @click="pageState = 'join-form'"
-      >
-        Entrar com Código
-      </button>
-    </div>
+    </template>
 
     <!-- Form Criar Grupo -->
     <div v-else-if="pageState === 'create-form'" class="family-form">
@@ -179,6 +174,7 @@
 import ConfirmDialog from 'primevue/confirmdialog'
 import Toast from 'primevue/toast'
 import BaseCard from './BaseCard.vue'
+import EmptyState from './EmptyState.vue'
 import {
   createFamily,
   joinFamily,
@@ -191,6 +187,7 @@ import {
 export default {
   name: 'FamilyView',
   components: {
+    EmptyState,
     ConfirmDialog,
     Toast,
     BaseCard
@@ -414,30 +411,13 @@ export default {
   color: #9ca3af;
 }
 
-.family-empty {
+.family-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 1rem;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  color: #4b5563;
-}
-
-.empty-title {
-  color: #e5e7eb;
-  font-weight: 500;
-  margin: 0;
-  font-size: 24px;
-}
-
-.empty-sub {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0 0 0.5rem 0;
+  justify-content: center;
+  width: 100%;
+  padding: 16px 0;
 }
 
 .divider {
@@ -448,6 +428,7 @@ export default {
   gap: 0.75rem;
   color: #6b7280;
   font-size: 0.875rem;
+  margin: 8px 0;
 }
 
 .divider::before,
@@ -663,8 +644,8 @@ export default {
   position: absolute;
   inset: 0;
   border-radius: 12px;
-  padding: 2px;
-  background: linear-gradient(90deg, #60A637, #3b82f6);
+  padding: 1.5px;
+  background: linear-gradient(180deg, #60A637, #4C8932);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;

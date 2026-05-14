@@ -148,16 +148,14 @@
       <!-- GASTOS TAB -->
       <div v-if="activeTab === 'gastos'" class="tab-content">
         <div class="gastos-container">
-          <div v-if="gastos.length === 0" class="empty-state">
-            <i class="pi pi-inbox"></i>
-            <h3>Nenhuma despesa cadastrada</h3>
-            <p>Comece adicionando seu primeiro gasto para ver o painel completo!</p>
-            <div class="mobile-primary-action">
-              <button @click="showAddModal = true" class="btn-primary">
-                Adicionar Primeira Despesa
-              </button>
-            </div>
-          </div>
+          <EmptyState
+            v-if="gastos.length === 0"
+            title="Ainda não tem despesas cadastradas 😄"
+            description="Bora registrar teu primeiro gasto?"
+            icon="pi pi-receipt"
+            action-label="Adicionar despesa"
+            @action="showAddModal = true"
+          />
 
           <div v-else>
             <div class="gastos-toolbar">
@@ -189,9 +187,13 @@
             </div>
 
             <div class="gastos-list">
-              <div v-if="gastosFiltrados.length === 0" class="empty-filter">
-                <p>Nenhuma despesa nesta categoria.</p>
-              </div>
+              <EmptyState
+                v-if="gastosFiltrados.length === 0"
+                variant="no-results"
+                title="Não encontrei nada com esse filtro 👀"
+                description="Tenta outro filtro ou adiciona uma nova despesa."
+                icon="pi pi-search"
+              />
               <BaseCard
                 v-for="g in gastosFiltrados"
                 :key="g.id"
@@ -394,6 +396,7 @@ import ProfileView from './components/ProfileView.vue'
 import SettingsView from './components/SettingsView.vue'
 import ModalBase from './components/ModalBase.vue'
 import BottomNav from './components/BottomNav.vue'
+import EmptyState from './components/EmptyState.vue'
 import ToastProvider from './components/ToastProvider.vue'
 import ConfirmDialog from 'primevue/confirmdialog'
 import logo from './assets/logo.png'
@@ -424,6 +427,7 @@ export default {
     SettingsView,
     ModalBase,
     BottomNav,
+    EmptyState,
     ToastProvider,
     ConfirmDialog
   },
@@ -1028,31 +1032,6 @@ export default {
   background: linear-gradient(90deg, #60A637, #3b82f6);
 }
 
-/* EMPTY STATE */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #94a3b8;
-}
-
-.empty-state i {
-  font-size: 4rem;
-  margin-bottom: 20px;
-  opacity: 0.5;
-}
-
-.empty-state h3 {
-  font-size: 24px;
-  margin: 20px 0 10px;
-  color: #e5e7eb;
-}
-
-.empty-state p {
-  margin: 0 0 30px;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
 .btn-primary {
   background: linear-gradient(135deg, #60A637, #4C8932);
   color: white;
@@ -1376,13 +1355,6 @@ export default {
   font-size: 12px;
   font-weight: 600;
   border-radius: 999px;
-}
-
-.empty-filter {
-  text-align: center;
-  padding: 32px;
-  color: #94a3b8;
-  font-size: 14px;
 }
 
 /* FORM CONTAINER */

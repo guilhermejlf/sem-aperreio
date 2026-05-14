@@ -9,16 +9,14 @@
     <!-- Conteúdo -->
     <template v-else>
       <!-- Lista -->
-      <div v-if="receitas.length === 0" class="empty-state">
-        <i class="pi pi-wallet empty-icon"></i>
-        <h3>Nenhuma receita cadastrada</h3>
-        <p>Comece adicionando sua primeira receita!</p>
-        <div class="mobile-primary-action">
-          <button @click="abrirModal" class="btn-primary">
-            Adicionar Primeira Receita
-          </button>
-        </div>
-      </div>
+      <EmptyState
+        v-if="receitas.length === 0"
+        title="Bora adicionar tua primeira receita?"
+        description="Registra teus ganhos pra ter o controle completo."
+        icon="pi pi-wallet"
+        action-label="Adicionar receita"
+        @action="abrirModal"
+      />
 
       <div v-else>
         <div class="receitas-toolbar">
@@ -117,13 +115,15 @@
 <script>
 import BaseCard from './BaseCard.vue'
 import ModalBase from './ModalBase.vue'
+import EmptyState from './EmptyState.vue'
 import { fetchReceitas, addReceita, updateReceita, deleteReceita } from '../config/api.js'
 
 export default {
   name: 'ReceitasView',
   components: {
     BaseCard,
-    ModalBase
+    ModalBase,
+    EmptyState,
   },
   props: {
     initialEditData: {
@@ -352,31 +352,6 @@ export default {
 .delete-btn:hover {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #94a3b8;
-}
-
-.empty-state i {
-  font-size: 4rem;
-  margin-bottom: 20px;
-  opacity: 0.5;
-}
-
-.empty-state h3 {
-  font-size: 24px;
-  margin: 20px 0 10px;
-  color: #e5e7eb;
-}
-
-.empty-state p {
-  margin: 0 0 30px;
-  font-size: 16px;
-  line-height: 1.6;
 }
 
 /* Modal form styles - Design System v2.0 */
