@@ -23,12 +23,22 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 ## What's Next
 
-Run `/gsd-new-milestone` to define next milestone.
+**Current milestone:** v2.0 Infra & Quality — STARTED
 
-**Candidate directions:**
-1. **v3.1 Auth Polish** (original) — Reset de senha, login com email, confirmação de cadastro
-2. **v3.3 Onboarding Experience** — Ativação contextual, empty states inteligentes, checklist
-3. **v2.0 Infra** — Testes automatizados, Redis cache, PWA offline
+**Phases:**
+- Phase 12: Backend Tests — Pending
+- Phase 13: Frontend Tests — Pending
+- Phase 14: Redis Cache — Pending
+- Phase 15: PWA Offline — Pending
+- Phase 16: Infra Polish — Pending
+
+**Planning artifacts:**
+- `.planning/REQUIREMENTS-v2.0.md` — 16 requirements defined
+- `.planning/ROADMAP-v2.0.md` — 5 phases with dependencies
+
+**Deferred:**
+- v3.1 Auth Polish — After v2.0
+- v3.3 Onboarding Experience — Backlog
 
 ## Recent Commits
 
