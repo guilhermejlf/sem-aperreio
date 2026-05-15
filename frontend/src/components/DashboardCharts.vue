@@ -73,7 +73,9 @@
       </div>
 
       <!-- Contextual Insights -->
-      <DashboardInsights :data="dashboardData" />
+      <div class="insights-wrapper">
+        <DashboardInsights :data="dashboardData" />
+      </div>
 
       <!-- BLOCO 2 — COMPORTAMENTO -->
       <div class="block-title">Comportamento</div>
@@ -459,13 +461,19 @@ export default {
 
 /* Títulos de bloco */
 .block-title {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #94a3b8;
+  letter-spacing: 0.06em;
+  color: rgba(148, 163, 184, 0.75);
   margin: 32px 0 14px 0;
   padding-left: 4px;
+}
+
+/* Insights wrapper */
+.insights-wrapper {
+  max-width: 92%;
+  margin: 0 auto;
 }
 
 /* Stats Grid */
@@ -481,22 +489,23 @@ export default {
   align-items: stretch;
 }
 
-/* Saldo Destaque */
+/* Saldo Destaque — âncora visual do dashboard */
 .saldo-destaque {
   grid-row: span 1;
   background: linear-gradient(135deg, #1e293b, #0f172a);
-  border-radius: 20px;
+  border-radius: 22px;
   padding: 28px;
   display: flex;
   align-items: center;
   gap: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .saldo-destaque:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .saldo-destaque.positive {
@@ -593,15 +602,17 @@ export default {
 }
 
 .stat-card.mini .stat-content p {
-  margin: 0 0 2px 0;
-  color: #94a3b8;
+  margin: 0 0 4px 0;
+  color: rgba(148, 163, 184, 0.85);
   font-size: 0.85rem;
   font-weight: 500;
+  line-height: 1.4;
 }
 
 .stat-card.mini .stat-content small {
-  color: #758599;
-  font-size: 0.8rem;
+  color: rgba(117, 133, 153, 0.8);
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
 /* Cores por tipo (secundário — mais sutis) */
@@ -693,7 +704,7 @@ export default {
 .chart-wrapper {
   position: relative;
   width: 100%;
-  height: 280px;
+  height: 255px;
   overflow: hidden;
 }
 
@@ -778,8 +789,13 @@ export default {
     grid-template-columns: 1fr;
   }
 
+  .insights-wrapper {
+    max-width: 100%;
+  }
+
   .saldo-destaque {
     padding: 20px;
+    border-radius: 18px;
   }
 
   .saldo-valor {
