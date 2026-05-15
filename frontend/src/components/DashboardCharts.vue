@@ -653,7 +653,7 @@ export default {
   border: 1px solid rgba(59, 130, 246, 0.12);
   border-radius: var(--radius-md);
   padding: 12px 16px;
-  margin-bottom: 16px;
+  margin: 0 auto 16px auto;
   font-size: 0.9rem;
   color: #93c5fd;
   line-height: 1.5;
@@ -791,7 +791,9 @@ export default {
   }
 
   .bloco-situacao {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .insights-wrapper {
@@ -799,12 +801,15 @@ export default {
   }
 
   .saldo-destaque {
+    width: 100%;
     padding: 20px;
     border-radius: 18px;
+    box-sizing: border-box;
   }
 
   .saldo-valor {
-    font-size: 1.8rem;
+    font-size: clamp(1.3rem, 5.5vw, 1.7rem);
+    white-space: nowrap;
   }
 
   .stats-grid {
