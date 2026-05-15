@@ -72,15 +72,8 @@
         <p>{{ dashboardData.previsao_mensagem }}</p>
       </div>
 
-      <!-- Insights -->
-      <div v-if="insights.length" class="insights-card">
-        <div class="insights-header">💡 Insights</div>
-        <ul class="insights-list">
-          <li v-for="(insight, idx) in insights" :key="idx" :class="insight.tipo">
-            {{ insight.mensagem }}
-          </li>
-        </ul>
-      </div>
+      <!-- Contextual Insights -->
+      <DashboardInsights :data="dashboardData" />
 
       <!-- BLOCO 2 — COMPORTAMENTO -->
       <div class="block-title">Comportamento</div>
@@ -159,6 +152,7 @@
 <script>
 import { Chart, registerables } from 'chart.js'
 import EmptyState from './EmptyState.vue'
+import DashboardInsights from './DashboardInsights.vue'
 import { fetchDashboard } from '../config/api.js'
 
 Chart.register(...registerables)
@@ -170,7 +164,7 @@ const MES_NOMES = [
 
 export default {
   name: 'DashboardCharts',
-  components: { EmptyState },
+  components: { EmptyState, DashboardInsights },
   data() {
     const hoje = new Date()
     return {
@@ -229,77 +223,6 @@ export default {
       const metas = this.dashboardData.metas.por_categoria || []
       return [...metas].sort((a, b) => b.percentual_usado - a.percentual_usado)
     },
-    insights() {
-      if (!this.dashboardData) return []
-      const d = this.dashboardData
-      const lista = []
-
-      const receitas = d.total_receitas || 0
-      const saldo = d.saldo || 0
-      const variacao = d.variacao_percentual || 0
-      const totalAPagar = d.total_a_pagar || 0
-      const qtdPendentes = d.quantidade_pendentes || 0
-
-      // Alerta 1: Contas pendentes
-      if (totalAPagar > 0) {
-        if (saldo < totalAPagar) {
-          lista.push({
-            tipo: 'alerta',
-            mensagem: `Você ainda tem ${this.formatarValor(totalAPagar)} para pagar este mês. Seu saldo pode não ser suficiente.`
-          })
-        } else {
-          lista.push({
-            tipo: 'info',
-            mensagem: `Você ainda tem ${this.formatarValor(totalAPagar)} para pagar este mês`
-          })
-        }
-      }
-
-      // Alerta 2: Muitas contas pendentes
-      if (qtdPendentes >= 3) {
-        lista.push({
-          tipo: 'alerta',
-          mensagem: `Você tem ${qtdPendentes} contas pendentes. Revise seus pagamentos.`
-        })
-      }
-
-      // Insight 3: Metas ultrapassadas
-      if (d.metas) {
-        const metasGeral = d.metas.geral
-        if (metasGeral && metasGeral.percentual_usado > 80) {
-          lista.push({
-            tipo: metasGeral.percentual_usado > 100 ? 'alerta' : 'warning',
-            mensagem: `Meta geral: ${metasGeral.percentual_usado.toFixed(0)}% atingida (${this.formatarValor(metasGeral.gasto_realizado)} / ${this.formatarValor(metasGeral.valor_meta)})`
-          })
-        }
-        const metasCriticas = (d.metas.por_categoria || [])
-          .filter(m => m.percentual_usado > 80)
-          .sort((a, b) => b.percentual_usado - a.percentual_usado)
-          .slice(0, 2)
-        metasCriticas.forEach(m => {
-          lista.push({
-            tipo: m.percentual_usado > 100 ? 'alerta' : 'warning',
-            mensagem: `Meta ${m.categoria_nome}: ${m.percentual_usado.toFixed(0)}% atingida (${this.formatarValor(m.gasto_realizado)} / ${this.formatarValor(m.valor_meta)})`
-          })
-        })
-      }
-
-      // Insight 4: Variação vs mês anterior
-      if (Math.abs(variacao) > 0.1) {
-        lista.push({
-          tipo: variacao > 0 ? 'alerta' : 'sucesso',
-          mensagem: `Você despendeu ${Math.abs(variacao).toFixed(1)}% ${variacao > 0 ? 'a mais' : 'a menos'} que no mês passado`
-        })
-      }
-
-      // Limitar a 3 insights, priorizando alertas e warnings
-      return lista
-        .sort((a, b) => {
-          const peso = { alerta: 4, warning: 3, info: 2, sucesso: 1 }
-          return (peso[b.tipo] || 0) - (peso[a.tipo] || 0)
-        })
-        .slice(0, 3)
-    }
   },
   mounted() {
     this.carregarDashboard()
@@ -723,64 +646,6 @@ export default {
   margin: 0;
 }
 
-/* Insights Card */
-.insights-card {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border-radius: 16px;
-  padding: 20px 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 20px;
-}
-
-.insights-header {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #64748b;
-  margin-bottom: 12px;
-}
-
-.insights-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.insights-list li {
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.insights-list li.sucesso {
-  background: rgba(16, 185, 129, 0.1);
-  color: #60A637;
-  border-left: 3px solid #10b981;
-}
-
-.insights-list li.alerta {
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  border-left: 3px solid #ef4444;
-}
-
-.insights-list li.info {
-  background: rgba(59, 130, 246, 0.1);
-  color: #93c5fd;
-  border-left: 3px solid #3b82f6;
-}
-
-.insights-list li.warning {
-  background: rgba(245, 158, 11, 0.1);
-  color: #fbbf24;
-  border-left: 3px solid #f59e0b;
-}
-
 /* Charts Grid */
 .charts-grid {
   display: grid;
@@ -893,10 +758,6 @@ export default {
 
   .chart-wrapper {
     height: 240px;
-  }
-
-  .insights-card {
-    padding: 16px;
   }
 
   .period-selector {
