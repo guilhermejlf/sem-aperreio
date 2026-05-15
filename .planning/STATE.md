@@ -2,16 +2,16 @@
 
 ## Current Milestone
 
-**Milestone:** v3.1 — Auth Polish
-**Phase:** 8 — Melhorias de Autenticação
+**Milestone:** v3.2 Dashboard Premium — SHIPPED
+**Phase:** 11 — Micro Refinements Premium
 **Plan:** —
-**Status:** Defining requirements
-**Last activity:** 2026-05-11 — milestone v3.1 started
+**Status:** Shipped (2026-05-15)
+**Last activity:** 2026-05-15 — dashboard micro refinements + mobile fixes
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-11)
-See: `.planning/MILESTONES.md` (v1.0 + v3.0 retrospective)
+See: `.planning/PROJECT.md` (updated 2026-05-15)
+See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 **Core value:** Familiares conseguem registrar e visualizar todos os gastos do lar em um só lugar, com análises claras que revelam padrões de consumo e oportunidades de economia.
 
@@ -19,43 +19,31 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 retrospective)
 
 - ✅ v1.0 MVP — SHIPPED (2026-04-30) — Auth JWT, Family Groups, Dashboard, ML + Export
 - ✅ v3.0 AI — SHIPPED (2026-05-07) — Budget, Notifications, Deploy, AI Assistant
+- ✅ v3.2 Dashboard Premium — SHIPPED (2026-05-15) — Visual Hierarchy, Motion System, Mobile Polish
 
 ## What's Next
 
 Run `/gsd-new-milestone` to define next milestone.
 
-Backlog items:
-- TEST-01: Testes automatizados
-- CACHE-01: Cache Redis
-- MOB-01: PWA offline
-- BANK-01: Open Banking avaliação
-- CRON-01: Celery Beat interno
+**Candidate directions:**
+1. **v3.1 Auth Polish** (original) — Reset de senha, login com email, confirmação de cadastro
+2. **v3.3 Onboarding Experience** — Ativação contextual, empty states inteligentes, checklist
+3. **v2.0 Infra** — Testes automatizados, Redis cache, PWA offline
 
 ## Recent Commits
 
-- `cc3c963` chore: remove REQUIREMENTS.md for v1.0 milestone — 2026-04-30
-- `ed7c783` chore: archive v1.0 milestone files — 2026-04-30
-- `8a0ac9f` feat: implementa fases 1-3 do v1(auth, family, dashboard) — 2026-04-30
-- `fcf429b` Initial commit - projeto limpo — 2026-04-24
+- `dfe5695` fix(dashboard): ajustes mobile — layout saldo e centralização previsão — 2026-05-15
+- `1aee9bf` refine(dashboard): micro refinamentos premium — alinhamento, saturação, profundidade — 2026-05-15
+- `0b8a777` refine(dashboard): proporção, protagonismo e ritmo visual fino — 2026-05-15
+- `d0d5428` refine(dashboard): hierarquia visual e densidade perceptiva — 2026-05-15
+- `6df3a2d` refine(intelligence): refinamento visual dos insights contextuais — 2026-05-15
 
 ## Active TODOs
 
-- [x] Criar REQUIREMENTS.md para v2.0
-- [x] Criar ROADMAP.md para v2.0 (Phases 5–6)
-- [x] Phase 5 discuss-phase: decisões capturadas em `05-CONTEXT.md`
-- [x] **Fase 8:** Auth Polish — `08-01-SUMMARY.md`, `08-02-SUMMARY.md` (backend) e `05-02-PLAN.md` (frontend) criados
-- [x] Phase 5 ui-spec: `05-UI-SPEC.md` criado
-- [x] Phase 5 execute-phase: implementar Budget models, endpoints, e UI 
-- [x] Phase 5 review: bugs fixed (formatarValor, category filtering, delete UI)
-- [x] Phase 6 discuss-phase: decisões capturadas em `06-CONTEXT.md`
-- [x] Phase 6 plan-phase: `06-01-PLAN.md` (backend notificações) e `06-02-PLAN.md` (infraestrutura/deploy) criados
-- [x] Phase 7 discuss-phase: decisões capturadas em `07-CONTEXT.md`
-- [x] Phase 7 plan-phase: `07-01-PLAN.md` criado
-- [x] Phase 7 execute-phase: implementar IA parser + drawer chat + FAB ✅
-- [x] Phase 7 review: testes manuais end-to-end ✅
-- [x] Phase 7.1 discuss-phase: contextual multi-etapas (sem discuss formal, feature rapida)
-- [x] Phase 7.1 execute-phase: implementar contexto + perguntas complementares ✅
-- [x] Phase 7.2 execute-phase: implementar continuidade conversacional + saudacoes + fim de conversa ✅
+- [x] Phase 9: Dashboard Visual Hierarchy Refinement — implementado ✅
+- [x] Phase 10: Dashboard Proportion & Rhythm — implementado ✅
+- [x] Phase 11: Dashboard Micro Refinements — implementado ✅
+- [x] Mobile fixes: saldo clamp(), previsão centralizado, layout bloco-situacao ✅
 
 ## Accumulated Context
 
@@ -69,3 +57,6 @@ Backlog items:
 - Cron jobs externos (cron-job.org) — Celery Beat interno candidato para upgrade
 - Assistente IA funcional com fallback regex
 - Deploy automatizado (GitHub Actions → Railway + Vercel)
+- Dashboard com visual hierarchy madura (3 níveis), motion system oficial, mobile-first consolidado
+- `clamp()` para fontes dinâmicas no mobile
+- Canvas gradients para charts orgânicos

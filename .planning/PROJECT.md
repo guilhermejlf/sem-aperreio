@@ -42,6 +42,16 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 - ✓ **EXP-02**: Exportação para PDF — v1.1
 - ✓ **UI-01**: Header glassmorphism sticky com logo, navegação centrada e menu de usuário
 
+### Validated (v3.2 — shipped 2026-05-15)
+
+- ✓ **DASH-04**: Hierarquia visual com 3 níveis de protagonismo (saldo/insights vs comportamento vs terciários)
+- ✓ **DASH-05**: Motion System oficial integrado (tokens, easing, stagger, shimmer, reduced-motion)
+- ✓ **DASH-06**: Insights contextuais inteligentes com glow semântico por tipo
+- ✓ **DASH-07**: Gráfico de linha com gradient fill orgânico (Canvas linearGradient)
+- ✓ **UI-03**: Mobile-first refinado: saldo com clamp(), cards sem quebra, previsão centralizado
+- ✓ **UI-04**: Loading system premium com skeletons estruturais e fallbacks async
+- ✓ **UI-05**: Micro refinamentos de alinhamento óptico, saturação e profundidade visual
+
 ### Active (v2.0)
 
 - [ ] **TEST-01**: Testes automatizados (unitários + integração)

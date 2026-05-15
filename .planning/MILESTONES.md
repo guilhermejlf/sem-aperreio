@@ -53,6 +53,49 @@
 
 ---
 
+## Milestone: v3.2 Dashboard Premium — Refinamento Visual, Hierarquia e Motion System
+
+**Shipped:** 2026-05-15
+**Tag:** `v3.2`
+**Phases:** 9–11 (Visual Hierarchy, Proportion Refinement, Micro Refinements) | **Plans:** 3
+**Git range:** `6df3a2d` → `dfe5695`
+**Files changed:** 8 files, +120/-45 LOC
+**Timeline:** 2026-05-15 (1 sessão)
+
+### What Was Built
+
+1. **Dashboard Visual Hierarchy Refinement** — Redução de peso visual dos cards COMPORTAMENTO (fundo, borda, ícone, fonte). Aumento de respiro vertical entre blocos. Refinamento do previsão-card (mais compacto, menos banner). Gráfico de linha com gradient fill orgânico (Canvas linearGradient fade).
+2. **Dashboard Proportion & Rhythm** — Largura dos insights reduzida para 92% (camada contextual elegante). Títulos de bloco refinados (menor contraste, letter-spacing reduzido). Saldo-destaque ganhou protagonismo definitivo (box-shadow sutil, hover mais refinado). Donut chart reduzido ~9% (255px vs 280px).
+3. **Dashboard Micro Refinements** — Alinhamento óptico entre gráficos (padding-top 6px no line chart). Saturaçãodo card "Ainda a pagar" reduzida (~20%). Subtítulo do saldo com opacity mais suave. Pulse-risco menos chamativo. Profundidade visual ultra-sutil (radial-gradient no dashboard).
+4. **Mobile Fixes** — Layout saldo-destaque corrigido (flex column, gap 12px). Saldo-valor com `clamp()` e `white-space: nowrap` para nunca quebrar linha. Previsão-card centralizado. Border-radius ajustado no mobile.
+
+### What Worked
+
+- Micro ajustes de CSS (~5-15% de alteração) tiveram impacto perceptivo grande na sensação premium
+- `clamp()` para font-size responsivo resolveu overflow de valores grandes no mobile
+- Gradient fills no Chart.js via `createLinearGradient` deram visual orgânico sem libs extras
+- `max-width: 92%` nos insights criou "respiro lateral" sofisticado sem quebrar layout
+
+### What Was Inefficient
+
+- Onboarding Experience Phase 1 foi implementado e depois revertido pelo usuário — decisão de não incluir no milestone
+- Os refinamentos foram feitos em 3 commits separados dentro de 1 sessão — poderiam ter sido consolidados
+
+### Patterns Established
+
+- Visual hierarchy: 3 níveis (protagonistas / secundários / terciários) com peso proporcional
+- Mobile-first clamp() para fontes dinâmicas
+- Canvas gradients para charts orgânicos
+- `white-space: nowrap` + `clamp()` para valores monetários no mobile
+
+### Key Lessons
+
+- Menos é mais: ajustes de 5-10% em opacity, padding, font-size criam percepção premium
+- Alinhamento óptico é mais importante que alinhamento matemático
+- O dashboard deve transmitir "estabilidade financeira" — menos alertas visuais = mais confiança
+
+---
+
 ## Milestone: v3.0 AI — Orçamento, Notificações, Deploy e Assistente Conversacional
 
 **Shipped:** 2026-05-07
