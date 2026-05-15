@@ -135,6 +135,14 @@
           <div class="chart-wrapper">
             <canvas ref="categoriaChart"></canvas>
           </div>
+          <div v-if="categoriaDominante" class="chart-mini-insight">
+            <i class="pi pi-chart-pie" />
+            <span>
+              <strong>{{ categoriaDominante.nome }}</strong> representa
+              <strong>{{ ((categoriaDominante.total / (dashboardData.total_gastos || 1)) * 100).toFixed(0) }}%</strong>
+              dos gastos
+            </span>
+          </div>
         </div>
 
         <div class="chart-container">
@@ -682,6 +690,31 @@ export default {
   max-width: 100% !important;
 }
 
+.chart-mini-insight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.chart-mini-insight i {
+  font-size: 0.8rem;
+  color: var(--color-brand);
+  flex-shrink: 0;
+}
+
+.chart-mini-insight strong {
+  color: #e5e7eb;
+  font-weight: 600;
+}
+
 /* Period Selector */
 .period-selector {
   display: flex;
@@ -758,6 +791,12 @@ export default {
 
   .chart-wrapper {
     height: 240px;
+  }
+
+  .chart-mini-insight {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    margin-top: 8px;
   }
 
   .period-selector {

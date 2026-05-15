@@ -10,10 +10,13 @@
       :key="idx"
       class="insight-card"
       :class="`insight-${insight.tipo}`"
+      :style="{ '--stagger-delay': `${idx * 60}ms` }"
     >
       <div class="insight-glow" />
       <div class="insight-content">
-        <i :class="insight.icone" />
+        <div class="insight-icon-wrap">
+          <i :class="insight.icone" />
+        </div>
         <span class="insight-text">{{ insight.mensagem }}</span>
       </div>
     </div>
@@ -40,14 +43,14 @@ export default {
 .dashboard-insights {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  margin-bottom: var(--space-md);
+  gap: 7px;
+  margin-bottom: var(--space-lg);
 }
 
 .insight-card {
   position: relative;
   border-radius: var(--radius-md);
-  padding: var(--space-sm) var(--space-md);
+  padding: 11px 16px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   overflow: hidden;
@@ -62,7 +65,7 @@ export default {
 .insight-glow {
   position: absolute;
   inset: 0;
-  opacity: 0.04;
+  opacity: 0.05;
   transition: opacity var(--motion-fast) var(--ease-soft);
 }
 
@@ -70,14 +73,24 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 10px;
   font-size: var(--text-sm);
   line-height: 1.5;
 }
 
-.insight-content i {
-  font-size: 0.9rem;
+.insight-icon-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  background: var(--color-surface-elevated);
+}
+
+.insight-icon-wrap i {
+  font-size: 0.8rem;
 }
 
 .insight-text {
@@ -87,57 +100,73 @@ export default {
 /* Tipos */
 .insight-critical .insight-glow {
   background: var(--color-danger);
-  opacity: 0.08;
+  opacity: 0.1;
 }
 .insight-critical {
-  border-color: rgba(244, 63, 94, 0.2);
+  border-color: rgba(244, 63, 94, 0.18);
 }
-.insight-critical i {
+.insight-critical .insight-icon-wrap {
+  background: rgba(244, 63, 94, 0.1);
+}
+.insight-critical .insight-icon-wrap i {
   color: var(--color-danger);
 }
 
 .insight-warning .insight-glow {
   background: var(--color-warning);
-  opacity: 0.06;
+  opacity: 0.08;
 }
 .insight-warning {
-  border-color: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.15);
 }
-.insight-warning i {
+.insight-warning .insight-icon-wrap {
+  background: rgba(245, 158, 11, 0.08);
+}
+.insight-warning .insight-icon-wrap i {
   color: var(--color-warning);
 }
 
 .insight-info .insight-glow {
   background: var(--color-info);
-  opacity: 0.06;
+  opacity: 0.07;
 }
 .insight-info {
-  border-color: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.12);
 }
-.insight-info i {
+.insight-info .insight-icon-wrap {
+  background: rgba(59, 130, 246, 0.07);
+}
+.insight-info .insight-icon-wrap i {
   color: var(--color-info);
 }
 
 .insight-positive .insight-glow {
   background: var(--color-success);
-  opacity: 0.06;
+  opacity: 0.07;
 }
 .insight-positive {
-  border-color: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.12);
 }
-.insight-positive i {
+.insight-positive .insight-icon-wrap {
+  background: rgba(16, 185, 129, 0.07);
+}
+.insight-positive .insight-icon-wrap i {
   color: var(--color-success);
 }
 
-/* Transitions */
-.insight-reveal-enter-active,
-.insight-reveal-leave-active {
+/* Staggered reveal */
+.insight-reveal-enter-active {
   transition: all var(--motion-base) var(--ease-smooth);
+  transition-delay: var(--stagger-delay, 0ms);
+}
+
+.insight-reveal-leave-active {
+  transition: all var(--motion-fast) var(--ease-standard);
 }
 
 .insight-reveal-enter-from {
   opacity: 0;
-  transform: translateY(6px) scale(0.98);
+  transform: translateY(8px);
 }
 
 .insight-reveal-leave-to {
@@ -148,13 +177,23 @@ export default {
 /* Mobile */
 @media (max-width: 768px) {
   .dashboard-insights {
-    gap: var(--space-xs);
+    gap: 6px;
+    margin-bottom: var(--space-md);
   }
   .insight-card {
-    padding: var(--space-xs) var(--space-sm);
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
   }
   .insight-content {
     font-size: var(--text-xs);
+    gap: 8px;
+  }
+  .insight-icon-wrap {
+    width: 22px;
+    height: 22px;
+  }
+  .insight-icon-wrap i {
+    font-size: 0.7rem;
   }
 }
 
