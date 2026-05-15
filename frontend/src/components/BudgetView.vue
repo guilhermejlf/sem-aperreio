@@ -52,15 +52,12 @@
                 <span>{{ formatarValor(metaGeral.valor_meta) }}</span>
               </p>
             </div>
-            <div class="meta-bar-container">
-              <div class="meta-bar-fill" :class="metaGeral.status" :style="{width: pctClamped(metaGeral.percentual_usado) + '%'}"></div>
+            <div class="meta-bar-row">
+              <div class="meta-bar-container">
+                <div class="meta-bar-fill" :class="metaGeral.status" :style="{width: pctClamped(metaGeral.percentual_usado) + '%'}"></div>
+              </div>
+              <div class="meta-card__value" :class="metaGeral.status">{{ metaGeral.percentual_usado }}%</div>
             </div>
-            <div class="meta-footer">
-              <span class="meta-pct" :class="metaGeral.status">{{ metaGeral.percentual_usado }}%</span>
-            </div>
-          </div>
-          <div class="meta-card__summary">
-            <div class="meta-card__value" :class="metaGeral.status">{{ metaGeral.percentual_usado }}%</div>
           </div>
           <div class="meta-card__actions">
             <button class="btn-edit" @click="abrirEditar(metaGeral)" title="Editar meta geral">
@@ -101,15 +98,12 @@
                   <span>{{ formatarValor(meta.valor_meta) }}</span>
                 </p>
               </div>
-              <div class="categoria-bar-container">
-                <div class="categoria-bar-fill" :class="meta.status" :style="{width: pctClamped(meta.percentual_usado) + '%'}"></div>
+              <div class="meta-bar-row">
+                <div class="categoria-bar-container">
+                  <div class="categoria-bar-fill" :class="meta.status" :style="{width: pctClamped(meta.percentual_usado) + '%'}"></div>
+                </div>
+                <div class="meta-card__value" :class="meta.status">{{ meta.percentual_usado }}%</div>
               </div>
-              <div class="categoria-footer">
-                <span class="categoria-pct" :class="meta.status">{{ meta.percentual_usado }}%</span>
-              </div>
-            </div>
-            <div class="meta-card__summary">
-              <div class="meta-card__value" :class="meta.status">{{ meta.percentual_usado }}%</div>
             </div>
             <div class="meta-card__actions">
               <button class="btn-edit" @click="abrirEditar(meta)" title="Editar meta">
@@ -462,20 +456,25 @@ export default {
 .meta-card__subtitle .critical,
 .meta-card__value.critical { color: #dc2626; }
 
-.meta-card__summary {
+.meta-bar-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  flex-shrink: 0;
-  margin-left: 16px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-.meta-card__value {
+.meta-bar-row .meta-bar-container,
+.meta-bar-row .categoria-bar-container {
+  flex: 1;
+  margin-top: 0;
+}
+
+.meta-bar-row .meta-card__value {
   font-size: 18px;
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .meta-card__actions {
@@ -524,7 +523,8 @@ export default {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-top: 8px;
+  margin-bottom: 0;
 }
 
 .meta-bar-fill {
@@ -541,31 +541,6 @@ export default {
 @keyframes pulse-critical {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
-}
-
-.meta-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-.meta-pct {
-  font-weight: 600;
-}
-
-.meta-pct.ok { color: #10b981; }
-.meta-pct.warning { color: #f59e0b; }
-.meta-pct.danger { color: #ef4444; }
-.meta-pct.critical { color: #dc2626; }
-
-.meta-restante {
-  color: #94a3b8;
-}
-
-.meta-aviso {
-  color: #f87171;
-  font-weight: 500;
 }
 
 /* Categorias Grid */
@@ -597,7 +572,8 @@ export default {
   background: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-top: 6px;
+  margin-bottom: 0;
 }
 
 .categoria-bar-fill {
@@ -610,27 +586,6 @@ export default {
 .categoria-bar-fill.warning { background: #f59e0b; }
 .categoria-bar-fill.danger { background: #ef4444; }
 .categoria-bar-fill.critical { background: #dc2626; animation: pulse-critical 2s ease-in-out infinite; }
-
-.categoria-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-}
-
-.categoria-pct {
-  font-weight: 600;
-}
-
-.categoria-pct.ok { color: #10b981; }
-.categoria-pct.warning { color: #f59e0b; }
-.categoria-pct.danger { color: #ef4444; }
-.categoria-pct.critical { color: #dc2626; }
-
-.categoria-aviso {
-  color: #fbbf24;
-  font-weight: 500;
-}
 
 /* Nova Meta Card */
 .nova-meta {
