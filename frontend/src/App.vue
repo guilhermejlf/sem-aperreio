@@ -714,9 +714,9 @@ export default {
 <style>
 .page {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #0f172a, #020617);
+  background: radial-gradient(circle at top, #0f172a, var(--bg-app));
   color: white;
-  padding: 40px 20px;
+  padding: var(--space-8) var(--space-5);
 }
 
 /* LOGO */
@@ -743,11 +743,12 @@ export default {
 .header {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: var(--z-header);
   background: rgba(11, 18, 32, 0.75);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .header-content {
@@ -772,7 +773,7 @@ export default {
 /* NAV MENU */
 .nav-menu {
   display: flex;
-  gap: 4px;
+  gap: var(--space-2);
   align-items: center;
   justify-self: center;
 }
@@ -780,16 +781,16 @@ export default {
 .nav-item {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   background: none;
   border: none;
-  color: #9ca3af;
-  border-radius: 8px;
+  color: var(--text-muted);
+  border-radius: var(--space-2);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
 }
 
 .nav-item i {
@@ -797,13 +798,13 @@ export default {
 }
 
 .nav-item:hover {
-  color: #e5e7eb;
-  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  background: var(--bg-hover);
 }
 
 .nav-item.active {
-  color: #60A637;
-  background: rgba(96, 166, 55, 0.08);
+  color: var(--color-primary);
+  background: var(--color-primary-glow);
 }
 
 /* GASTOS CONTAINER */
@@ -815,11 +816,11 @@ export default {
 
 .gastos-container {
   max-width: 1200px;
-  margin: 20px auto 0;
+  margin: var(--space-5) auto 0;
   background: rgba(30, 41, 59, 0.3);
   backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 30px;
+  border-radius: var(--radius-lg);
+  padding: var(--space-7);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -835,7 +836,7 @@ export default {
 .gastos-header h2 {
   font-size: 28px;
   margin: 0;
-  background: linear-gradient(90deg, #60A637, #3b82f6);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -855,20 +856,20 @@ export default {
 }
 
 .stat-badge.primary {
-  background: linear-gradient(90deg, #60A637, #3b82f6);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #60A637, #4C8932);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: white;
   border: none;
   padding: 15px 30px;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: 700;
+  border-radius: var(--radius-md);
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 14px rgba(96, 166, 55, 0.18);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-primary:hover {
@@ -877,8 +878,8 @@ export default {
 
 .btn-primary.btn-sm {
   padding: 10px 20px;
-  font-size: 14px;
-  border-radius: 10px;
+  font-size: var(--font-md);
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -902,26 +903,26 @@ export default {
 }
 
 .gasto-desc {
-  color: rgba(148, 163, 184, 0.92);
+  color: var(--text-secondary);
   font-style: italic;
   display: block;
-  margin-bottom: 4px;
-  font-size: 12px;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-xs);
 }
 
 .gasto-time {
-  color: rgba(148, 163, 184, 0.92);
-  font-size: 12px;
+  color: var(--text-secondary);
+  font-size: var(--font-xs);
 }
 
 .delete-btn {
   background: none;
   border: none;
-  color: #64748b;
-  font-size: 16px;
+  color: var(--text-muted);
+  font-size: var(--font-md);
   cursor: pointer;
-  transition: color 0.2s ease;
-  padding: 4px;
+  transition: color var(--transition-fast);
+  padding: var(--space-1);
   line-height: 1;
   min-width: 40px;
   min-height: 40px;
@@ -931,17 +932,17 @@ export default {
 }
 
 .delete-btn:hover {
-  color: #ef4444;
+  color: var(--color-error);
 }
 
 .edit-btn {
   background: none;
   border: none;
-  color: #64748b;
-  font-size: 16px;
+  color: var(--text-muted);
+  font-size: var(--font-md);
   cursor: pointer;
-  transition: color 0.2s ease;
-  padding: 4px;
+  transition: color var(--transition-fast);
+  padding: var(--space-1);
   line-height: 1;
   min-width: 40px;
   min-height: 40px;
@@ -951,7 +952,7 @@ export default {
 }
 
 .edit-btn:hover {
-  color: #3b82f6;
+  color: var(--color-info);
 }
 
 /* GASTO FILTER TABS */
@@ -1013,15 +1014,15 @@ export default {
 
 .user-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + var(--space-2));
   right: 0;
   min-width: 220px;
   background: rgba(31, 41, 55, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 6px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-  z-index: 1000;
+  box-shadow: var(--shadow-card);
+  z-index: var(--z-header);
   animation: dropdownIn 0.15s ease;
   backdrop-filter: blur(20px);
 }
@@ -1121,66 +1122,66 @@ export default {
 }
 
 .filter-tab {
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--space-2);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  color: #94a3b8;
+  background: var(--bg-hover);
+  color: var(--text-muted);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .filter-tab:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #e5e7eb;
+  color: var(--text-secondary);
 }
 
 .filter-tab.active {
-  background: rgba(96, 166, 55, 0.1);
+  background: var(--color-primary-glow);
   border-color: rgba(96, 166, 55, 0.3);
-  color: #60A637;
+  color: var(--color-primary);
 }
 
 .group-badge {
   font-size: 10px;
-  padding: 2px 8px;
+  padding: 2px var(--space-2);
   border-radius: 4px;
   background: rgba(96, 166, 55, 0.15);
-  color: #60A637;
-  font-weight: 600;
+  color: var(--color-primary);
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .gasto-user {
   display: block;
-  margin-top: 4px;
-  color: rgba(148, 163, 184, 0.88);
-  font-size: 12px;
+  margin-top: var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-xs);
 }
 
 .pago-badge {
   display: inline-block;
-  margin-top: 4px;
-  padding: 4px 10px;
-  background: linear-gradient(90deg, #60A637, #4C8932);
+  margin-top: var(--space-1);
+  padding: var(--space-1) 10px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
   color: white;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 999px;
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-full);
 }
 
 .pendente-badge {
   display: inline-block;
-  margin-top: 4px;
-  padding: 4px 10px;
-  background: linear-gradient(90deg, #ef4444, #f87171);
+  margin-top: var(--space-1);
+  padding: var(--space-1) 10px;
+  background: linear-gradient(90deg, var(--color-error), #f87171);
   color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 999px;
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-full);
 }
 
 /* FORM CONTAINER */
@@ -1192,23 +1193,23 @@ export default {
 .form-card {
   background: rgba(30, 41, 59, 0.2);
   backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: var(--space-7);
+  border: var(--glass-border);
 }
 
 .form-card h2 {
   text-align: center;
-  margin: 0 0 24px 0;
+  margin: 0 0 var(--space-6) 0;
   font-size: 22px;
   color: white;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .gasto-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-6);
 }
 
 .form-group {
@@ -1218,36 +1219,36 @@ export default {
 
 .form-label {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(248, 250, 252, 0.72);
-  margin-bottom: 10px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
 }
 
 .form-input,
 .form-select {
   width: 100%;
   height: 56px;
-  padding: 0 16px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 16px;
-  font-weight: 500;
-  color: #F8FAFC;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: var(--font-md);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .form-input::placeholder {
-  color: rgba(248, 250, 252, 0.35);
+  color: var(--text-muted);
 }
 
 .form-input:focus,
 .form-select:focus {
   outline: none;
-  border-color: #60A637;
-  box-shadow: 0 0 0 4px rgba(96, 166, 55, 0.12);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-glow);
 }
 
 .input-wrapper {
@@ -1258,9 +1259,9 @@ export default {
 
 .input-prefix {
   position: absolute;
-  left: 16px;
-  color: rgba(248, 250, 252, 0.45);
-  font-weight: 500;
+  left: var(--space-4);
+  color: var(--text-muted);
+  font-weight: var(--weight-medium);
   font-size: 15px;
   pointer-events: none;
   z-index: 1;
@@ -1286,9 +1287,9 @@ export default {
 .form-checkbox {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   cursor: pointer;
-  color: rgba(248, 250, 252, 0.82);
+  color: var(--text-secondary);
   font-size: 15px;
   font-weight: 400;
 }
@@ -1297,24 +1298,24 @@ export default {
   width: 20px;
   height: 20px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  accent-color: #60A637;
+  accent-color: var(--color-primary);
   cursor: pointer;
 }
 
 /* Buttons */
 .btn-secondary {
   height: 48px;
-  padding: 0 24px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(248, 250, 252, 0.82);
+  color: var(--text-secondary);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .btn-secondary:hover {
@@ -1323,16 +1324,16 @@ export default {
 
 .btn-primary {
   height: 48px;
-  padding: 0 24px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: #FFFFFF;
   border: none;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-glow);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -1343,29 +1344,6 @@ export default {
   opacity: 0.5;
   cursor: not-allowed;
   filter: grayscale(0.4);
-}
-
-/* ANIMATIONS */
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* HEADER RIGHT */
@@ -1382,12 +1360,12 @@ export default {
   padding: 6px 10px;
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #ef4444;
-  border-radius: 8px;
+  color: var(--color-error);
+  border-radius: var(--space-2);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .logout-btn:hover {
@@ -1406,23 +1384,23 @@ export default {
   padding: 6px 10px;
   background: transparent;
   border: 1px solid transparent;
-  color: #9ca3af;
-  border-radius: 8px;
+  color: var(--text-muted);
+  border-radius: var(--space-2);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .family-btn:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #d1d5db;
+  color: var(--text-secondary);
 }
 
 .family-btn.has-family {
-  background: rgba(96, 166, 55, 0.1);
+  background: var(--color-primary-glow);
   border-color: rgba(96, 166, 55, 0.3);
-  color: #60A637;
+  color: var(--color-primary);
 }
 
 .family-btn.has-family:hover {
@@ -1432,18 +1410,18 @@ export default {
 .family-badge {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   background: rgba(96, 166, 55, 0.15);
   border: 1px solid rgba(96, 166, 55, 0.3);
-  color: #60A637;
-  padding: 2px 8px;
+  color: var(--color-primary);
+  padding: 2px var(--space-2);
   border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
 }
 
 .family-dot {
-  color: #60A637;
+  color: var(--color-primary);
   font-size: 10px;
 }
 
@@ -1488,7 +1466,7 @@ export default {
   }
 
   .main-content {
-    padding: 16px 15px calc(16px + 64px + env(safe-area-inset-bottom));
+    padding: var(--space-4) 15px calc(var(--space-4) + var(--mobile-header-height) + var(--safe-bottom));
   }
 
   .gastos-container,

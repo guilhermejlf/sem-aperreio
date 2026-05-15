@@ -47,15 +47,15 @@ export default {
 <style scoped>
 .btn-secondary {
   height: 48px;
-  padding: 0 24px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(248, 250, 252, 0.82);
+  color: var(--text-secondary);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .btn-secondary:hover {
@@ -64,16 +64,16 @@ export default {
 
 .btn-primary {
   height: 48px;
-  padding: 0 24px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: #FFFFFF;
   border: none;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-glow);
 }
 
 .btn-primary:hover {
@@ -81,7 +81,7 @@ export default {
 }
 
 .btn-danger {
-  background: linear-gradient(180deg, #EF4444 0%, #DC2626 100%) !important;
+  background: linear-gradient(180deg, var(--color-error) 0%, #DC2626 100%) !important;
   box-shadow: 0 0 18px rgba(239, 68, 68, 0.12);
 }
 

@@ -90,25 +90,25 @@ export default {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2, 6, 23, 0.72);
+  background: var(--bg-glass);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3000;
-  padding: 20px;
+  z-index: var(--z-modal);
+  padding: var(--space-5);
 }
 
 /* Card */
 .modal-card {
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 24px;
+  background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--radius-xl);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 10px 30px rgba(0, 0, 0, 0.35);
-  padding: 32px;
+    var(--shadow-card);
+  padding: var(--space-7);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -132,8 +132,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
-  gap: 16px;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
 }
 
 .modal-title-group {
@@ -144,40 +144,40 @@ export default {
 .modal-title {
   margin: 0;
   font-size: 32px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: 1.2;
   letter-spacing: -0.02em;
-  color: #F8FAFC;
+  color: var(--text-primary);
   word-break: break-word;
 }
 
 .modal-highlight {
-  color: #60A637;
+  color: var(--color-primary);
 }
 
 .modal-subtitle {
   margin: 6px 0 0;
-  font-size: 14px;
+  font-size: var(--font-sm);
   font-weight: 400;
   line-height: 1.5;
-  color: rgba(248, 250, 252, 0.65);
+  color: var(--text-secondary);
 }
 
 /* Close Button */
 .modal-close {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(8px);
-  color: rgba(248, 250, 252, 0.65);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .modal-close:hover {
@@ -194,14 +194,14 @@ export default {
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 32px;
+  gap: var(--space-3);
+  margin-top: var(--space-7);
 }
 
 /* Animations */
 .modal-enter-active,
 .modal-leave-active {
-  transition: all 0.25s ease;
+  transition: all var(--transition-base);
 }
 
 .modal-enter-from,
@@ -218,8 +218,8 @@ export default {
 /* Mobile */
 @media (max-width: 640px) {
   .modal-card {
-    padding: 24px;
-    border-radius: 20px;
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
   }
 
   .modal-title {
@@ -227,7 +227,7 @@ export default {
   }
 
   .modal-overlay {
-    padding: 16px;
+    padding: var(--space-4);
   }
 }
 </style>

@@ -47,24 +47,24 @@ export default {
 
 <style scoped>
 .empty-state {
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 24px;
-  padding: 32px 24px;
+  background: var(--bg-surface);
+  border: var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-7) var(--space-6);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 20px;
-  animation: emptyFadeIn 0.25s ease both;
+  gap: var(--space-5);
+  animation: emptyFadeIn var(--transition-base) both;
 }
 
 .empty-state-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .empty-state-icon {
@@ -73,41 +73,41 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(96, 166, 55, 0.92);
-  filter: drop-shadow(0 0 12px rgba(96, 166, 55, 0.12));
-  font-size: 28px;
-  margin-bottom: 4px;
+  color: var(--color-primary);
+  filter: drop-shadow(0 0 12px var(--color-primary-glow));
+  font-size: var(--font-2xl);
+  margin-bottom: var(--space-1);
 }
 
 .empty-state-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #F8FAFC;
+  font-size: var(--font-xl);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.3px;
   line-height: 1.3;
 }
 
 .empty-state-description {
-  font-size: 14px;
+  font-size: var(--font-sm);
   line-height: 1.6;
-  color: rgba(248, 250, 252, 0.68);
+  color: var(--text-secondary);
   margin: 0;
   max-width: 320px;
 }
 
 .empty-state-action {
-  margin-top: 8px;
-  padding: 10px 20px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 14px rgba(96, 166, 55, 0.15);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-glow);
   font-family: inherit;
 }
 
@@ -119,44 +119,44 @@ export default {
 .empty-state-bene {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 16px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-glass);
+  border: var(--glass-border);
+  border-radius: var(--radius-md);
 }
 
 .empty-state-bene-text {
-  font-size: 13px;
-  color: rgba(248, 250, 252, 0.55);
+  font-size: var(--font-sm);
+  color: var(--text-muted);
   font-style: italic;
 }
 
 /* Variants */
 .empty-state--no-results .empty-state-icon {
-  color: rgba(148, 163, 184, 0.7);
+  color: var(--text-muted);
   filter: none;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .empty-state {
-    padding: 24px 18px;
-    border-radius: 20px;
+    padding: var(--space-6) 18px;
+    border-radius: var(--radius-lg);
   }
 
   .empty-state-title {
-    font-size: 17px;
+    font-size: var(--font-lg);
   }
 
   .empty-state-description {
-    font-size: 13px;
+    font-size: var(--font-sm);
     max-width: 260px;
   }
 
   .empty-state-action {
-    font-size: 13px;
-    padding: 8px 16px;
+    font-size: var(--font-sm);
+    padding: var(--space-2) var(--space-4);
   }
 }
 

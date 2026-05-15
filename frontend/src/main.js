@@ -9,6 +9,9 @@ import { toastStore } from './stores/toast.store.js'
 // ícones
 import 'primeicons/primeicons.css'
 
+// design tokens (foundation)
+import './styles/tokens.css'
+
 // brand design system
 import './styles/brand.css'
 

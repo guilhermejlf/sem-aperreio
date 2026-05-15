@@ -56,14 +56,14 @@ export default {
 
 <style scoped>
 .base-card {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  padding: 16px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-fast);
+  border: var(--glass-border);
 }
 
 .base-card:hover {
@@ -71,7 +71,7 @@ export default {
 }
 
 .base-card--group {
-  border-left: 3px solid #60A637;
+  border-left: 3px solid var(--color-primary);
 }
 
 .base-card__info {
@@ -82,28 +82,28 @@ export default {
 .base-card__header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
   flex-wrap: wrap;
 }
 
 .base-card__icon {
-  font-size: 18px;
+  font-size: var(--font-lg);
   line-height: 1;
 }
 
 .base-card__title {
   margin: 0;
-  color: #e5e7eb;
+  color: var(--text-primary);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   line-height: 1.3;
 }
 
 .base-card__subtitle {
-  margin: 0 0 4px 0;
-  color: #94a3b8;
-  font-size: 13px;
+  margin: 0 0 var(--space-1) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
   line-height: 1.4;
 }
 
@@ -115,11 +115,11 @@ export default {
 
 .base-card__extras :deep(small),
 .base-card__extras :deep(.base-card__extra-item) {
-  color: #64748b;
+  color: var(--text-muted);
   font-style: italic;
   display: block;
-  margin-bottom: 4px;
-  font-size: 12px;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-xs);
   line-height: 1.4;
 }
 
@@ -131,7 +131,7 @@ export default {
 }
 
 .base-card__meta :deep(.base-card__meta-item) {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 11px;
   display: block;
 }
@@ -148,9 +148,9 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
+  gap: var(--space-2);
   flex-shrink: 0;
-  margin-left: 16px;
+  margin-left: var(--space-4);
 }
 
 .base-card__actions-col {
@@ -159,15 +159,15 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-left: 16px;
-  padding-left: 12px;
-  border-left: 1px solid rgba(255,255,255,0.05);
+  margin-left: var(--space-4);
+  padding-left: var(--space-3);
+  border-left: var(--glass-border);
   flex-shrink: 0;
 }
 
 .base-card__value {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--font-lg);
+  font-weight: var(--weight-semibold);
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -175,7 +175,7 @@ export default {
 .base-card__badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-1);
   justify-content: flex-end;
 }
 
@@ -189,11 +189,11 @@ export default {
 .base-card__actions :deep(.delete-btn) {
   background: none;
   border: none;
-  color: #64748b;
-  font-size: 14px;
+  color: var(--text-muted);
+  font-size: var(--font-sm);
   cursor: pointer;
-  transition: color 0.2s ease;
-  padding: 4px;
+  transition: color var(--transition-fast);
+  padding: var(--space-1);
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -201,19 +201,19 @@ export default {
 }
 
 .base-card__actions :deep(.edit-btn:hover) {
-  color: #3b82f6;
+  color: var(--color-info);
 }
 
 .base-card__actions :deep(.delete-btn:hover) {
-  color: #ef4444;
+  color: var(--color-error);
 }
 
 @media (max-width: 768px) {
   .base-card {
-    gap: 12px;
+    gap: var(--space-3);
     padding: 14px;
-    background: linear-gradient(180deg, rgba(30,41,59,0.88) 0%, rgba(15,23,42,0.92) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+    border: var(--glass-border);
     align-items: stretch;
   }
 
@@ -229,18 +229,18 @@ export default {
   }
 
   .base-card__subtitle {
-    color: rgba(148, 163, 184, 0.92);
+    color: var(--text-secondary);
     text-align: left;
   }
 
   .base-card__extras :deep(small),
   .base-card__extras :deep(.base-card__extra-item) {
-    color: rgba(148, 163, 184, 0.85);
+    color: var(--text-secondary);
     text-align: left;
   }
 
   .base-card__meta :deep(.base-card__meta-item) {
-    color: rgba(148, 163, 184, 0.85);
+    color: var(--text-secondary);
     font-size: 12px;
     text-align: left;
   }
@@ -248,7 +248,7 @@ export default {
   .base-card__body {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: var(--space-3);
   }
 
   .base-card__summary {
@@ -266,9 +266,9 @@ export default {
   }
 
   .base-card__actions-col {
-    margin-left: 8px;
-    padding-left: 12px;
-    border-left: 1px solid rgba(255,255,255,0.05);
+    margin-left: var(--space-2);
+    padding-left: var(--space-3);
+    border-left: var(--glass-border);
     justify-content: center;
   }
 
@@ -277,7 +277,7 @@ export default {
     min-width: 40px;
     min-height: 40px;
     font-size: 18px;
-    color: rgba(248, 250, 252, 0.58);
+    color: var(--text-muted);
     padding: 6px;
     display: inline-flex;
     align-items: center;
@@ -289,7 +289,7 @@ export default {
   }
 
   .base-card__actions-col :deep(.edit-btn:hover) {
-    color: rgba(248, 250, 252, 0.82);
+    color: var(--text-secondary);
   }
 
   .base-card__actions-col :deep(.delete-btn:hover) {

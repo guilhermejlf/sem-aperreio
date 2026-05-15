@@ -155,21 +155,21 @@ export default {
 .revenue-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-5);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .form-label {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(248, 250, 252, 0.72);
+  color: var(--text-secondary);
 }
 
 .input-wrapper {
@@ -180,9 +180,9 @@ export default {
 
 .input-prefix {
   position: absolute;
-  left: 16px;
-  color: rgba(248, 250, 252, 0.45);
-  font-weight: 500;
+  left: var(--space-4);
+  color: var(--text-muted);
+  font-weight: var(--weight-medium);
   font-size: 15px;
   pointer-events: none;
   z-index: 1;
@@ -191,20 +191,20 @@ export default {
 .form-input {
   width: 100%;
   height: 48px;
-  padding: 0 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--bg-hover);
   border: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 15px;
-  font-weight: 500;
-  color: #F8FAFC;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #60A637;
-  box-shadow: 0 0 0 3px rgba(96, 166, 55, 0.12);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
 }
 
 .input-field {
@@ -212,26 +212,26 @@ export default {
 }
 
 .form-input::placeholder {
-  color: rgba(248, 250, 252, 0.35);
+  color: var(--text-muted);
 }
 
 .form-error {
-  color: #f87171;
+  color: var(--color-error);
   font-size: 13px;
   margin: 0;
 }
 
 .btn-secondary {
   height: 48px;
-  padding: 0 24px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(248, 250, 252, 0.82);
+  color: var(--text-secondary);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .btn-secondary:hover {
@@ -240,20 +240,20 @@ export default {
 
 .btn-primary {
   height: 48px;
-  padding: 0 24px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: #FFFFFF;
   border: none;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-glow);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 160px;
 }
 

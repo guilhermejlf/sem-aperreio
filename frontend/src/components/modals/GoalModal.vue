@@ -226,42 +226,42 @@ export default {
 .modal-contexto {
   background: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.15);
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 24px;
-  font-size: 14px;
-  color: #93c5fd;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-6);
+  font-size: var(--font-sm);
+  color: var(--color-info);
   line-height: 1.5;
 }
 
 /* Confirmation text */
 .confirmacao-texto {
   line-height: 1.6;
-  color: rgba(248, 250, 252, 0.82);
+  color: var(--text-secondary);
   font-size: 15px;
 }
 
 .confirmacao-texto p {
-  margin: 8px 0;
+  margin: var(--space-2) 0;
 }
 
 .confirmacao-texto strong {
-  color: #fbbf24;
+  color: var(--color-warning);
 }
 
 /* Form groups */
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
 }
 
 .form-group label {
   display: block;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(248, 250, 252, 0.72);
-  margin-bottom: 10px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
 }
 
 /* Input wrapper */
@@ -273,9 +273,9 @@ export default {
 
 .input-prefix {
   position: absolute;
-  left: 16px;
-  color: rgba(248, 250, 252, 0.45);
-  font-weight: 500;
+  left: var(--space-4);
+  color: var(--text-muted);
+  font-weight: var(--weight-medium);
   font-size: 15px;
   pointer-events: none;
   z-index: 1;
@@ -285,25 +285,25 @@ export default {
 .input-field {
   width: 100%;
   height: 56px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   padding-left: 44px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 16px;
-  font-weight: 500;
-  color: #F8FAFC;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: var(--font-md);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .input-field::placeholder {
-  color: rgba(248, 250, 252, 0.35);
+  color: var(--text-muted);
 }
 
 .input-field:focus {
   outline: none;
-  border-color: #60A637;
-  box-shadow: 0 0 0 4px rgba(96, 166, 55, 0.12);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-glow);
 }
 
 .select-field {
@@ -316,7 +316,7 @@ export default {
 
 .period-selectors {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .period-select {
@@ -326,23 +326,23 @@ export default {
 /* Error message */
 .erro-msg {
   display: block;
-  margin-top: 8px;
+  margin-top: var(--space-2);
   font-size: 13px;
-  color: #f87171;
+  color: var(--color-error);
 }
 
 /* Buttons */
 .btn-secondary {
   height: 48px;
-  padding: 0 24px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(248, 250, 252, 0.82);
+  color: var(--text-secondary);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .btn-secondary:hover {
@@ -351,20 +351,20 @@ export default {
 
 .btn-primary {
   height: 48px;
-  padding: 0 24px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: #FFFFFF;
   border: none;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-glow);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 140px;
 }
 

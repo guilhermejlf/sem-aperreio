@@ -48,16 +48,16 @@ export default {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: var(--z-bottom-nav);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: 64px;
-    background: rgba(15, 23, 42, 0.92);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-bottom: env(safe-area-inset-bottom);
+    height: var(--mobile-header-height);
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-top: var(--glass-border);
+    padding-bottom: var(--safe-bottom);
   }
 }
 
@@ -71,23 +71,23 @@ export default {
   padding: 6px 2px;
   background: none;
   border: none;
-  color: rgba(248, 250, 252, 0.58);
-  font-size: 11px;
-  font-weight: 500;
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all var(--transition-base);
 }
 
 .bottom-nav-item i {
   font-size: 22px;
-  transition: all 0.25s ease;
+  transition: all var(--transition-base);
 }
 
 .bottom-nav-item.active {
-  color: #60A637;
+  color: var(--color-primary);
 }
 
 .bottom-nav-item.active i {
-  filter: drop-shadow(0 0 4px rgba(96, 166, 55, 0.08));
+  filter: drop-shadow(0 0 4px var(--color-primary-glow));
 }
 </style>
