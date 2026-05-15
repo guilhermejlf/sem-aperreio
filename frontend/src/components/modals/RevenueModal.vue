@@ -62,6 +62,7 @@
 <script>
 import ModalBase from '../ModalBase.vue'
 import { addReceita, updateReceita } from '../../config/api.js'
+import { toastMessages, toastTitles } from '../../utils/toastMessages.js'
 
 const DEFAULT_FORM = {
   valor: null,
@@ -127,21 +128,21 @@ export default {
             descricao: this.form.descricao,
             data: this.form.data
           })
-          this.$toast.success('Receita atualizada!', { title: 'Sucesso' })
+          this.$toast.success(toastMessages.revenue.updated, { title: toastTitles.success })
         } else {
           await addReceita({
             valor: this.form.valor,
             descricao: this.form.descricao,
             data: this.form.data
           })
-          this.$toast.success('Receita adicionada!', { title: 'Sucesso' })
+          this.$toast.success(toastMessages.revenue.created, { title: toastTitles.success })
         }
 
         this.$emit('saved')
         this.onClose()
       } catch (err) {
-        this.error = err.message || 'Erro ao salvar receita'
-        this.$toast.error(this.error, { title: 'Erro' })
+        this.error = err.message || toastMessages.revenue.saveError
+        this.$toast.error(toastMessages.revenue.saveError, { title: toastTitles.error })
       } finally {
         this.loading = false
       }

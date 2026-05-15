@@ -330,6 +330,7 @@ import BottomNav from './components/BottomNav.vue'
 import EmptyState from './components/EmptyState.vue'
 import ToastProvider from './components/ToastProvider.vue'
 import logo from './assets/logo.png'
+import { toastMessages, toastTitles } from './utils/toastMessages.js'
 import {
   API_ENDPOINTS,
   API_BASE_URL,
@@ -600,7 +601,7 @@ export default {
           this.error = null
           await apiRequest(API_ENDPOINTS.GASTO_DETAIL(id), { method: 'DELETE' })
           this.gastos = this.gastos.filter(g => g.id !== id)
-          this.$toast.success('Despesa excluída!', { title: 'Sucesso' })
+          this.$toast.success(toastMessages.expense.deleted, { title: toastTitles.success })
         } catch (error) {
           this.error = 'Erro ao excluir despesa: ' + error.message
           console.error('Erro ao excluir despesa:', error)

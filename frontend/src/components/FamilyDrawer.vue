@@ -202,6 +202,7 @@ import Sidebar from 'primevue/sidebar'
 import Button from 'primevue/button'
 import Toast from 'primevue/toast'
 import ConfirmModal from './modals/ConfirmModal.vue'
+import { toastMessages, toastTitles } from '../utils/toastMessages.js'
 import {
   createFamily,
   joinFamily,
@@ -336,16 +337,16 @@ export default {
     async handleCreate() {
       const name = this.newGroupName.trim()
       if (!name) {
-        this.$toast.error('Digite um nome para o grupo.', { title: 'Erro' })
+        this.$toast.error(toastMessages.family.nameRequired, { title: toastTitles.error })
         return
       }
       this.actionLoading = true
       try {
         const data = await createFamily(name)
         this.$emit('family-action', { action: 'created', data })
-        this.$toast.success('Grupo criado!', { title: 'Sucesso' })
+        this.$toast.success(toastMessages.family.created, { title: toastTitles.success })
       } catch (error) {
-        this.$toast.error(error.message, { title: 'Erro' })
+        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
       } finally {
         this.actionLoading = false
       }
@@ -353,16 +354,16 @@ export default {
     async handleJoin() {
       const code = this.joinCode.trim().toUpperCase()
       if (code.length !== 6) {
-        this.$toast.error('O código deve ter 6 caracteres.', { title: 'Erro' })
+        this.$toast.error(toastMessages.family.codeLength, { title: toastTitles.error })
         return
       }
       this.actionLoading = true
       try {
         const data = await joinFamily(code)
         this.$emit('family-action', { action: 'joined', data })
-        this.$toast.success('Você entrou no grupo!', { title: 'Sucesso' })
+        this.$toast.success(toastMessages.family.joined, { title: toastTitles.success })
       } catch (error) {
-        this.$toast.error(error.message, { title: 'Erro' })
+        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
       } finally {
         this.actionLoading = false
       }
@@ -372,9 +373,9 @@ export default {
       try {
         const data = await regenerateFamilyCode()
         this.$emit('family-action', { action: 'code-regenerated', data })
-        this.$toast.success('Novo código gerado!', { title: 'Sucesso' })
+        this.$toast.success(toastMessages.family.codeRegenerated, { title: toastTitles.success })
       } catch (error) {
-        this.$toast.error(error.message, { title: 'Erro' })
+        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
       } finally {
         this.actionLoading = false
       }
@@ -384,9 +385,9 @@ export default {
       try {
         await leaveFamily()
         this.$emit('family-action', { action: 'left' })
-        this.$toast.success('Você saiu do grupo.', { title: 'Sucesso' })
+        this.$toast.success(toastMessages.family.left, { title: toastTitles.success })
       } catch (error) {
-        this.$toast.error(error.message, { title: 'Erro' })
+        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
       } finally {
         this.actionLoading = false
       }
@@ -396,9 +397,9 @@ export default {
       try {
         await removeFamilyMember(member.user.id)
         this.$emit('family-action', { action: 'member-removed', data: member })
-        this.$toast.success('Membro removido.', { title: 'Sucesso' })
+        this.$toast.success(toastMessages.family.memberRemoved, { title: toastTitles.success })
       } catch (error) {
-        this.$toast.error(error.message, { title: 'Erro' })
+        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
       } finally {
         this.actionLoading = false
       }
@@ -408,16 +409,16 @@ export default {
       try {
         await deleteFamily()
         this.$emit('family-action', { action: 'deleted' })
-        this.$toast.success('Grupo excluído.', { title: 'Sucesso' })
+        this.$toast.success(toastMessages.family.groupDeleted, { title: toastTitles.success })
       } catch (error) {
-        this.$toast.error(error.message, { title: 'Erro' })
+        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
       } finally {
         this.actionLoading = false
       }
     },
     copyCode() {
       navigator.clipboard.writeText(this.familyData.code)
-      this.$toast.success('Código copiado.', { title: 'Sucesso' })
+      this.$toast.success(toastMessages.family.codeCopied, { title: toastTitles.success })
     },
     confirmLeave() {
       this.confirmTitle = 'Sair do Grupo'

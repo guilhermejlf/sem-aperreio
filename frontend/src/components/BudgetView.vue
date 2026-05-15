@@ -146,6 +146,7 @@ import { fetchMetas, createMeta, updateMeta, deleteMeta } from '../config/api.js
 import GoalModal from './modals/GoalModal.vue'
 import ConfirmModal from './modals/ConfirmModal.vue'
 import EmptyState from './EmptyState.vue'
+import { toastMessages, toastTitles } from '../utils/toastMessages.js'
 
 const MES_NOMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -325,11 +326,11 @@ export default {
           if (meta && meta.id) {
             await deleteMeta(meta.id)
             this.carregarMetas()
-            this.$toast.success('Meta excluída!', { title: 'Sucesso' })
+            this.$toast.success(toastMessages.goals.deleted, { title: toastTitles.success })
           }
         } catch (error) {
           console.error('Erro ao excluir meta:', error)
-          this.$toast.error(error.message || 'Erro ao excluir meta', { title: 'Erro' })
+          this.$toast.error(toastMessages.goals.deleteError, { title: toastTitles.error })
         }
       }
       this.confirmVisible = true
@@ -356,10 +357,10 @@ export default {
         }
         this.modalVisible = false
         this.carregarMetas()
-        this.$toast.success('Meta salva!', { title: 'Sucesso' })
+        this.$toast.success(toastMessages.goals.updated, { title: toastTitles.success })
       } catch (error) {
         console.error('Erro ao salvar meta:', error)
-        this.$toast.error(error.message || 'Erro ao salvar meta', { title: 'Erro' })
+        this.$toast.error(toastMessages.goals.saveError, { title: toastTitles.error })
       }
     }
   }

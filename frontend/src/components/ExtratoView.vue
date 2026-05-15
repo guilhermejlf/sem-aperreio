@@ -173,6 +173,7 @@
 <script>
 import EmptyState from './EmptyState.vue'
 import { fetchExtrato, downloadExport } from '../config/api.js'
+import { toastMessages, toastTitles } from '../utils/toastMessages.js'
 export default {
   components: { EmptyState },
   name: 'ExtratoView',
@@ -244,7 +245,7 @@ export default {
         this.resumo = data.resumo || null
       } catch (error) {
         console.error('Erro ao carregar extrato:', error)
-        this.$toast.error('Não foi possível carregar o extrato.', { title: 'Erro' })
+        this.$toast.error(toastMessages.export.loadError, { title: toastTitles.error })
       } finally {
         this.loading = false
       }
@@ -285,10 +286,10 @@ export default {
         if (this.filters.pago !== '') params.pago = this.filters.pago
 
         await downloadExport(formato, params)
-        this.$toast.success(`Arquivo ${formato.toUpperCase()} baixado com sucesso!`, { title: 'Exportado' })
+        this.$toast.success(toastMessages.export.downloaded(formato), { title: toastTitles.success })
       } catch (error) {
         console.error('Erro ao exportar:', error)
-        this.$toast.error('Erro ao exportar o extrato.', { title: 'Erro' })
+        this.$toast.error(toastMessages.export.exportError, { title: toastTitles.error })
       }
     },
 

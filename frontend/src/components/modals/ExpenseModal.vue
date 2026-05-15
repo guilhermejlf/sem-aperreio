@@ -91,6 +91,7 @@
 <script>
 import ModalBase from '../ModalBase.vue'
 import { apiRequest, API_ENDPOINTS } from '../../config/api.js'
+import { toastMessages, toastTitles } from '../../utils/toastMessages.js'
 
 const CATEGORIAS = [
   { value: 'moradia', label: 'Moradia' },
@@ -179,7 +180,7 @@ export default {
             method: 'PUT',
             body: JSON.stringify(payload)
           })
-          this.$toast.success('Despesa atualizada!', { title: 'Sucesso' })
+          this.$toast.success(toastMessages.expense.updated, { title: toastTitles.success })
           if (response?.alerta_meta) {
             const variant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
             this.$toast[variant](response.alerta_meta.mensagem, { title: 'Meta de Despesas' })
@@ -189,7 +190,7 @@ export default {
             method: 'POST',
             body: JSON.stringify(payload)
           })
-          this.$toast.success('Despesa adicionada!', { title: 'Sucesso' })
+          this.$toast.success(toastMessages.expense.created, { title: toastTitles.success })
           if (response?.alerta_meta) {
             const variant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
             this.$toast[variant](response.alerta_meta.mensagem, { title: 'Meta de Despesas' })
@@ -199,8 +200,8 @@ export default {
         this.$emit('saved')
         this.onClose()
       } catch (err) {
-        this.error = err.message || 'Erro ao salvar despesa'
-        this.$toast.error(this.error, { title: 'Erro' })
+        this.error = err.message || toastMessages.expense.saveError
+        this.$toast.error(toastMessages.expense.saveError, { title: toastTitles.error })
       } finally {
         this.loading = false
       }
