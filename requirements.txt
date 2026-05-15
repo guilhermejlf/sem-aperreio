@@ -14,3 +14,7 @@ psycopg2-binary>=2.9.0
 dj-database-url>=2.1.0
 gunicorn>=21.0.0
 openai>=1.30.0
+pytest>=8.0.0
+pytest-django>=4.8.0
+pytest-cov>=4.1.0
+factory-boy>=3.3.0

@@ -3,6 +3,7 @@ import string
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, MaxLengthValidator
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.contrib.auth.models import User
 
@@ -104,7 +105,7 @@ class Gasto(models.Model):
         # Apenas validar se a data não é muito antiga
         um_ano_atras = timezone.now().date().replace(year=timezone.now().date().year - 1)
         if self.data < um_ano_atras:
-            raise models.ValidationError("A data não pode ser anterior a um ano")
+            raise ValidationError("A data não pode ser anterior a um ano")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
