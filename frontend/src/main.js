@@ -12,6 +12,9 @@ import 'primeicons/primeicons.css'
 // design tokens (foundation)
 import './styles/tokens.css'
 
+// motion system
+import './styles/motion.css'
+
 // brand design system
 import './styles/brand.css'
 

@@ -88,6 +88,6 @@ export default {
 }
 
 .bottom-nav-item.active i {
-  filter: drop-shadow(0 0 4px var(--color-primary-glow));
+  filter: var(--glow-active);
 }
 </style>

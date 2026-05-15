@@ -1023,20 +1023,32 @@ export default {
   padding: 6px;
   box-shadow: var(--shadow-card);
   z-index: var(--z-header);
-  animation: dropdownIn 0.15s ease;
+  animation: slideIn 0.15s ease;
   backdrop-filter: blur(20px);
 }
 
-@keyframes dropdownIn {
+/* ANIMATIONS */
+@keyframes slideIn {
+  from {
+    transform: translateY(var(--motion-distance));
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
+
+/* Motion tokens: use transform/opacity only for performance */
 
 .dropdown-header {
   display: flex;
@@ -1320,6 +1332,11 @@ export default {
 
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.06);
+  transform: var(--hover-lift);
+}
+
+.btn-secondary:active {
+  transform: var(--active-press);
 }
 
 .btn-primary {
@@ -1338,6 +1355,11 @@ export default {
 
 .btn-primary:hover:not(:disabled) {
   filter: brightness(1.05);
+  transform: var(--hover-lift);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: var(--active-press);
 }
 
 .btn-primary:disabled {

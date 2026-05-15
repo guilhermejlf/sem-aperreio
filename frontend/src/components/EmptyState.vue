@@ -57,7 +57,7 @@ export default {
   justify-content: center;
   text-align: center;
   gap: var(--space-5);
-  animation: emptyFadeIn var(--transition-base) both;
+  animation: fadeInUp var(--motion-base) var(--ease-smooth) both;
 }
 
 .empty-state-content {
@@ -160,14 +160,4 @@ export default {
   }
 }
 
-@keyframes emptyFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 </style>

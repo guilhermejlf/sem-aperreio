@@ -201,18 +201,18 @@ export default {
 /* Animations */
 .modal-enter-active,
 .modal-leave-active {
-  transition: all var(--transition-base);
+  transition: all var(--motion-base) var(--ease-standard);
 }
 
 .modal-enter-from,
 .modal-leave-to {
-  opacity: 0;
+  opacity: var(--modal-enter-opacity-start);
 }
 
 .modal-enter-from .modal-card,
 .modal-leave-to .modal-card {
-  transform: scale(0.95);
-  opacity: 0;
+  transform: var(--modal-enter-start);
+  opacity: var(--modal-enter-opacity-start);
 }
 
 /* Mobile */

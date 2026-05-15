@@ -1,0 +1,182 @@
+/* =========================================================
+   Sem Aperreio — Motion System
+   Identidade de movimento oficial do produto
+   ========================================================= */
+
+:root {
+  /* -------------------------------------------------------
+     1. DURATION SYSTEM
+     ------------------------------------------------------- */
+  --motion-fast: 0.18s;
+  --motion-base: 0.25s;
+  --motion-slow: 0.35s;
+  --motion-page: 0.45s;
+
+  /* -------------------------------------------------------
+     2. EASING SYSTEM
+     ------------------------------------------------------- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* -------------------------------------------------------
+     3. TRANSITIONS OFICIAIS
+     ------------------------------------------------------- */
+  --transition-fast: all var(--motion-fast) var(--ease-standard);
+  --transition-base: all var(--motion-base) var(--ease-standard);
+  --transition-smooth: all var(--motion-base) var(--ease-smooth);
+
+  /* -------------------------------------------------------
+     4. HOVER / ACTIVE
+     ------------------------------------------------------- */
+  --hover-lift: translateY(-1px);
+  --card-lift: translateY(-2px);
+  --active-press: scale(0.98);
+
+  /* -------------------------------------------------------
+     5. MODAL MOTION
+     ------------------------------------------------------- */
+  --modal-enter-start: translateY(8px) scale(0.98);
+  --modal-enter-end: translateY(0) scale(1);
+  --modal-enter-opacity-start: 0;
+  --modal-enter-opacity-end: 1;
+
+  /* -------------------------------------------------------
+     6. TOAST MOTION
+     ------------------------------------------------------- */
+  --toast-enter-desktop: translateX(16px);
+  --toast-enter-mobile: translateY(8px);
+  --toast-enter-opacity: 0;
+
+  /* -------------------------------------------------------
+     7. DRAWER MOTION
+     ------------------------------------------------------- */
+  --drawer-enter-start: translateX(100%);
+  --drawer-enter-end: translateX(0);
+  --drawer-enter-opacity-start: 0;
+  --drawer-enter-opacity-end: 1;
+
+  /* -------------------------------------------------------
+     8. GLOW
+     ------------------------------------------------------- */
+  --glow-active: drop-shadow(0 0 6px rgba(96, 166, 55, 0.08));
+
+  /* -------------------------------------------------------
+     9. SHIMMER
+     ------------------------------------------------------- */
+  --shimmer-duration: 1.8s;
+}
+
+/* =========================================================
+   KEYFRAME DEFINITIONS
+   ========================================================= */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes breathe {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+/* =========================================================
+   SHIMMER UTILITY
+   ========================================================= */
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--shimmer-duration) infinite;
+}
+
+/* =========================================================
+   PREFERS-REDUCED-MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .shimmer {
+    animation: none !important;
+    background: none !important;
+  }
+}

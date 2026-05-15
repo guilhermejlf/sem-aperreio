@@ -68,6 +68,7 @@ export default {
 
 .base-card:hover {
   background: rgba(255, 255, 255, 0.05);
+  transform: var(--card-lift);
 }
 
 .base-card--group {
