@@ -183,14 +183,25 @@
         </div>
       </div>
     </div>
+
+    <ConfirmModal
+      :visible="confirmVisible"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      :danger="confirmDanger"
+      :accept-label="confirmAcceptLabel"
+      :reject-label="confirmRejectLabel"
+      @accept="onConfirmAccept"
+      @reject="confirmVisible = false"
+    />
   </Sidebar>
 </template>
 
 <script>
 import Sidebar from 'primevue/sidebar'
 import Button from 'primevue/button'
-import ConfirmDialog from 'primevue/confirmdialog'
 import Toast from 'primevue/toast'
+import ConfirmModal from './modals/ConfirmModal.vue'
 import {
   createFamily,
   joinFamily,
@@ -205,8 +216,8 @@ export default {
   components: {
     Sidebar,
     Button,
-    ConfirmDialog,
-    Toast
+    Toast,
+    ConfirmModal
   },
   props: {
     visible: {
@@ -230,7 +241,14 @@ export default {
       joinCode: '',
       loading: false,
       actionLoading: false,
-      isMobile: window.innerWidth < 640
+      isMobile: window.innerWidth < 640,
+      confirmVisible: false,
+      confirmTitle: '',
+      confirmMessage: '',
+      confirmDanger: false,
+      confirmAcceptLabel: 'Confirmar',
+      confirmRejectLabel: 'Cancelar',
+      confirmOnAccept: null
     }
   },
   computed: {
@@ -402,37 +420,39 @@ export default {
       this.$toast.success('Código copiado.')
     },
     confirmLeave() {
-      this.$confirm.require({
-        message: 'Tem certeza que deseja sair do grupo? Se for o único membro, o grupo será excluído.',
-        header: 'Sair do Grupo',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sair',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        accept: this.handleLeave
-      })
+      this.confirmTitle = 'Sair do Grupo'
+      this.confirmMessage = 'Tem certeza que deseja sair do grupo? Se for o único membro, o grupo será excluído.'
+      this.confirmDanger = true
+      this.confirmAcceptLabel = 'Sair'
+      this.confirmRejectLabel = 'Cancelar'
+      this.confirmOnAccept = this.handleLeave
+      this.confirmVisible = true
     },
     confirmDeleteGroup() {
-      this.$confirm.require({
-        message: 'Todos os membros serão removidos e as despesas permanecerão vinculadas apenas aos criadores.',
-        header: 'Excluir Grupo?',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Excluir',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        accept: this.handleDeleteGroup
-      })
+      this.confirmTitle = 'Excluir Grupo?'
+      this.confirmMessage = 'Todos os membros serão removidos e as despesas permanecerão vinculadas apenas aos criadores.'
+      this.confirmDanger = true
+      this.confirmAcceptLabel = 'Excluir'
+      this.confirmRejectLabel = 'Cancelar'
+      this.confirmOnAccept = this.handleDeleteGroup
+      this.confirmVisible = true
     },
     confirmExpel(member) {
-      this.$confirm.require({
-        message: `Remover ${member.user.first_name || member.user.username} do grupo?`,
-        header: 'Expulsar Membro',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Remover',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        accept: () => this.handleExpel(member)
-      })
+      this.confirmTitle = 'Expulsar Membro'
+      this.confirmMessage = `Remover ${member.user.first_name || member.user.username} do grupo?`
+      this.confirmDanger = true
+      this.confirmAcceptLabel = 'Remover'
+      this.confirmRejectLabel = 'Cancelar'
+      this.confirmOnAccept = () => this.handleExpel(member)
+      this.confirmVisible = true
+    },
+
+    async onConfirmAccept() {
+      this.confirmVisible = false
+      if (this.confirmOnAccept) {
+        await this.confirmOnAccept()
+        this.confirmOnAccept = null
+      }
     }
   }
 }

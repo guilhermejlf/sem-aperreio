@@ -280,7 +280,16 @@
       @saved="onExpenseSaved"
     />
 
-    <ConfirmDialog />
+    <ConfirmModal
+      :visible="confirmVisible"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      :danger="confirmDanger"
+      :accept-label="confirmAcceptLabel"
+      :reject-label="confirmRejectLabel"
+      @accept="onConfirmAccept"
+      @reject="confirmVisible = false"
+    />
     <AIAssistant
       ref="aiAssistant"
       :hide-fab="true"
@@ -316,10 +325,10 @@ import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
 import ProfileView from './components/ProfileView.vue'
 import SettingsView from './components/SettingsView.vue'
 import ExpenseModal from './components/modals/ExpenseModal.vue'
+import ConfirmModal from './components/modals/ConfirmModal.vue'
 import BottomNav from './components/BottomNav.vue'
 import EmptyState from './components/EmptyState.vue'
 import ToastProvider from './components/ToastProvider.vue'
-import ConfirmDialog from 'primevue/confirmdialog'
 import logo from './assets/logo.png'
 import {
   API_ENDPOINTS,
@@ -347,10 +356,10 @@ export default {
     ProfileView,
     SettingsView,
     ExpenseModal,
+    ConfirmModal,
     BottomNav,
     EmptyState,
-    ToastProvider,
-    ConfirmDialog
+    ToastProvider
   },
 
   data() {
@@ -368,6 +377,13 @@ export default {
       error: null,
       showAddModal: false,
       expenseEditingData: null,
+      confirmVisible: false,
+      confirmTitle: '',
+      confirmMessage: '',
+      confirmDanger: false,
+      confirmAcceptLabel: 'Confirmar',
+      confirmRejectLabel: 'Cancelar',
+      confirmOnAccept: null,
       pendingIncomeEdit: null,
       beneStore: null,
       categorias: [
@@ -572,35 +588,35 @@ export default {
       }
     },
 
-    async excluirGasto(id) {
-      this.$confirm.require({
-        message: 'Tem certeza que deseja excluir este gasto?',
-        header: 'Excluir Gasto',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Excluir',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-          try {
-            this.loading = true
-            this.error = null
-
-            await apiRequest(API_ENDPOINTS.GASTO_DETAIL(id), {
-              method: 'DELETE'
-            })
-
-            // Remove o gasto da lista localmente
-            this.gastos = this.gastos.filter(g => g.id !== id)
-
-            this.$toast.success('Gasto excluído!', { title: 'Sucesso' })
-          } catch (error) {
-            this.error = 'Erro ao excluir gasto: ' + error.message
-            console.error('Erro ao excluir gasto:', error)
-          } finally {
-            this.loading = false
-          }
+    excluirGasto(id) {
+      this.confirmTitle = 'Excluir Gasto'
+      this.confirmMessage = 'Tem certeza que deseja excluir este gasto?'
+      this.confirmDanger = true
+      this.confirmAcceptLabel = 'Excluir'
+      this.confirmRejectLabel = 'Cancelar'
+      this.confirmOnAccept = async () => {
+        try {
+          this.loading = true
+          this.error = null
+          await apiRequest(API_ENDPOINTS.GASTO_DETAIL(id), { method: 'DELETE' })
+          this.gastos = this.gastos.filter(g => g.id !== id)
+          this.$toast.success('Gasto excluído!', { title: 'Sucesso' })
+        } catch (error) {
+          this.error = 'Erro ao excluir gasto: ' + error.message
+          console.error('Erro ao excluir gasto:', error)
+        } finally {
+          this.loading = false
         }
-      })
+      }
+      this.confirmVisible = true
+    },
+
+    async onConfirmAccept() {
+      this.confirmVisible = false
+      if (this.confirmOnAccept) {
+        await this.confirmOnAccept()
+        this.confirmOnAccept = null
+      }
     },
 
     async handleLoginSuccess() {
@@ -1188,7 +1204,6 @@ export default {
   font-weight: 600;
 }
 
-/* Modal form styles - Design System v2.0 */
 .gasto-form {
   display: flex;
   flex-direction: column;

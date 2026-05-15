@@ -127,12 +127,24 @@
       @save="onSaveMeta"
       @cancel="modalVisible = false"
     />
+
+    <ConfirmModal
+      :visible="confirmVisible"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      :danger="confirmDanger"
+      :accept-label="confirmAcceptLabel"
+      :reject-label="confirmRejectLabel"
+      @accept="onConfirmAccept"
+      @reject="confirmVisible = false"
+    />
   </div>
 </template>
 
 <script>
 import { fetchMetas, createMeta, updateMeta, deleteMeta } from '../config/api.js'
 import GoalModal from './modals/GoalModal.vue'
+import ConfirmModal from './modals/ConfirmModal.vue'
 import EmptyState from './EmptyState.vue'
 
 const MES_NOMES = [
@@ -155,7 +167,7 @@ const CATEGORIA_EMOJIS = {
 
 export default {
   name: 'BudgetView',
-  components: { GoalModal, EmptyState },
+  components: { GoalModal, ConfirmModal, EmptyState },
   data() {
     const hoje = new Date()
     return {
@@ -167,7 +179,14 @@ export default {
       loading: false,
       modalVisible: false,
       metaSelecionada: null,
-      metaToDelete: null
+      metaToDelete: null,
+      confirmVisible: false,
+      confirmTitle: '',
+      confirmMessage: '',
+      confirmDanger: false,
+      confirmAcceptLabel: 'Confirmar',
+      confirmRejectLabel: 'Cancelar',
+      confirmOnAccept: null
     }
   },
   computed: {
@@ -296,26 +315,32 @@ export default {
 
     onDeleteMeta(meta) {
       const nome = this.formatarCategoriaDisplay(meta.categoria, meta.categoria_nome) || 'Meta Geral'
-      this.$confirm.require({
-        message: `Deseja deletar a meta "${nome}" para ${MES_NOMES[this.periodo.mes - 1]} ${this.periodo.ano}?`,
-        header: 'Deletar Meta',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Deletar',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-          try {
-            if (meta && meta.id) {
-              await deleteMeta(meta.id)
-              this.carregarMetas()
-              this.$toast.success('Meta deletada!')
-            }
-          } catch (error) {
-            console.error('Erro ao deletar meta:', error)
-            this.$toast.error(error.message || 'Erro ao deletar meta')
+      this.confirmTitle = 'Deletar Meta'
+      this.confirmMessage = `Deseja deletar a meta "${nome}" para ${MES_NOMES[this.periodo.mes - 1]} ${this.periodo.ano}?`
+      this.confirmDanger = true
+      this.confirmAcceptLabel = 'Deletar'
+      this.confirmRejectLabel = 'Cancelar'
+      this.confirmOnAccept = async () => {
+        try {
+          if (meta && meta.id) {
+            await deleteMeta(meta.id)
+            this.carregarMetas()
+            this.$toast.success('Meta deletada!')
           }
+        } catch (error) {
+          console.error('Erro ao deletar meta:', error)
+          this.$toast.error(error.message || 'Erro ao deletar meta')
         }
-      })
+      }
+      this.confirmVisible = true
+    },
+
+    async onConfirmAccept() {
+      this.confirmVisible = false
+      if (this.confirmOnAccept) {
+        await this.confirmOnAccept()
+        this.confirmOnAccept = null
+      }
     },
     async onSaveMeta(meta) {
       try {

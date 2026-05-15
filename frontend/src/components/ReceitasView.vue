@@ -60,12 +60,24 @@
       @close="fecharModal"
       @saved="onRevenueSaved"
     />
+
+    <ConfirmModal
+      :visible="confirmVisible"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      :danger="confirmDanger"
+      :accept-label="confirmAcceptLabel"
+      :reject-label="confirmRejectLabel"
+      @accept="onConfirmAccept"
+      @reject="confirmVisible = false"
+    />
   </div>
 </template>
 
 <script>
 import BaseCard from './BaseCard.vue'
 import RevenueModal from './modals/RevenueModal.vue'
+import ConfirmModal from './modals/ConfirmModal.vue'
 import EmptyState from './EmptyState.vue'
 import { fetchReceitas, deleteReceita } from '../config/api.js'
 
@@ -74,6 +86,7 @@ export default {
   components: {
     BaseCard,
     RevenueModal,
+    ConfirmModal,
     EmptyState,
   },
   props: {
@@ -87,7 +100,14 @@ export default {
       receitas: [],
       loading: false,
       showModal: false,
-      revenueEditingData: null
+      revenueEditingData: null,
+      confirmVisible: false,
+      confirmTitle: '',
+      confirmMessage: '',
+      confirmDanger: false,
+      confirmAcceptLabel: 'Confirmar',
+      confirmRejectLabel: 'Cancelar',
+      confirmOnAccept: null
     }
   },
   watch: {
@@ -141,24 +161,30 @@ export default {
       return true
     },
     excluirReceita(id) {
-      this.$confirm.require({
-        message: 'Tem certeza que deseja excluir esta receita?',
-        header: 'Excluir Receita',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sim, excluir',
-        rejectLabel: 'Cancelar',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-          try {
-            await deleteReceita(id)
-            this.receitas = this.receitas.filter(r => r.id !== id)
-            this.$toast.success('Receita excluída!')
-          } catch (error) {
-            console.error('Erro ao excluir receita:', error)
-            this.$toast.error('Erro ao excluir receita: ' + error.message)
-          }
+      this.confirmTitle = 'Excluir Receita'
+      this.confirmMessage = 'Tem certeza que deseja excluir esta receita?'
+      this.confirmDanger = true
+      this.confirmAcceptLabel = 'Sim, excluir'
+      this.confirmRejectLabel = 'Cancelar'
+      this.confirmOnAccept = async () => {
+        try {
+          await deleteReceita(id)
+          this.receitas = this.receitas.filter(r => r.id !== id)
+          this.$toast.success('Receita excluída!')
+        } catch (error) {
+          console.error('Erro ao excluir receita:', error)
+          this.$toast.error('Erro ao excluir receita: ' + error.message)
         }
-      })
+      }
+      this.confirmVisible = true
+    },
+
+    async onConfirmAccept() {
+      this.confirmVisible = false
+      if (this.confirmOnAccept) {
+        await this.confirmOnAccept()
+        this.confirmOnAccept = null
+      }
     },
     formatarValor(valor) {
       return parseFloat(valor).toLocaleString('pt-BR', {
@@ -242,110 +268,6 @@ export default {
   color: #ef4444;
 }
 
-/* Modal form styles - Design System v2.0 */
-.receita-form {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-label {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(248, 250, 252, 0.72);
-  margin-bottom: 10px;
-}
-
-.form-input {
-  width: 100%;
-  height: 56px;
-  padding: 0 16px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 16px;
-  font-weight: 500;
-  color: #F8FAFC;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-input::placeholder {
-  color: rgba(248, 250, 252, 0.35);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #60A637;
-  box-shadow: 0 0 0 4px rgba(96, 166, 55, 0.12);
-}
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-prefix {
-  position: absolute;
-  left: 16px;
-  color: rgba(248, 250, 252, 0.45);
-  font-weight: 500;
-  font-size: 15px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.input-field {
-  padding-left: 44px;
-}
-
-.btn-secondary {
-  height: 48px;
-  padding: 0 24px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(248, 250, 252, 0.82);
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.btn-primary {
-  height: 48px;
-  padding: 0 24px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #60A637 0%, #4C8932 100%);
-  color: #FFFFFF;
-  border: none;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
-}
-
-.btn-primary:hover:not(:disabled) {
-  filter: brightness(1.05);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  filter: grayscale(0.4);
-}
 
 @media (max-width: 768px) {
   .receitas-toolbar {
