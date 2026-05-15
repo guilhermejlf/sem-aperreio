@@ -154,6 +154,16 @@ export default {
   color: var(--color-success);
 }
 
+/* Hierarquia dinâmica futura — insight protagonista */
+.insight-card.primary {
+  padding: 13px 18px;
+  border-left: 3px solid rgba(96, 166, 55, 0.35);
+}
+
+.insight-card.primary .insight-glow {
+  opacity: 0.08;
+}
+
 /* Staggered reveal */
 .insight-reveal-enter-active {
   transition: all var(--motion-base) var(--ease-smooth);

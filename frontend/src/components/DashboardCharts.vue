@@ -147,7 +147,7 @@
           </div>
         </div>
 
-        <div class="chart-container">
+        <div class="chart-container chart-evolucao">
           <h3>Evolução Mensal</h3>
           <div class="chart-wrapper">
             <canvas ref="evolucaoChart"></canvas>
@@ -457,6 +457,7 @@ export default {
 .dashboard {
   max-width: 1200px;
   margin: 0 auto;
+  background: radial-gradient(ellipse at 50% 0%, rgba(30, 41, 59, 0.4) 0%, transparent 60%);
 }
 
 /* Títulos de bloco */
@@ -562,12 +563,12 @@ export default {
 }
 
 @keyframes pulse-risco {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2); }
-  50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.12); }
+  50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
 }
 
 .saldo-destaque .stat-content small {
-  color: #94a3b8;
+  color: rgba(148, 163, 184, 0.7);
   font-size: 0.85rem;
 }
 
@@ -622,8 +623,8 @@ export default {
 .stat-card.gasto-pago { border-left: 3px solid rgba(239, 68, 68, 0.4); }
 .stat-card.gasto-pago .stat-content h3 { color: rgba(239, 68, 68, 0.85); }
 
-.stat-card.gasto-pendente { border-left: 3px solid rgba(245, 158, 11, 0.4); }
-.stat-card.gasto-pendente .stat-content h3 { color: rgba(245, 158, 11, 0.85); }
+.stat-card.gasto-pendente { border-left: 3px solid rgba(245, 158, 11, 0.32); }
+.stat-card.gasto-pendente .stat-content h3 { color: rgba(245, 158, 11, 0.78); }
 
 .stat-card.primary { border-left: 3px solid rgba(59, 130, 246, 0.4); }
 .stat-card.primary .stat-content h3 { color: rgba(59, 130, 246, 0.85); }
@@ -706,6 +707,10 @@ export default {
   width: 100%;
   height: 255px;
   overflow: hidden;
+}
+
+.chart-evolucao .chart-wrapper {
+  padding-top: 6px;
 }
 
 .chart-wrapper canvas {
