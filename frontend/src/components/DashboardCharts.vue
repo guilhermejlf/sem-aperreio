@@ -350,6 +350,15 @@ export default {
         const dadosReceitas = evolucao.map(e => e.receitas || 0)
         const dadosGastos = evolucao.map(e => e.gastos || e.total || 0)
 
+        const chartCtx = ctx.getContext('2d')
+        const gradReceitas = chartCtx.createLinearGradient(0, 0, 0, 300)
+        gradReceitas.addColorStop(0, 'rgba(16, 185, 129, 0.18)')
+        gradReceitas.addColorStop(1, 'rgba(16, 185, 129, 0)')
+
+        const gradDespesas = chartCtx.createLinearGradient(0, 0, 0, 300)
+        gradDespesas.addColorStop(0, 'rgba(239, 68, 68, 0.12)')
+        gradDespesas.addColorStop(1, 'rgba(239, 68, 68, 0)')
+
         this.evolucaoChart = new Chart(ctx, {
           type: 'line',
           data: {
@@ -358,30 +367,30 @@ export default {
               {
                 label: 'Receitas',
                 data: dadosReceitas,
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                borderWidth: 3,
+                borderColor: 'rgba(16, 185, 129, 0.85)',
+                backgroundColor: gradReceitas,
+                borderWidth: 2.5,
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#10b981',
+                pointBackgroundColor: 'rgba(16, 185, 129, 0.85)',
                 pointBorderColor: '#1f2937',
                 pointBorderWidth: 2,
-                pointRadius: 5,
-                pointHoverRadius: 7
+                pointRadius: 4,
+                pointHoverRadius: 6
               },
               {
                 label: 'Despesas',
                 data: dadosGastos,
-                borderColor: '#ef4444',
-                backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                borderWidth: 3,
+                borderColor: 'rgba(239, 68, 68, 0.85)',
+                backgroundColor: gradDespesas,
+                borderWidth: 2.5,
                 tension: 0.4,
-                fill: false,
-                pointBackgroundColor: '#ef4444',
+                fill: true,
+                pointBackgroundColor: 'rgba(239, 68, 68, 0.85)',
                 pointBorderColor: '#1f2937',
                 pointBorderWidth: 2,
-                pointRadius: 5,
-                pointHoverRadius: 7
+                pointRadius: 4,
+                pointHoverRadius: 6
               }
             ]
           },
@@ -450,12 +459,12 @@ export default {
 
 /* Títulos de bloco */
 .block-title {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #94a3b8;
-  margin: 24px 0 12px 0;
+  margin: 32px 0 14px 0;
   padding-left: 4px;
 }
 
@@ -553,70 +562,70 @@ export default {
   font-size: 0.85rem;
 }
 
-/* Mini Cards */
+/* Mini Cards (Comportamento — secundário) */
 .stat-card.mini {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border-radius: 16px;
-  padding: 18px;
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 14px;
+  padding: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: var(--transition-fast);
 }
 
 .stat-card.mini:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: var(--hover-lift);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .stat-card.mini .stat-icon {
-  font-size: 1.8rem;
-  opacity: 0.85;
+  font-size: 1.5rem;
+  opacity: 0.6;
   flex-shrink: 0;
 }
 
 .stat-card.mini .stat-content h3 {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   margin: 0 0 4px 0;
-  color: #e5e7eb;
+  color: #cbd5e1;
 }
 
 .stat-card.mini .stat-content p {
   margin: 0 0 2px 0;
   color: #94a3b8;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
 .stat-card.mini .stat-content small {
-  color: #64748b;
+  color: #758599;
   font-size: 0.8rem;
 }
 
-/* Cores por tipo */
-.stat-card.receita { border-left: 4px solid #10b981; }
-.stat-card.receita .stat-content h3 { color: #10b981; }
+/* Cores por tipo (secundário — mais sutis) */
+.stat-card.receita { border-left: 3px solid rgba(16, 185, 129, 0.4); }
+.stat-card.receita .stat-content h3 { color: rgba(16, 185, 129, 0.85); }
 
-.stat-card.gasto-pago { border-left: 4px solid #ef4444; }
-.stat-card.gasto-pago .stat-content h3 { color: #ef4444; }
+.stat-card.gasto-pago { border-left: 3px solid rgba(239, 68, 68, 0.4); }
+.stat-card.gasto-pago .stat-content h3 { color: rgba(239, 68, 68, 0.85); }
 
-.stat-card.gasto-pendente { border-left: 4px solid #f59e0b; }
-.stat-card.gasto-pendente .stat-content h3 { color: #f59e0b; }
+.stat-card.gasto-pendente { border-left: 3px solid rgba(245, 158, 11, 0.4); }
+.stat-card.gasto-pendente .stat-content h3 { color: rgba(245, 158, 11, 0.85); }
 
-.stat-card.primary { border-left: 4px solid #3b82f6; }
-.stat-card.primary .stat-content h3 { color: #3b82f6; }
+.stat-card.primary { border-left: 3px solid rgba(59, 130, 246, 0.4); }
+.stat-card.primary .stat-content h3 { color: rgba(59, 130, 246, 0.85); }
 
-.stat-card.warning { border-left: 4px solid #f59e0b; }
-.stat-card.warning .stat-content h3 { color: #f59e0b; }
+.stat-card.warning { border-left: 3px solid rgba(245, 158, 11, 0.4); }
+.stat-card.warning .stat-content h3 { color: rgba(245, 158, 11, 0.85); }
 
 /* Comparativo */
-.stat-card.comparativo.positive { border-left-color: #10b981; }
-.stat-card.comparativo.positive .stat-content h3 { color: #10b981; }
-.stat-card.comparativo.negative { border-left-color: #ef4444; }
-.stat-card.comparativo.negative .stat-content h3 { color: #ef4444; }
-.stat-card.comparativo.neutral { border-left-color: #6b7280; }
+.stat-card.comparativo.positive { border-left-color: rgba(16, 185, 129, 0.4); }
+.stat-card.comparativo.positive .stat-content h3 { color: rgba(16, 185, 129, 0.85); }
+.stat-card.comparativo.negative { border-left-color: rgba(239, 68, 68, 0.4); }
+.stat-card.comparativo.negative .stat-content h3 { color: rgba(239, 68, 68, 0.85); }
+.stat-card.comparativo.neutral { border-left-color: rgba(107, 114, 128, 0.4); }
 
 /* BLOCO 2: Comportamento */
 .bloco-comportamento {
@@ -627,15 +636,16 @@ export default {
 .previsao-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), #1e293b);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 14px;
-  padding: 16px 22px;
-  margin-bottom: 20px;
-  font-size: 0.95rem;
+  gap: 12px;
+  background: rgba(59, 130, 246, 0.04);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
   color: #93c5fd;
   line-height: 1.5;
+  max-width: 600px;
 }
 
 .previsao-card.negativa {
@@ -646,8 +656,9 @@ export default {
 }
 
 .previsao-icon {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .previsao-card p {
