@@ -298,7 +298,6 @@
       @edit-income="handleEditIncome"
     />
     <BeneFloatingPresence
-      :chat-open="beneStore?.visible || false"
       @open-chat="openAIAssistant"
     />
     <BottomNav
@@ -310,25 +309,29 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import Button from 'primevue/button'
-import DashboardCharts from './components/DashboardCharts.vue'
 import AuthView from './components/AuthView.vue'
-import FamilyView from './components/FamilyView.vue'
-import ReceitasView from './components/ReceitasView.vue'
-import BudgetView from './components/BudgetView.vue'
-import ExtratoView from './components/ExtratoView.vue'
-import BaseCard from './components/BaseCard.vue'
-import AIAssistant from './components/AIAssistant.vue'
 import PasswordResetView from './components/PasswordResetView.vue'
 import VerifyEmailView from './components/VerifyEmailView.vue'
+import BaseCard from './components/BaseCard.vue'
 import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
-import ProfileView from './components/ProfileView.vue'
-import SettingsView from './components/SettingsView.vue'
 import ExpenseModal from './components/modals/ExpenseModal.vue'
 import ConfirmModal from './components/modals/ConfirmModal.vue'
 import BottomNav from './components/BottomNav.vue'
 import EmptyState from './components/EmptyState.vue'
 import ToastProvider from './components/ToastProvider.vue'
+
+// Lazy-loaded views (code splitting)
+const DashboardCharts = defineAsyncComponent(() => import('./components/DashboardCharts.vue'))
+const FamilyView = defineAsyncComponent(() => import('./components/FamilyView.vue'))
+const ReceitasView = defineAsyncComponent(() => import('./components/ReceitasView.vue'))
+const BudgetView = defineAsyncComponent(() => import('./components/BudgetView.vue'))
+const ExtratoView = defineAsyncComponent(() => import('./components/ExtratoView.vue'))
+const AIAssistant = defineAsyncComponent(() => import('./components/AIAssistant.vue'))
+const ProfileView = defineAsyncComponent(() => import('./components/ProfileView.vue'))
+const SettingsView = defineAsyncComponent(() => import('./components/SettingsView.vue'))
+
 import logo from './assets/logo.png'
 import { toastMessages, toastTitles } from './utils/toastMessages.js'
 import {
@@ -386,7 +389,6 @@ export default {
       confirmRejectLabel: 'Cancelar',
       confirmOnAccept: null,
       pendingIncomeEdit: null,
-      beneStore: null,
       categorias: [
         { value: 'moradia', label: 'Moradia' },
         { value: 'mercado', label: 'Mercado' },
@@ -444,9 +446,7 @@ export default {
       await this.fetchFamily()
       this.carregarGastos()
     }
-    import('./stores/beneContext.store.js').then(m => {
-      this.beneStore = m.beneStore || m.default
-    })
+    // bene state managed internally by BeneFloatingPresence
   },
 
   methods: {

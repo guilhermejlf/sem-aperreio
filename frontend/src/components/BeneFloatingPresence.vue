@@ -23,7 +23,7 @@
     >
       <BeneAvatar
         size="floating"
-        :breathing="!chatOpen"
+        :breathing="!store.visible"
       />
     </div>
   </div>
@@ -42,9 +42,6 @@ const FREQ_CYCLES = { low: 75000, normal: 45000, high: 25000 }
 export default {
   name: 'BeneFloatingPresence',
   components: { BeneAvatar, BeneInsight },
-  props: {
-    chatOpen: { type: Boolean, default: false },
-  },
   emits: ['open-chat'],
   data() {
     return {
@@ -79,7 +76,7 @@ export default {
       this.$emit('open-chat')
     },
     showRandomInsight() {
-      if (this.chatOpen || !settingsStore.bene.showInsights) return
+      if (this.store.visible || !settingsStore.bene.showInsights) return
       const variants = ['neutral', 'info', 'success', 'warning']
       const weights = [0.35, 0.25, 0.25, 0.15]
       const variant = this.weightedPick(variants, weights)
@@ -88,7 +85,7 @@ export default {
     startCycle() {
       const cycle = FREQ_CYCLES[settingsStore.bene.frequency] || FREQ_CYCLES.normal
       this.cycleTimer = setInterval(() => {
-        if (!this.chatOpen && !this.store.currentInsight) {
+        if (!this.store.visible && !this.store.currentInsight) {
           this.showRandomInsight()
         }
       }, cycle)
