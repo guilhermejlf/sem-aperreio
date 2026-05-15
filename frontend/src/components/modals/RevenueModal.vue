@@ -127,21 +127,21 @@ export default {
             descricao: this.form.descricao,
             data: this.form.data
           })
-          this.$toast.success('Receita atualizada!')
+          this.$toast.success('Receita atualizada!', { title: 'Sucesso' })
         } else {
           await addReceita({
             valor: this.form.valor,
             descricao: this.form.descricao,
             data: this.form.data
           })
-          this.$toast.success('Receita adicionada!')
+          this.$toast.success('Receita adicionada!', { title: 'Sucesso' })
         }
 
         this.$emit('saved')
         this.onClose()
       } catch (err) {
         this.error = err.message || 'Erro ao salvar receita'
-        this.$toast.error(this.error)
+        this.$toast.error(this.error, { title: 'Erro' })
       } finally {
         this.loading = false
       }

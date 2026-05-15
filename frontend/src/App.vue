@@ -145,13 +145,13 @@
         </div>
       </div>
 
-      <!-- GASTOS TAB -->
+      <!-- DESPESAS TAB -->
       <div v-if="activeTab === 'gastos'" class="tab-content">
         <div class="gastos-container">
           <EmptyState
             v-if="gastos.length === 0"
             title="Ainda não tem despesas cadastradas 😄"
-            description="Bora registrar teu primeiro gasto?"
+            description="Bora registrar tua primeira despesa?"
             icon="pi pi-receipt"
             action-label="Adicionar despesa"
             @action="showAddModal = true"
@@ -456,8 +456,8 @@ export default {
         const data = await apiRequest(API_ENDPOINTS.GASTOS_LIST)
         this.gastos = data.gastos || []
       } catch (error) {
-        this.error = 'Erro ao carregar gastos: ' + error.message
-        console.error('Erro ao carregar gastos:', error)
+        this.error = 'Erro ao carregar despesas: ' + error.message
+        console.error('Erro ao carregar despesas:', error)
       } finally {
         this.loading = false
       }
@@ -589,8 +589,8 @@ export default {
     },
 
     excluirGasto(id) {
-      this.confirmTitle = 'Excluir Gasto'
-      this.confirmMessage = 'Tem certeza que deseja excluir este gasto?'
+      this.confirmTitle = 'Excluir Despesa'
+      this.confirmMessage = 'Tem certeza que deseja excluir esta despesa?'
       this.confirmDanger = true
       this.confirmAcceptLabel = 'Excluir'
       this.confirmRejectLabel = 'Cancelar'
@@ -600,10 +600,10 @@ export default {
           this.error = null
           await apiRequest(API_ENDPOINTS.GASTO_DETAIL(id), { method: 'DELETE' })
           this.gastos = this.gastos.filter(g => g.id !== id)
-          this.$toast.success('Gasto excluído!', { title: 'Sucesso' })
+          this.$toast.success('Despesa excluída!', { title: 'Sucesso' })
         } catch (error) {
-          this.error = 'Erro ao excluir gasto: ' + error.message
-          console.error('Erro ao excluir gasto:', error)
+          this.error = 'Erro ao excluir despesa: ' + error.message
+          console.error('Erro ao excluir despesa:', error)
         } finally {
           this.loading = false
         }

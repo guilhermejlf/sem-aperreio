@@ -179,28 +179,28 @@ export default {
             method: 'PUT',
             body: JSON.stringify(payload)
           })
-          this.$toast.success('Gasto atualizado!', { title: 'Sucesso' })
+          this.$toast.success('Despesa atualizada!', { title: 'Sucesso' })
           if (response?.alerta_meta) {
             const variant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
-            this.$toast[variant](response.alerta_meta.mensagem, { title: 'Meta de Gastos' })
+            this.$toast[variant](response.alerta_meta.mensagem, { title: 'Meta de Despesas' })
           }
         } else {
           const response = await apiRequest(API_ENDPOINTS.GASTOS_LIST, {
             method: 'POST',
             body: JSON.stringify(payload)
           })
-          this.$toast.success('Gasto adicionado!', { title: 'Sucesso' })
+          this.$toast.success('Despesa adicionada!', { title: 'Sucesso' })
           if (response?.alerta_meta) {
             const variant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
-            this.$toast[variant](response.alerta_meta.mensagem, { title: 'Meta de Gastos' })
+            this.$toast[variant](response.alerta_meta.mensagem, { title: 'Meta de Despesas' })
           }
         }
 
         this.$emit('saved')
         this.onClose()
       } catch (err) {
-        this.error = err.message || 'Erro ao salvar gasto'
-        this.$toast.error(this.error)
+        this.error = err.message || 'Erro ao salvar despesa'
+        this.$toast.error(this.error, { title: 'Erro' })
       } finally {
         this.loading = false
       }

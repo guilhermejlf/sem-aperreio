@@ -6,7 +6,7 @@ const INSIGHT_DISPLAY_MS = 4500
 const INSIGHT_MESSAGES = {
   info: [
     'Bora começar? 😄',
-    'Quer registrar um gasto?',
+    'Quer registrar uma despesa?',
     'Posso ajudar com algo?',
     'Dia produtivo?',
   ],
@@ -17,7 +17,7 @@ const INSIGHT_MESSAGES = {
   ],
   warning: [
     'Mercado subiu esse mês 👀',
-    'Dá uma olhada nos gastos',
+    'Dá uma olhada nas despesas',
     'Registrou tudo?',
   ],
   neutral: [

@@ -170,10 +170,10 @@ export default {
         try {
           await deleteReceita(id)
           this.receitas = this.receitas.filter(r => r.id !== id)
-          this.$toast.success('Receita excluída!')
+          this.$toast.success('Receita excluída!', { title: 'Sucesso' })
         } catch (error) {
           console.error('Erro ao excluir receita:', error)
-          this.$toast.error('Erro ao excluir receita: ' + error.message)
+          this.$toast.error('Erro ao excluir receita: ' + error.message, { title: 'Erro' })
         }
       }
       this.confirmVisible = true

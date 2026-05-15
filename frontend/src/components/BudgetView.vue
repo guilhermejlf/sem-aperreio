@@ -315,21 +315,21 @@ export default {
 
     onDeleteMeta(meta) {
       const nome = this.formatarCategoriaDisplay(meta.categoria, meta.categoria_nome) || 'Meta Geral'
-      this.confirmTitle = 'Deletar Meta'
-      this.confirmMessage = `Deseja deletar a meta "${nome}" para ${MES_NOMES[this.periodo.mes - 1]} ${this.periodo.ano}?`
+      this.confirmTitle = 'Excluir Meta'
+      this.confirmMessage = `Deseja excluir a meta "${nome}" para ${MES_NOMES[this.periodo.mes - 1]} ${this.periodo.ano}?`
       this.confirmDanger = true
-      this.confirmAcceptLabel = 'Deletar'
+      this.confirmAcceptLabel = 'Excluir'
       this.confirmRejectLabel = 'Cancelar'
       this.confirmOnAccept = async () => {
         try {
           if (meta && meta.id) {
             await deleteMeta(meta.id)
             this.carregarMetas()
-            this.$toast.success('Meta deletada!')
+            this.$toast.success('Meta excluída!', { title: 'Sucesso' })
           }
         } catch (error) {
-          console.error('Erro ao deletar meta:', error)
-          this.$toast.error(error.message || 'Erro ao deletar meta')
+          console.error('Erro ao excluir meta:', error)
+          this.$toast.error(error.message || 'Erro ao excluir meta', { title: 'Erro' })
         }
       }
       this.confirmVisible = true
@@ -356,10 +356,10 @@ export default {
         }
         this.modalVisible = false
         this.carregarMetas()
-        this.$toast.success('Meta salva!')
+        this.$toast.success('Meta salva!', { title: 'Sucesso' })
       } catch (error) {
         console.error('Erro ao salvar meta:', error)
-        this.$toast.error(error.message || 'Erro ao salvar meta')
+        this.$toast.error(error.message || 'Erro ao salvar meta', { title: 'Erro' })
       }
     }
   }

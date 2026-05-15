@@ -293,16 +293,16 @@ export default {
     async handleCreate() {
       const name = this.newGroupName.trim()
       if (!name) {
-        this.$toast.error('Digite um nome para o grupo.')
+        this.$toast.error('Digite um nome para o grupo.', { title: 'Erro' })
         return
       }
       this.actionLoading = true
       try {
         const data = await createFamily(name)
         this.$emit('family-action', { action: 'created', data })
-        this.$toast.success('Grupo criado!')
+        this.$toast.success('Grupo criado!', { title: 'Sucesso' })
       } catch (error) {
-        this.$toast.error(error.message)
+        this.$toast.error(error.message, { title: 'Erro' })
       } finally {
         this.actionLoading = false
       }
@@ -310,16 +310,16 @@ export default {
     async handleJoin() {
       const code = this.joinCode.trim().toUpperCase()
       if (code.length !== 6) {
-        this.$toast.error('O código deve ter 6 caracteres.')
+        this.$toast.error('O código deve ter 6 caracteres.', { title: 'Erro' })
         return
       }
       this.actionLoading = true
       try {
         const data = await joinFamily(code)
         this.$emit('family-action', { action: 'joined', data })
-        this.$toast.success('Você entrou no grupo!')
+        this.$toast.success('Você entrou no grupo!', { title: 'Sucesso' })
       } catch (error) {
-        this.$toast.error(error.message)
+        this.$toast.error(error.message, { title: 'Erro' })
       } finally {
         this.actionLoading = false
       }
@@ -329,9 +329,9 @@ export default {
       try {
         const data = await regenerateFamilyCode()
         this.$emit('family-action', { action: 'code-regenerated', data })
-        this.$toast.success('Novo código gerado!')
+        this.$toast.success('Novo código gerado!', { title: 'Sucesso' })
       } catch (error) {
-        this.$toast.error(error.message)
+        this.$toast.error(error.message, { title: 'Erro' })
       } finally {
         this.actionLoading = false
       }
@@ -341,9 +341,9 @@ export default {
       try {
         await leaveFamily()
         this.$emit('family-action', { action: 'left' })
-        this.$toast.success('Você saiu do grupo.')
+        this.$toast.success('Você saiu do grupo.', { title: 'Sucesso' })
       } catch (error) {
-        this.$toast.error(error.message)
+        this.$toast.error(error.message, { title: 'Erro' })
       } finally {
         this.actionLoading = false
       }
@@ -353,9 +353,9 @@ export default {
       try {
         await removeFamilyMember(member.user.id)
         this.$emit('family-action', { action: 'member-removed', data: member })
-        this.$toast.success('Membro removido.')
+        this.$toast.success('Membro removido.', { title: 'Sucesso' })
       } catch (error) {
-        this.$toast.error(error.message)
+        this.$toast.error(error.message, { title: 'Erro' })
       } finally {
         this.actionLoading = false
       }
@@ -365,16 +365,16 @@ export default {
       try {
         await deleteFamily()
         this.$emit('family-action', { action: 'deleted' })
-        this.$toast.success('Grupo excluído.')
+        this.$toast.success('Grupo excluído.', { title: 'Sucesso' })
       } catch (error) {
-        this.$toast.error(error.message)
+        this.$toast.error(error.message, { title: 'Erro' })
       } finally {
         this.actionLoading = false
       }
     },
     copyCode() {
       navigator.clipboard.writeText(this.familyData.code)
-      this.$toast.success('Código copiado.')
+      this.$toast.success('Código copiado.', { title: 'Sucesso' })
     },
     confirmLeave() {
       this.confirmTitle = 'Sair do Grupo'
