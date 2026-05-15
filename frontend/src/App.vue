@@ -321,16 +321,27 @@ import ConfirmModal from './components/modals/ConfirmModal.vue'
 import BottomNav from './components/BottomNav.vue'
 import EmptyState from './components/EmptyState.vue'
 import ToastProvider from './components/ToastProvider.vue'
+import AppLoading from './components/AppLoading.vue'
+import SkeletonDashboard from './components/SkeletonDashboard.vue'
+import SkeletonProfile from './components/SkeletonProfile.vue'
+import SkeletonSettings from './components/SkeletonSettings.vue'
+import SkeletonGeneric from './components/SkeletonGeneric.vue'
 
-// Lazy-loaded views (code splitting)
-const DashboardCharts = defineAsyncComponent(() => import('./components/DashboardCharts.vue'))
-const FamilyView = defineAsyncComponent(() => import('./components/FamilyView.vue'))
-const ReceitasView = defineAsyncComponent(() => import('./components/ReceitasView.vue'))
-const BudgetView = defineAsyncComponent(() => import('./components/BudgetView.vue'))
-const ExtratoView = defineAsyncComponent(() => import('./components/ExtratoView.vue'))
-const AIAssistant = defineAsyncComponent(() => import('./components/AIAssistant.vue'))
-const ProfileView = defineAsyncComponent(() => import('./components/ProfileView.vue'))
-const SettingsView = defineAsyncComponent(() => import('./components/SettingsView.vue'))
+const asyncView = (loader, loading, delay = 200) => defineAsyncComponent({
+  loader,
+  loadingComponent: loading,
+  delay,
+})
+
+// Lazy-loaded views (code splitting) with skeleton fallbacks
+const DashboardCharts = asyncView(() => import('./components/DashboardCharts.vue'), SkeletonDashboard)
+const FamilyView = asyncView(() => import('./components/FamilyView.vue'), SkeletonGeneric)
+const ReceitasView = asyncView(() => import('./components/ReceitasView.vue'), SkeletonGeneric)
+const BudgetView = asyncView(() => import('./components/BudgetView.vue'), SkeletonGeneric)
+const ExtratoView = asyncView(() => import('./components/ExtratoView.vue'), SkeletonGeneric)
+const AIAssistant = asyncView(() => import('./components/AIAssistant.vue'), AppLoading)
+const ProfileView = asyncView(() => import('./components/ProfileView.vue'), SkeletonProfile)
+const SettingsView = asyncView(() => import('./components/SettingsView.vue'), SkeletonSettings)
 
 import logo from './assets/logo.png'
 import { toastMessages, toastTitles } from './utils/toastMessages.js'
