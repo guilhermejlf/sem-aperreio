@@ -72,7 +72,8 @@
       <template v-if="etapa === 'form'">
         <button class="btn-secondary" @click="onCancel">Cancelar</button>
         <button class="btn-primary" @click="onContinue" :disabled="!valido">
-          Salvar Meta
+          <span v-if="loading" class="btn-spinner"></span>
+          <span v-else>Salvar Meta</span>
         </button>
       </template>
       <template v-else-if="etapa === 'confirmar'">
@@ -86,7 +87,8 @@
 </template>
 
 <script>
-import ModalBase from './ModalBase.vue'
+import ModalBase from '../ModalBase.vue'
+
 const CATEGORIA_OPTIONS = {
   moradia: 'Moradia',
   mercado: 'Mercado',
@@ -106,7 +108,7 @@ const MES_NOMES = [
 ]
 
 export default {
-  name: 'BudgetEditModal',
+  name: 'GoalModal',
   components: { ModalBase },
   props: {
     visible: { type: Boolean, default: false },
@@ -122,7 +124,8 @@ export default {
       metaLocal: {},
       categoriaSelecionada: '',
       mesSelecionado: new Date().getMonth() + 1,
-      anoSelecionado: new Date().getFullYear()
+      anoSelecionado: new Date().getFullYear(),
+      loading: false
     }
   },
   computed: {
@@ -358,6 +361,11 @@ export default {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 0 18px rgba(96, 166, 55, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 140px;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -368,5 +376,18 @@ export default {
   opacity: 0.5;
   cursor: not-allowed;
   filter: grayscale(0.4);
+}
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>

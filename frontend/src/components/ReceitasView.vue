@@ -54,75 +54,26 @@
     </template>
 
 
-    <!-- Modal Add/Edit Receita -->
-    <ModalBase
+    <RevenueModal
       :visible="showModal"
-      :title="editingReceita || isDraft ? 'Editar Receita' : 'Adicionar Receita'"
-      :highlight="'Receita'"
-      size="small"
+      :editing-data="revenueEditingData"
       @close="fecharModal"
-    >
-      <form @submit.prevent="editingReceita ? salvarEdicao() : salvarReceita()" class="receita-form">
-        <div class="form-group">
-          <label class="form-label">Valor</label>
-          <div class="input-wrapper">
-            <span class="input-prefix">R$</span>
-            <input
-              v-model.number="nova.valor"
-              type="number"
-              step="0.01"
-              min="0.01"
-              class="form-input input-field"
-              placeholder="0,00"
-            />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Descrição</label>
-          <input
-            v-model="nova.descricao"
-            type="text"
-            placeholder="Ex: Salário, Freelance..."
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Data</label>
-          <input
-            type="date"
-            v-model="nova.data"
-            class="form-input"
-          />
-        </div>
-      </form>
-
-      <template #footer>
-        <button class="btn-secondary" @click="fecharModal">Cancelar</button>
-        <button
-          class="btn-primary"
-          :disabled="loadingForm || !formValido"
-          @click="editingReceita ? salvarEdicao() : salvarReceita()"
-        >
-          {{ editingReceita ? 'Salvar alterações' : (isDraft ? 'Confirmar Receita' : 'Salvar Receita') }}
-        </button>
-      </template>
-    </ModalBase>
+      @saved="onRevenueSaved"
+    />
   </div>
 </template>
 
 <script>
 import BaseCard from './BaseCard.vue'
-import ModalBase from './ModalBase.vue'
+import RevenueModal from './modals/RevenueModal.vue'
 import EmptyState from './EmptyState.vue'
-import { fetchReceitas, addReceita, updateReceita, deleteReceita } from '../config/api.js'
+import { fetchReceitas, deleteReceita } from '../config/api.js'
 
 export default {
   name: 'ReceitasView',
   components: {
     BaseCard,
-    ModalBase,
+    RevenueModal,
     EmptyState,
   },
   props: {
@@ -135,28 +86,15 @@ export default {
     return {
       receitas: [],
       loading: false,
-      loadingForm: false,
       showModal: false,
-      editingReceita: null,
-      isDraft: false,
-      nova: {
-        valor: null,
-        descricao: '',
-        data: new Date().toISOString().split('T')[0]
-      }
+      revenueEditingData: null
     }
   },
   watch: {
     initialEditData: {
       handler(newVal) {
         if (newVal) {
-          this.nova = {
-            valor: newVal.valor || null,
-            descricao: newVal.descricao || '',
-            data: newVal.data || new Date().toISOString().split('T')[0]
-          }
-          this.editingReceita = null
-          this.isDraft = true
+          this.revenueEditingData = { id: null, ...newVal }
           this.showModal = true
         }
       }
@@ -165,9 +103,6 @@ export default {
   computed: {
     totalReceitas() {
       return this.receitas.reduce((soma, r) => soma + parseFloat(r.valor || 0), 0)
-    },
-    formValido() {
-      return this.nova.valor && this.nova.valor > 0 && this.nova.data
     }
   },
   mounted() {
@@ -185,67 +120,20 @@ export default {
         this.loading = false
       }
     },
-    async salvarReceita() {
-      if (!this.formValido) return
-      try {
-        this.loadingForm = true
-        await addReceita({
-          valor: this.nova.valor,
-          descricao: this.nova.descricao,
-          data: this.nova.data
-        })
-        this.fecharModal()
-        await this.carregarReceitas()
-        this.$toast.success('Receita adicionada!')
-      } catch (error) {
-        console.error('Erro ao adicionar receita:', error)
-        this.$toast.error('Erro ao adicionar receita: ' + error.message)
-      } finally {
-        this.loadingForm = false
-      }
-    },
-    async salvarEdicao() {
-      if (!this.formValido) return
-      try {
-        this.loadingForm = true
-        await updateReceita(this.editingReceita, {
-          valor: this.nova.valor,
-          descricao: this.nova.descricao,
-          data: this.nova.data
-        })
-        this.fecharModal()
-        await this.carregarReceitas()
-        this.$toast.success('Receita atualizada!')
-      } catch (error) {
-        console.error('Erro ao editar receita:', error)
-        this.$toast.error('Erro ao editar receita: ' + error.message)
-      } finally {
-        this.loadingForm = false
-      }
-    },
     abrirModal() {
-      this.editingReceita = null
-      this.isDraft = false
-      this.nova = {
-        valor: null,
-        descricao: '',
-        data: new Date().toISOString().split('T')[0]
-      }
+      this.revenueEditingData = null
       this.showModal = true
     },
     abrirEdicao(receita) {
-      this.nova = {
-        valor: parseFloat(receita.valor),
-        descricao: receita.descricao || '',
-        data: receita.data
-      }
-      this.editingReceita = receita.id
+      this.revenueEditingData = receita
       this.showModal = true
     },
     fecharModal() {
       this.showModal = false
-      this.editingReceita = null
-      this.isDraft = false
+      this.revenueEditingData = null
+    },
+    async onRevenueSaved() {
+      await this.carregarReceitas()
     },
     podeEditarReceita(receita) {
       // Simples: todas as receitas são editáveis pelo usuário logado

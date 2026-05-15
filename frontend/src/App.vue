@@ -273,91 +273,12 @@
     </main>
 
     <!-- ADD/EDIT EXPENSE MODAL -->
-    <ModalBase
+    <ExpenseModal
       :visible="showAddModal"
-      :title="editingGasto ? 'Editar Despesa' : 'Adicionar Despesa'"
-      :highlight="'Despesa'"
-      size="medium"
+      :editing-data="expenseEditingData"
       @close="fecharModal"
-    >
-      <form @submit.prevent="editingGasto ? salvarEdicao() : adicionarGasto()" class="gasto-form">
-        <div class="form-group">
-          <label class="form-label">Valor</label>
-          <div class="input-wrapper">
-            <span class="input-prefix">R$</span>
-            <input
-              v-model.number="novo.valor"
-              type="number"
-              step="0.01"
-              min="0.01"
-              class="form-input input-field"
-              placeholder="0,00"
-              ref="inputValor"
-              autofocus
-            />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Categoria</label>
-          <select v-model="novo.categoria" class="form-select">
-            <option value="">Selecione uma categoria</option>
-            <option v-for="cat in categorias" :key="cat.value" :value="cat.value">
-              {{ cat.label }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Descrição</label>
-          <input
-            v-model="novo.descricao"
-            type="text"
-            placeholder="Ex: Mercado, Uber, McDonald's..."
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Data da despesa</label>
-          <input
-            type="date"
-            v-model="novo.data_competencia"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group checkbox-group">
-          <label class="form-checkbox">
-            <input
-              type="checkbox"
-              v-model="novo.pago"
-            />
-            <span>Já paguei essa despesa</span>
-          </label>
-        </div>
-
-        <div class="form-group" v-if="novo.pago">
-          <label class="form-label">Data do pagamento</label>
-          <input
-            type="date"
-            v-model="novo.data_pagamento"
-            class="form-input"
-          />
-        </div>
-      </form>
-
-      <template #footer>
-        <button class="btn-secondary" @click="fecharModal">Cancelar</button>
-        <button
-          class="btn-primary"
-          :disabled="loading || !formValido"
-          @click="editingGasto ? salvarEdicao() : adicionarGasto()"
-        >
-          {{ editingGasto ? 'Salvar alterações' : 'Salvar despesa' }}
-        </button>
-      </template>
-    </ModalBase>
+      @saved="onExpenseSaved"
+    />
 
     <ConfirmDialog />
     <AIAssistant
@@ -394,7 +315,7 @@ import VerifyEmailView from './components/VerifyEmailView.vue'
 import BeneFloatingPresence from './components/BeneFloatingPresence.vue'
 import ProfileView from './components/ProfileView.vue'
 import SettingsView from './components/SettingsView.vue'
-import ModalBase from './components/ModalBase.vue'
+import ExpenseModal from './components/modals/ExpenseModal.vue'
 import BottomNav from './components/BottomNav.vue'
 import EmptyState from './components/EmptyState.vue'
 import ToastProvider from './components/ToastProvider.vue'
@@ -425,7 +346,7 @@ export default {
     BeneFloatingPresence,
     ProfileView,
     SettingsView,
-    ModalBase,
+    ExpenseModal,
     BottomNav,
     EmptyState,
     ToastProvider,
@@ -443,19 +364,10 @@ export default {
       showUserMenu: false,
       gastos: [],
       gastoFilter: 'todos', // 'todos' | 'grupo' | 'meus'
-      novo: {
-        valor: null,
-        categoria: '',
-        descricao: '',
-        data: new Date().toISOString().split('T')[0],
-        data_competencia: '',
-        data_pagamento: '',
-        pago: false
-      },
       loading: false,
       error: null,
       showAddModal: false,
-      editingGasto: null,
+      expenseEditingData: null,
       pendingIncomeEdit: null,
       beneStore: null,
       categorias: [
@@ -491,13 +403,6 @@ export default {
     totalMes() {
       return this.gastosDoMes
         .reduce((soma, g) => soma + parseFloat(g.valor), 0)
-    },
-
-    formValido() {
-      return this.novo.valor && 
-             this.novo.valor > 0 && 
-             this.novo.categoria && 
-             this.novo.data_competencia
     },
 
     gastosGrupo() {
@@ -543,112 +448,17 @@ export default {
     },
 
     abrirEdicao(gasto) {
-      this.novo = {
-        valor: parseFloat(gasto.valor),
-        categoria: gasto.categoria,
-        descricao: gasto.descricao || '',
-        data: new Date().toISOString().split('T')[0],
-        data_competencia: gasto.data_competencia || '',
-        data_pagamento: gasto.data_pagamento || '',
-        pago: gasto.pago || false
-      }
-      this.editingGasto = gasto.id
+      this.expenseEditingData = gasto
       this.showAddModal = true
     },
 
     fecharModal() {
       this.showAddModal = false
-      this.editingGasto = null
-      this.novo = {
-        valor: null,
-        categoria: '',
-        descricao: '',
-        data: new Date().toISOString().split('T')[0],
-        data_competencia: '',
-        data_pagamento: '',
-        pago: false
-      }
+      this.expenseEditingData = null
     },
 
-    async adicionarGasto() {
-      try {
-        this.loading = true
-        this.error = null
-        
-        // Validação básica
-        if (!this.novo.valor || this.novo.valor <= 0) {
-          this.error = 'Informe um valor válido'
-          return
-        }
-        
-        if (!this.novo.data_competencia) {
-          this.error = 'Informe o mês do gasto'
-          return
-        }
-
-        const payload = { ...this.novo, data: this.novo.data_competencia || this.novo.data }
-        const response = await apiRequest(API_ENDPOINTS.GASTOS_LIST, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        })
-
-        this.$toast.success('Gasto adicionado!', { title: 'Sucesso' })
-
-        if (response.alerta_meta) {
-          const alertVariant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
-          this.$toast[alertVariant](response.alerta_meta.mensagem, { title: 'Meta de Gastos' })
-        }
-
-        this.fecharModal()
-        
-        // Recarregar lista
-        await this.carregarGastos()
-
-      } catch (error) {
-        this.error = 'Erro ao adicionar gasto: ' + error.message
-        console.error('Erro ao adicionar gasto:', error)
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async salvarEdicao() {
-      try {
-        this.loading = true
-        this.error = null
-
-        if (!this.novo.valor || this.novo.valor <= 0) {
-          this.error = 'Informe um valor válido'
-          return
-        }
-
-        if (!this.novo.data_competencia) {
-          this.error = 'Informe o mês do gasto'
-          return
-        }
-
-        const payload = { ...this.novo, data: this.novo.data_competencia || this.novo.data }
-        const response = await apiRequest(API_ENDPOINTS.GASTO_DETAIL(this.editingGasto), {
-          method: 'PUT',
-          body: JSON.stringify(payload)
-        })
-
-        this.$toast.success('Gasto atualizado!', { title: 'Sucesso' })
-
-        if (response.alerta_meta) {
-          const alertVariant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
-          this.$toast[alertVariant](response.alerta_meta.mensagem, { title: 'Meta de Gastos' })
-        }
-
-        this.fecharModal()
-        await this.carregarGastos()
-
-      } catch (error) {
-        this.error = 'Erro ao editar gasto: ' + error.message
-        console.error('Erro ao editar gasto:', error)
-      } finally {
-        this.loading = false
-      }
+    async onExpenseSaved() {
+      await this.carregarGastos()
     },
 
     formatarData(dataStr) {
@@ -843,16 +653,15 @@ export default {
     },
 
     handleEditExpense(data) {
-      this.novo = {
+      this.expenseEditingData = {
+        id: null,
         valor: parseFloat(data.valor),
         categoria: data.categoria || '',
         descricao: data.descricao || '',
-        data: new Date().toISOString().split('T')[0],
         data_competencia: data.data || new Date().toISOString().split('T')[0],
         data_pagamento: '',
         pago: false
       }
-      this.editingGasto = null
       this.showAddModal = true
     },
 

@@ -119,12 +119,10 @@
     </template>
 
     <!-- Modal -->
-    <BudgetEditModal
+    <GoalModal
       v-if="modalVisible"
       :visible="modalVisible"
       :meta="metaSelecionada"
-      :modo-criar="true"
-      :categoria-pre-selecionada="null"
       :categorias-usadas="categoriasUsadas"
       @save="onSaveMeta"
       @cancel="modalVisible = false"
@@ -134,7 +132,7 @@
 
 <script>
 import { fetchMetas, createMeta, updateMeta, deleteMeta } from '../config/api.js'
-import BudgetEditModal from './BudgetEditModal.vue'
+import GoalModal from './modals/GoalModal.vue'
 import EmptyState from './EmptyState.vue'
 
 const MES_NOMES = [
@@ -157,7 +155,7 @@ const CATEGORIA_EMOJIS = {
 
 export default {
   name: 'BudgetView',
-  components: { BudgetEditModal, EmptyState },
+  components: { GoalModal, EmptyState },
   data() {
     const hoje = new Date()
     return {
