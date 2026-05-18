@@ -2,11 +2,11 @@
 
 ## Current Milestone
 
-**Milestone:** v3.2 Dashboard Premium — SHIPPED
-**Phase:** 11 — Micro Refinements Premium
-**Plan:** —
-**Status:** Shipped (2026-05-15)
-**Last activity:** 2026-05-15 — dashboard micro refinements + mobile fixes
+**Milestone:** v2.0 Infra & Quality — IN PROGRESS
+**Phase:** 14 — Redis Cache
+**Plan:** `.planning/ROADMAP-v2.0.md`
+**Status:** Phase 14 completed (2026-05-18)
+**Last activity:** 2026-05-18 — Redis cache decorators + invalidation for dashboard, ML predictions, and metas
 
 ## Project Reference
 
@@ -26,10 +26,10 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 **Current milestone:** v2.0 Infra & Quality — STARTED
 
 **Phases:**
-- Phase 12: Backend Tests — Pending
-- Phase 13: Frontend Tests — Pending
-- Phase 14: Redis Cache — Pending
-- Phase 15: PWA Offline — Pending
+- ✅ Phase 12: Backend Tests — DONE
+- ✅ Phase 13: Frontend Tests — DONE
+- ✅ Phase 14: Redis Cache — DONE (2026-05-18)
+- Phase 15: PWA Offline — Next
 - Phase 16: Infra Polish — Pending
 
 **Planning artifacts:**
@@ -42,6 +42,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 ## Recent Commits
 
+- `76720a6` Phase 14: Redis Cache — caching and invalidation for ML predictions and metas — 2026-05-18
 - `dfe5695` fix(dashboard): ajustes mobile — layout saldo e centralização previsão — 2026-05-15
 - `1aee9bf` refine(dashboard): micro refinamentos premium — alinhamento, saturação, profundidade — 2026-05-15
 - `0b8a777` refine(dashboard): proporção, protagonismo e ritmo visual fino — 2026-05-15
@@ -54,13 +55,16 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 10: Dashboard Proportion & Rhythm — implementado ✅
 - [x] Phase 11: Dashboard Micro Refinements — implementado ✅
 - [x] Mobile fixes: saldo clamp(), previsão centralizado, layout bloco-situacao ✅
+- [x] Phase 12: Backend Tests — 55 tests passing ✅
+- [x] Phase 13: Frontend Tests — Vitest configured ✅
+- [x] Phase 14: Redis Cache — decorators, invalidation, graceful fallback ✅
 
 ## Accumulated Context
 
 - Options API no Vue — Composition API migration candidate for next milestone
 - PostgreSQL em produção (Railway) — SQLite mantido para dev
 - ML model on-demand training — consider Celery/persisted model for large datasets
-- No automated tests — only manual testing performed
+- 55 automated backend tests (pytest) covering auth, family, gastos, receitas, metas, dashboard, and cache
 - Pagination partial (simple limit, no full metadata)
 - Git tag v1.0 pushado para origin
 - Git tag v3.0 criado (push pending)
