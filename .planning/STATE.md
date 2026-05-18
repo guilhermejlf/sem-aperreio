@@ -3,10 +3,10 @@
 ## Current Milestone
 
 **Milestone:** v2.0 Infra & Quality — IN PROGRESS
-**Phase:** 14 — Redis Cache
+**Phase:** 15 — PWA Offline
 **Plan:** `.planning/ROADMAP-v2.0.md`
-**Status:** Phase 14 completed (2026-05-18)
-**Last activity:** 2026-05-18 — Redis cache decorators + invalidation for dashboard, ML predictions, and metas
+**Status:** Phase 15 completed (2026-05-18)
+**Last activity:** 2026-05-18 — PWA offline features: service worker, install prompt, offline state, IndexedDB cache
 
 ## Project Reference
 
@@ -29,8 +29,8 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - ✅ Phase 12: Backend Tests — DONE
 - ✅ Phase 13: Frontend Tests — DONE
 - ✅ Phase 14: Redis Cache — DONE (2026-05-18)
-- Phase 15: PWA Offline — Next
-- Phase 16: Infra Polish — Pending
+- ✅ Phase 15: PWA Offline — DONE (2026-05-18)
+- Phase 16: Infra Polish — Next
 
 **Planning artifacts:**
 - `.planning/REQUIREMENTS-v2.0.md` — 16 requirements defined
@@ -42,6 +42,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 ## Recent Commits
 
+- `phase-15` Phase 15: PWA Offline — service worker, install prompt, IndexedDB cache — 2026-05-18
 - `76720a6` Phase 14: Redis Cache — caching and invalidation for ML predictions and metas — 2026-05-18
 - `dfe5695` fix(dashboard): ajustes mobile — layout saldo e centralização previsão — 2026-05-15
 - `1aee9bf` refine(dashboard): micro refinamentos premium — alinhamento, saturação, profundidade — 2026-05-15
@@ -58,6 +59,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 12: Backend Tests — 55 tests passing ✅
 - [x] Phase 13: Frontend Tests — Vitest configured ✅
 - [x] Phase 14: Redis Cache — decorators, invalidation, graceful fallback ✅
+- [x] Phase 15: PWA Offline — service worker, install prompt, IndexedDB cache ✅
 
 ## Accumulated Context
 
