@@ -89,3 +89,8 @@ def invalidate_gastos(user):
 def invalidate_receitas(user):
     """Invalida cache de receitas/extrato/dashboard do usuário."""
     invalidate_user_cache(user, 'receitas', 'extrato', 'dashboard')
+
+
+def invalidate_metas(user):
+    """Invalida cache de metas/dashboard do usuário."""
+    invalidate_user_cache(user, 'metas', 'dashboard')

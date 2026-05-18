@@ -18,7 +18,7 @@ from decimal import Decimal
 from .models import Gasto, FamilyMembership, Receita, Family, MetaGasto
 from .serializers import GastoSerializer, ReceitaSerializer, MetaGastoSerializer
 from .permissions import GastoPermission
-from .cache_utils import cached_view, invalidate_gastos, invalidate_receitas
+from .cache_utils import cached_view, invalidate_gastos, invalidate_receitas, invalidate_metas
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 
@@ -89,6 +89,7 @@ def _construir_serie_categoria(meses_unicos, dados_categoria):
 
 
 @api_view(["POST"])
+@cached_view('previsao', timeout=3600)
 def prever_gasto(request):
     try:
         mes = request.data.get("mes")
@@ -1370,6 +1371,7 @@ def _get_gasto_realizado(user, categoria, mes, ano):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@cached_view('metas')
 def listar_metas(request):
     """Lista todas as metas do usuário para um mês/ano."""
     try:
@@ -1456,6 +1458,7 @@ def criar_meta(request):
             ano=ano,
             valor_meta=valor_meta
         )
+        invalidate_metas(request.user)
         serializer = MetaGastoSerializer(meta)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Exception as e:
@@ -1503,6 +1506,7 @@ def atualizar_meta(request, pk):
 
         meta.valor_meta = valor_meta
         meta.save()
+        invalidate_metas(request.user)
         serializer = MetaGastoSerializer(meta)
         return Response(serializer.data)
     except MetaGasto.DoesNotExist:
@@ -1525,6 +1529,7 @@ def deletar_meta(request, pk):
     try:
         meta = MetaGasto.objects.get(pk=pk, user=request.user)
         meta.delete()
+        invalidate_metas(request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
     except MetaGasto.DoesNotExist:
         return Response(
