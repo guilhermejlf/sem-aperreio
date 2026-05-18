@@ -208,6 +208,35 @@ else:
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@semaperreio.app')
 
 # ---------------------------
+# CACHE (Redis em prod, LocMem em dev)
+# ---------------------------
+REDIS_URL = config('REDIS_URL', default=os.environ.get('REDIS_URL', ''))
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'SOCKET_CONNECT_TIMEOUT': 5,
+                'SOCKET_TIMEOUT': 5,
+                'CONNECTION_POOL_CLASS_KWARGS': {'max_connections': 10},
+            },
+            'KEY_PREFIX': 'sem_aperreio',
+            'TIMEOUT': 300,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'sem-aperreio-local',
+            'TIMEOUT': 300,
+        }
+    }
+
+# ---------------------------
 # DEFAULT AUTO FIELD
 # ---------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

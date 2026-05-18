@@ -18,6 +18,7 @@ from decimal import Decimal
 from .models import Gasto, FamilyMembership, Receita, Family, MetaGasto
 from .serializers import GastoSerializer, ReceitaSerializer, MetaGastoSerializer
 from .permissions import GastoPermission
+from .cache_utils import cached_view, invalidate_gastos, invalidate_receitas
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 
@@ -225,6 +226,7 @@ def get_user_gastos_queryset(user):
     )
 
 @api_view(['GET', 'POST'])
+@cached_view('gastos')
 def gastos(request):
     try:
         if request.method == 'GET':
@@ -294,6 +296,7 @@ def gastos(request):
             if serializer.is_valid():
                 family = get_user_family(request.user)
                 gasto = serializer.save(user=request.user, family=family)
+                invalidate_gastos(request.user)
                 alerta = check_budget_alert(request.user, gasto)
                 return Response(
                     {
@@ -365,6 +368,7 @@ def gasto_detail(request, pk):
                         )
 
                 serializer.save()
+                invalidate_gastos(request.user)
                 alerta = check_budget_alert(request.user, gasto)
                 return Response(
                     {
@@ -390,6 +394,7 @@ def gasto_detail(request, pk):
                     )
 
             gasto.delete()
+            invalidate_gastos(request.user)
             return Response(
                 {"mensagem": "Gasto excluído com sucesso"}, 
                 status=status.HTTP_204_NO_CONTENT
@@ -446,6 +451,7 @@ def receita_detail(request, pk):
                         )
 
                 serializer.save()
+                invalidate_receitas(request.user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(
@@ -463,6 +469,7 @@ def receita_detail(request, pk):
                     )
 
             receita.delete()
+            invalidate_receitas(request.user)
             return Response(
                 {"mensagem": "Receita excluída com sucesso"}, 
                 status=status.HTTP_204_NO_CONTENT
@@ -485,6 +492,7 @@ MES_NOMES = [
 ]
 
 @api_view(['GET'])
+@cached_view('dashboard')
 def dashboard(request):
     try:
         mes = request.query_params.get('mes')
@@ -700,6 +708,7 @@ def dashboard(request):
 # RECEITAS
 # -------------------------
 @api_view(['GET', 'POST'])
+@cached_view('receitas')
 def receitas(request):
     try:
         if request.method == 'GET':
@@ -745,6 +754,7 @@ def receitas(request):
             if serializer.is_valid():
                 family = get_user_family(request.user)
                 receita = serializer.save(user=request.user, family=family)
+                invalidate_receitas(request.user)
                 return Response(
                     serializer.data,
                     status=status.HTTP_201_CREATED
@@ -768,6 +778,7 @@ def receitas(request):
 # EXTRATO UNIFICADO (Gastos + Receitas)
 # -------------------------
 @api_view(['GET'])
+@cached_view('extrato')
 def extrato(request):
     """Retorna lista unificada de gastos e receitas do usuário/família, ordenada por data decrescente."""
     try:
