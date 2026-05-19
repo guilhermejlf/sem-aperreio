@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',   # 👈 CORS
+    'django_celery_beat',
     'api',
 ]
 
@@ -39,12 +40,13 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ---------------------------
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # 👈 TEM QUE SER O PRIMEIRO
+    'corsheaders.middleware.CorsMiddleware',  # 
+    'api.middleware.RateLimitMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 
-    # ⚠️ IMPORTANTE: vamos desabilitar CSRF para API (dev)
+    # : vamos desabilitar CSRF para API (dev)
     'django.middleware.csrf.CsrfViewMiddleware',
 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -235,6 +237,18 @@ else:
             'TIMEOUT': 300,
         }
     }
+
+# ---------------------------
+# CELERY CONFIG
+# ---------------------------
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default=os.environ.get('REDIS_URL', 'redis://localhost:6379/0'))
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default=os.environ.get('REDIS_URL', 'redis://localhost:6379/0'))
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Sao_Paulo'
+CELERY_ENABLE_UTC = True
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # ---------------------------
 # DEFAULT AUTO FIELD

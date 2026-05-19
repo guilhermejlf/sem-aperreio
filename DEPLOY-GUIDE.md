@@ -81,25 +81,39 @@
 
 ---
 
-## 5. cron-job.org (Agendamento de Tasks)
+## 5. Celery Beat (Agendamento de Tasks)
 
-Railway free tier não suporta worker Celery. Usamos cron-job.org como fallback.
+O projeto usa `django-celery-beat` com scheduler no banco (PostgreSQL).
 
-1. Acesse [cron-job.org](https://cron-job.org) e crie conta gratuita
-2. Crie 2 jobs:
+### 5.1 Local
+```bash
+# Terminal 1 — Worker
+celery -A backend worker -l info
 
-### Job 1 — Lembrete Semanal (NOTF-01)
-- **Title:** Sem Aperreio - Weekly Reminder
-- **URL:** `https://<railway-url>/api/tasks/trigger/?secret=<TASK_TRIGGER_SECRET>&task=reminder`
-- **Schedule:** Every week → Monday → 09:00
-- **Method:** POST
-- **Body:** (deixe vazio, params estão na URL)
+# Terminal 2 — Beat
+celery -A backend beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+```
 
-### Job 2 — Alerta de Média (NOTF-02)
-- **Title:** Sem Aperreio - Average Alert
-- **URL:** `https://<railway-url>/api/tasks/trigger/?secret=<TASK_TRIGGER_SECRET>&task=average`
-- **Schedule:** Every week → Monday → 10:00
-- **Method:** POST
+### 5.2 Setup inicial das tarefas
+```bash
+python manage.py migrate django_celery_beat
+python manage.py setup_periodic_tasks
+```
+
+### 5.3 Railway (Produção)
+Adicione um segundo serviço no Railway com o mesmo repo, mas com start command:
+```
+celery -A backend worker -l info -c 2 && celery -A backend beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+```
+
+Ou use `Procfile`:
+```
+web: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
+worker: celery -A backend worker -l info -c 2
+beat: celery -A backend beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+```
+
+> **Nota:** Se o free tier do Railway não permitir múltiplos serviços, mantenha o cron-job.org como fallback (ver seção 5 Legacy abaixo).
 
 ---
 

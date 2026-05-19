@@ -3,10 +3,10 @@
 ## Current Milestone
 
 **Milestone:** v2.0 Infra & Quality — IN PROGRESS
-**Phase:** 15 — PWA Offline
+**Phase:** 16 — Infra Polish
 **Plan:** `.planning/ROADMAP-v2.0.md`
-**Status:** Phase 15 completed (2026-05-18)
-**Last activity:** 2026-05-18 — PWA offline features: service worker, install prompt, offline state, IndexedDB cache
+**Status:** Phase 16 completed (2026-05-19)
+**Last activity:** 2026-05-19 — Celery Beat scheduler, periodic tasks, rate limiting middleware
 
 ## Project Reference
 
@@ -30,7 +30,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - ✅ Phase 13: Frontend Tests — DONE
 - ✅ Phase 14: Redis Cache — DONE (2026-05-18)
 - ✅ Phase 15: PWA Offline — DONE (2026-05-18)
-- Phase 16: Infra Polish — Next
+- ✅ Phase 16: Infra Polish — DONE (2026-05-19)
 
 **Planning artifacts:**
 - `.planning/REQUIREMENTS-v2.0.md` — 16 requirements defined
@@ -60,6 +60,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 13: Frontend Tests — Vitest configured ✅
 - [x] Phase 14: Redis Cache — decorators, invalidation, graceful fallback ✅
 - [x] Phase 15: PWA Offline — service worker, install prompt, IndexedDB cache ✅
+- [x] Phase 16: Infra Polish — Celery Beat, rate limiting, periodic tasks ✅
 
 ## Accumulated Context
 
@@ -70,7 +71,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - Pagination partial (simple limit, no full metadata)
 - Git tag v1.0 pushado para origin
 - Git tag v3.0 criado (push pending)
-- Cron jobs externos (cron-job.org) — Celery Beat interno candidato para upgrade
+- Celery Beat interno ativo (django-celery-beat) — cron-job.org mantido como fallback
 - Assistente IA funcional com fallback regex
 - Deploy automatizado (GitHub Actions → Railway + Vercel)
 - Dashboard com visual hierarchy madura (3 níveis), motion system oficial, mobile-first consolidado
