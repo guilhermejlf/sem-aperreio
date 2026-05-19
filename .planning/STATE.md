@@ -2,11 +2,11 @@
 
 ## Current Milestone
 
-**Milestone:** v2.0 Infra & Quality — IN PROGRESS
+**Milestone:** v2.0 Infra & Quality — SHIPPED (2026-05-19)
 **Phase:** 16 — Infra Polish
 **Plan:** `.planning/ROADMAP-v2.0.md`
-**Status:** Phase 16 completed (2026-05-19)
-**Last activity:** 2026-05-19 — Celery Beat scheduler, periodic tasks, rate limiting middleware
+**Status:** All phases completed (12-16)
+**Last activity:** 2026-05-19 — v2.0 shipped: tests, cache, PWA, Celery Beat, rate limiting
 
 ## Project Reference
 
