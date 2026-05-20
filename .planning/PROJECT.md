@@ -54,10 +54,10 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 
 ### Active (v2.0)
 
-- [ ] **TEST-01**: Testes automatizados (unitários + integração)
-- [ ] **CACHE-01**: Cache Redis para dashboard e previsões
-- [ ] **MOB-01**: PWA com cache offline
-- [ ] **BANK-01**: Integração bancária (Open Banking) — avaliar viabilidade regulatória
+- [x] **TEST-01**: Testes automatizados — 11 arquivos backend, 4 frontend
+- [x] **CACHE-01**: Cache Redis — `@cached_view` + invalidação automática
+- [x] **MOB-01**: PWA — manifest + IndexedDB (SW incompleto)
+- [ ] **BANK-01**: Open Banking — fora do escopo atual
 
 ### Out of Scope
 
@@ -90,8 +90,7 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 - Options API no Vue — Composition API seria mais moderna, mas código legado funcional
 - Modelo ML treinado on-demand — não persistido; recomenda-se cache Redis ou Celery para datasets grandes
 - Falta paginação completa com metadados (count/next/previous) — implementado apenas limite simples (50 itens)
-- Sem testes automatizados — apenas testes manuais realizados
-- Cron jobs externos (cron-job.org) — idealmente migrar para Celery Beat interno
+- Email verification disabled for testing — `email_verified=True` on register; login does not check status
 
 ## Evolution
 

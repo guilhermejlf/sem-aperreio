@@ -40,16 +40,16 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ---------------------------
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # 
-    'api.middleware.RateLimitMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # 👈 TEM QUE SER O PRIMEIRO
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 
-    # : vamos desabilitar CSRF para API (dev)
+    # ⚠️ IMPORTANTE: vamos desabilitar CSRF para API (dev)
     'django.middleware.csrf.CsrfViewMiddleware',
 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'api.middleware.RateLimitMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -73,6 +73,14 @@ else:
         CORS_ALLOWED_ORIGINS = ['https://sem-aperreio.vercel.app']
 
     CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'cache-control',
+    'pragma',
+    'x-requested-with',
+]
 
 # ---------------------------
 # URLS

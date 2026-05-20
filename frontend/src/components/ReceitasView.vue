@@ -173,8 +173,13 @@ export default {
           this.receitas = this.receitas.filter(r => r.id !== id)
           this.$toast.success(toastMessages.revenue.deleted, { title: toastTitles.success })
         } catch (error) {
-          console.error('Erro ao excluir receita:', error)
-          this.$toast.error(toastMessages.generic.actionError, { title: toastTitles.error })
+          if (error.message?.includes('404') || error.message?.includes('não encontrada')) {
+            this.receitas = this.receitas.filter(r => r.id !== id)
+            this.$toast.success(toastMessages.revenue.deleted, { title: toastTitles.success })
+          } else {
+            console.error('Erro ao excluir receita:', error)
+            this.$toast.error(toastMessages.generic.actionError, { title: toastTitles.error })
+          }
         }
       }
       this.confirmVisible = true

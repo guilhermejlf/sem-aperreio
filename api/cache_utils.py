@@ -70,10 +70,9 @@ def invalidate_user_cache(user, *patterns):
                 redis.delete(*keys)
                 logger.debug(f'Cache INVALIDATE (Redis): {key} — {len(keys)} chaves')
     except Exception:
-        # Fallback LocMem: não dá para invalidar por pattern, apenas log
+        # Fallback LocMem: limpa todo o cache (aceitável em dev)
         logger.debug(f'Cache INVALIDATE (LocMem): patterns={patterns}, user={user.id}')
-        # Em LocMem, o cache é processo-local; invalidação completa não é viável
-        pass
+        cache.clear()
 
 
 def invalidate_dashboard(user):

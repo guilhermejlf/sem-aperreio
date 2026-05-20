@@ -21,7 +21,7 @@ class RateLimitMiddleware:
             return self.get_response(request)
 
         # Identificar chave de rate limit
-        if request.user and request.user.is_authenticated:
+        if hasattr(request, 'user') and request.user and request.user.is_authenticated:
             key = f'ratelimit:user:{request.user.id}'
             limit = 1000
             window = 60

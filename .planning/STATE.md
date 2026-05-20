@@ -29,7 +29,8 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - ✅ Phase 12: Backend Tests — DONE
 - ✅ Phase 13: Frontend Tests — DONE
 - ✅ Phase 14: Redis Cache — DONE (2026-05-18)
-- ✅ Phase 15: PWA Offline — DONE (2026-05-18)
+- ✅ Phase 15: PWA Offline — DONE (2026-05-20)
+  - Manifest + IndexedDB + OfflineFallback + InstallPrompt + vite-plugin-pwa SW
 - ✅ Phase 16: Infra Polish — DONE (2026-05-19)
 
 **Planning artifacts:**
@@ -59,7 +60,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 12: Backend Tests — 55 tests passing ✅
 - [x] Phase 13: Frontend Tests — Vitest configured ✅
 - [x] Phase 14: Redis Cache — decorators, invalidation, graceful fallback ✅
-- [x] Phase 15: PWA Offline — service worker, install prompt, IndexedDB cache ✅
+- [x] Phase 15: PWA Offline — manifest.webmanifest, IndexedDB cache, OfflineFallback, InstallPrompt, vite-plugin-pwa SW ✅
 - [x] Phase 16: Infra Polish — Celery Beat, rate limiting, periodic tasks ✅
 
 ## Accumulated Context
@@ -67,11 +68,16 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - Options API no Vue — Composition API migration candidate for next milestone
 - PostgreSQL em produção (Railway) — SQLite mantido para dev
 - ML model on-demand training — consider Celery/persisted model for large datasets
-- 55 automated backend tests (pytest) covering auth, family, gastos, receitas, metas, dashboard, and cache
+- 55+ automated backend tests (pytest) covering auth, family, gastos, receitas, metas, dashboard, and cache
+- 4 frontend tests (Vitest) para EmptyState, BaseCard, DashboardInsights, ToastProvider
 - Pagination partial (simple limit, no full metadata)
 - Git tag v1.0 pushado para origin
 - Git tag v3.0 criado (push pending)
-- Celery Beat interno ativo (django-celery-beat) — cron-job.org mantido como fallback
+- Celery Beat interno ativo (django-celery-beat) — cron-job.org mantido como backup
+- Cache backend com invalidação automática em create/update/delete
+- PWA completo: manifest + IndexedDB + OfflineFallback + InstallPrompt + vite-plugin-pwa SW
+- Playwright E2E configurado (fluxo crítico login→dashboard→add gasto)
+- Email verification disabled for testing — `email_verified=True` on register; login bypasses check
 - Assistente IA funcional com fallback regex
 - Deploy automatizado (GitHub Actions → Railway + Vercel)
 - Dashboard com visual hierarchy madura (3 níveis), motion system oficial, mobile-first consolidado

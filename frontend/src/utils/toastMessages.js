@@ -11,12 +11,14 @@ export const toastMessages = {
     updated: 'Despesa atualizada.',
     deleted: 'Despesa removida.',
     saveError: 'Vixe 😅 Não consegui salvar agora.',
+    deleteError: 'Vixe 😅 Não consegui excluir agora.',
   },
   revenue: {
     created: 'Receita adicionada 😄',
     updated: 'Receita atualizada.',
     deleted: 'Receita removida.',
     saveError: 'Vixe 😅 Não consegui salvar agora.',
+    deleteError: 'Vixe 😅 Não consegui excluir agora.',
   },
   goals: {
     created: 'Meta criada com sucesso.',

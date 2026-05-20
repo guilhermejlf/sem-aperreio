@@ -97,6 +97,8 @@ export function isAuthenticated() {
 // Headers padrão
 export const API_HEADERS = {
   'Content-Type': 'application/json',
+  'Cache-Control': 'no-cache, no-store, must-revalidate',
+  'Pragma': 'no-cache',
 }
 
 // Função helper para requests (sem refresh automático — o executor decide)

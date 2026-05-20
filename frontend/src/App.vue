@@ -1,6 +1,8 @@
 <template>
   <div class="page">
     <ToastProvider />
+    <OfflineFallback />
+    <InstallPrompt />
 
     <!-- AUTH VIEWS -->
     <template v-if="currentPath === '/reset-password'">
@@ -326,6 +328,8 @@ import SkeletonDashboard from './components/SkeletonDashboard.vue'
 import SkeletonProfile from './components/SkeletonProfile.vue'
 import SkeletonSettings from './components/SkeletonSettings.vue'
 import SkeletonGeneric from './components/SkeletonGeneric.vue'
+import OfflineFallback from './components/OfflineFallback.vue'
+import InstallPrompt from './components/InstallPrompt.vue'
 
 const asyncView = (loader, loading, delay = 200) => defineAsyncComponent({
   loader,
@@ -374,7 +378,9 @@ export default {
     ConfirmModal,
     BottomNav,
     EmptyState,
-    ToastProvider
+    ToastProvider,
+    OfflineFallback,
+    InstallPrompt
   },
 
   data() {
@@ -614,8 +620,14 @@ export default {
           this.gastos = this.gastos.filter(g => g.id !== id)
           this.$toast.success(toastMessages.expense.deleted, { title: toastTitles.success })
         } catch (error) {
-          this.error = 'Erro ao excluir despesa: ' + error.message
-          console.error('Erro ao excluir despesa:', error)
+          if (error.message?.includes('404') || error.message?.includes('não encontrado')) {
+            this.gastos = this.gastos.filter(g => g.id !== id)
+            this.$toast.success(toastMessages.expense.deleted, { title: toastTitles.success })
+          } else {
+            this.error = 'Erro ao excluir despesa: ' + error.message
+            console.error('Erro ao excluir despesa:', error)
+            this.$toast.error(toastMessages.expense.deleteError, { title: toastTitles.error })
+          }
         } finally {
           this.loading = false
         }
