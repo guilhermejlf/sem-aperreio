@@ -1,5 +1,6 @@
 <template>
-  <div class="page">
+  <ErrorBoundary>
+    <div class="page">
     <ToastProvider />
     <OfflineFallback />
     <InstallPrompt />
@@ -308,6 +309,7 @@
     />
   </template>
 </div>
+  </ErrorBoundary>
 </template>
 
 <script>
@@ -330,6 +332,9 @@ import SkeletonSettings from './components/SkeletonSettings.vue'
 import SkeletonGeneric from './components/SkeletonGeneric.vue'
 import OfflineFallback from './components/OfflineFallback.vue'
 import InstallPrompt from './components/InstallPrompt.vue'
+import ErrorBoundary from './components/ErrorBoundary.vue'
+import { initPerformanceMonitoring } from './utils/performance.js'
+import { initPwaObservability } from './utils/pwaObservability.js'
 
 const asyncView = (loader, loading, delay = 200) => defineAsyncComponent({
   loader,

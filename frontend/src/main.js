@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import { initSentry } from './config/sentry.js'
 
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
@@ -45,5 +46,7 @@ app.use(PrimeVue, {
 app.use(ConfirmationService)
 
 app.config.globalProperties.$toast = toastStore
+
+initSentry(app)
 
 app.mount('#app')

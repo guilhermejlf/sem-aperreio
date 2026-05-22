@@ -13,4 +13,8 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
+# Inicializa Sentry ANTES de carregar a aplicação
+from backend.sentry_config import init_sentry
+init_sentry()
+
 application = get_wsgi_application()

@@ -19,6 +19,88 @@ def healthcheck(request):
     })
 
 
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def healthcheck_detailed(request):
+    """Healthcheck detalhado para monitoramento de infraestrutura."""
+    import time
+    from django.db import connection
+    from django.core.cache import cache
+    from redis.exceptions import ConnectionError as RedisConnectionError
+
+    start_time = time.time()
+    checks = {
+        'database': {'status': 'unknown', 'response_ms': 0},
+        'redis': {'status': 'unknown', 'response_ms': 0},
+        'celery': {'status': 'unknown', 'response_ms': 0},
+        'email': {'status': 'unknown'},
+        'openai': {'status': 'unknown'},
+    }
+
+    # Check database
+    db_start = time.time()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+            cursor.fetchone()
+        checks['database']['status'] = 'ok'
+    except Exception as e:
+        checks['database']['status'] = 'error'
+        checks['database']['error'] = str(e)
+    checks['database']['response_ms'] = round((time.time() - db_start) * 1000, 2)
+
+    # Check Redis
+    redis_start = time.time()
+    try:
+        cache.set('healthcheck_test', 'ok', timeout=5)
+        val = cache.get('healthcheck_test')
+        if val == 'ok':
+            checks['redis']['status'] = 'ok'
+        else:
+            checks['redis']['status'] = 'error'
+            checks['redis']['error'] = 'Cache value mismatch'
+    except RedisConnectionError:
+        checks['redis']['status'] = 'unavailable'
+    except Exception as e:
+        checks['redis']['status'] = 'error'
+        checks['redis']['error'] = str(e)
+    checks['redis']['response_ms'] = round((time.time() - redis_start) * 1000, 2)
+
+    # Check Celery (inspect workers)
+    celery_start = time.time()
+    try:
+        from celery import current_app
+        inspector = current_app.control.inspect()
+        active_workers = inspector.active()
+        if active_workers:
+            checks['celery']['status'] = 'ok'
+            checks['celery']['workers'] = len(active_workers)
+        else:
+            checks['celery']['status'] = 'no_workers'
+    except Exception as e:
+        checks['celery']['status'] = 'error'
+        checks['celery']['error'] = str(e)
+    checks['celery']['response_ms'] = round((time.time() - celery_start) * 1000, 2)
+
+    # Check email (SendGrid config)
+    checks['email']['status'] = 'ok' if bool(settings.EMAIL_HOST_PASSWORD) else 'not_configured'
+
+    # Check OpenAI
+    checks['openai']['status'] = 'ok' if bool(os.environ.get('OPENAI_API_KEY')) else 'not_configured'
+
+    total_time = round((time.time() - start_time) * 1000, 2)
+    all_ok = all(c['status'] in ('ok', 'not_configured') for c in checks.values())
+
+    return Response({
+        'status': 'healthy' if all_ok else 'degraded',
+        'version': '2.0',
+        'timestamp': timezone.now().isoformat(),
+        'total_response_ms': total_time,
+        'checks': checks,
+    }, status=200 if all_ok else 503)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def notificacoes_status(request):

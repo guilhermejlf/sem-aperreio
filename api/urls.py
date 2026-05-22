@@ -7,7 +7,7 @@ from .views_auth import (
 )
 from .views_family import FamilyViewSet
 from .views_profile import ProfileView, PasswordChangeView
-from .views_notificacoes import healthcheck, notificacoes_status, trigger_tasks
+from .views_notificacoes import healthcheck, healthcheck_detailed, notificacoes_status, trigger_tasks
 from .views_ai import ai_chat
 
 router = DefaultRouter()

@@ -1,4 +1,5 @@
 import os
+import logging
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
 # ---------------------------
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # 👈 TEM QUE SER O PRIMEIRO
+    'api.middleware.StructuredLoggingMiddleware',  # 👈 Logging estruturado com request ID
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -262,3 +264,50 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 # DEFAULT AUTO FIELD
 # ---------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ---------------------------
+# LOGGING CONFIG
+# ---------------------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'structured': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s request_id=%(request_id)s correlation_id=%(correlation_id)s %(message)s',
+        },
+        'simple': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'structured_console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'structured',
+        },
+    },
+    'loggers': {
+        'sem_aperreio': {
+            'handlers': ['structured_console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'api': {
+            'handlers': ['structured_console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}

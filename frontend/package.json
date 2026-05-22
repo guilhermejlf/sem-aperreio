@@ -29,6 +29,8 @@
     "jsdom": "^29.1.1",
     "vite": "^8.0.10",
     "vite-plugin-pwa": "^1.0.0",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.6",
+    "@sentry/vue": "^8.0.0",
+    "@sentry/browser": "^8.0.0"
   }
 }
