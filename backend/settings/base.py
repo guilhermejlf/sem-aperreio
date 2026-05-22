@@ -62,22 +62,20 @@ MIDDLEWARE = [
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
-    _raw_cors = config('CORS_ALLOWED_ORIGINS', default='').split(',')
-    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors if origin.strip()]
+    # Em producao, sempre permitir o frontend (independente de variaveis de ambiente)
+    CORS_ALLOWED_ORIGINS = ['https://sem-aperreio.vercel.app']
 
-    # Sempre inclui FRONTEND_URL (do .env ou variável de ambiente)
+    # Adicionar FRONTEND_URL se configurado explicitamente
     _frontend = config('FRONTEND_URL', default=os.environ.get('FRONTEND_URL', ''))
     if _frontend and _frontend not in CORS_ALLOWED_ORIGINS:
         CORS_ALLOWED_ORIGINS.append(_frontend)
 
-    # Fallback hardcoded para produção (se nenhuma origin definida)
-    if not CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS = ['https://sem-aperreio.vercel.app']
-
-    # Garantir que o frontend sempre está permitido
-    _FRONTEND_FALLBACK = 'https://sem-aperreio.vercel.app'
-    if _FRONTEND_FALLBACK not in CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS.append(_FRONTEND_FALLBACK)
+    # Adicionar quaisquer origins extras de CORS_ALLOWED_ORIGINS
+    _raw_cors = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    for origin in _raw_cors:
+        origin = origin.strip()
+        if origin and origin not in CORS_ALLOWED_ORIGINS:
+            CORS_ALLOWED_ORIGINS.append(origin)
 
     CORS_ALLOW_CREDENTIALS = True
 
