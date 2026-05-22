@@ -74,6 +74,11 @@ else:
     if not CORS_ALLOWED_ORIGINS:
         CORS_ALLOWED_ORIGINS = ['https://sem-aperreio.vercel.app']
 
+    # Garantir que o frontend sempre está permitido
+    _FRONTEND_FALLBACK = 'https://sem-aperreio.vercel.app'
+    if _FRONTEND_FALLBACK not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(_FRONTEND_FALLBACK)
+
     CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = [
@@ -82,6 +87,12 @@ CORS_ALLOW_HEADERS = [
     'cache-control',
     'pragma',
     'x-requested-with',
+    'x-request-id',
+    'x-correlation-id',
+    'x-trigger-secret',
+    'x-ratelimit-limit',
+    'x-ratelimit-remaining',
+    'x-response-time',
 ]
 
 # ---------------------------
