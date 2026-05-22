@@ -3,10 +3,10 @@
 ## Current Milestone
 
 **Milestone:** v2.0 Infra & Quality — SHIPPED (2026-05-19)
-**Phase:** 17 — Observability & Monitoring
+**Phase:** 17.1 — Observability Hardening & Production Activation
 **Plan:** `.planning/ROADMAP-v2.0.md`
-**Status:** Phase 17 in progress (observability)
-**Last activity:** 2026-05-22 — Phase 17: Sentry, structured logging, healthchecks, error UX
+**Status:** Phase 17 + 17.1 COMPLETE (observability ativa em producao)
+**Last activity:** 2026-05-22 — Phase 17.1: release tracking, noise filtering, source maps, CI validado
 
 ## Project Reference
 
@@ -32,7 +32,8 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - ✅ Phase 15: PWA Offline — DONE (2026-05-20)
   - Manifest + IndexedDB + OfflineFallback + InstallPrompt + vite-plugin-pwa SW
 - ✅ Phase 16: Infra Polish — DONE (2026-05-19)
-- 🔄 Phase 17: Observability & Monitoring — IN PROGRESS (2026-05-22)
+- ✅ Phase 17: Observability & Monitoring — DONE (2026-05-22)
+- ✅ Phase 17.1: Hardening & Production Activation — DONE (2026-05-22)
   - Sentry frontend/backend, structured logging, detailed healthchecks, error UX
 
 **Planning artifacts:**
@@ -45,6 +46,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 ## Recent Commits
 
+- `89f1661` Phase 17.1: Observability Hardening — release tracking, noise filtering, source maps, CI validado — 2026-05-22
 - `ae30989` Phase 17: Observability & Monitoring — Sentry, structured logging, healthchecks, error UX — 2026-05-22
 - `phase-15` Phase 15: PWA Offline — service worker, install prompt, IndexedDB cache — 2026-05-18
 - `76720a6` Phase 14: Redis Cache — caching and invalidation for ML predictions and metas — 2026-05-18
@@ -66,6 +68,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 15: PWA Offline — manifest.webmanifest, IndexedDB cache, OfflineFallback, InstallPrompt, vite-plugin-pwa SW ✅
 - [x] Phase 16: Infra Polish — Celery Beat, rate limiting, periodic tasks ✅
 - [x] Phase 17: Observability & Monitoring — Sentry, logging, healthchecks, error UX ✅
+- [x] Phase 17.1: Hardening — release tracking, noise filtering, source maps, CI/CD validated, .gitignore cleanup ✅
 
 ## Accumulated Context
 
@@ -93,3 +96,10 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - ErrorBoundary com UX premium e mensagens humanizadas
 - Performance monitoring: FCP, LCP, long tasks, API latency, chunk errors
 - PWA observability: offline/online, SW events, install tracking, IndexedDB errors
+- Release tracking: sem-aperreio@v2.1.0 (frontend package.json + backend _get_release())
+- Noise filtering: ResizeObserver, extensions, AbortError, analytics errors
+- Source maps ativados no Vite build para debugging em producao
+- Healthcheck timeout-safe: Celery sem bloqueio, Redis com fallback rapido
+- ErrorBoundary: recovery automatico para chunk errors (page reload)
+- .gitignore: test-results, coverage, playwright-report, .sentryclirc
+- CI/CD validado: working-directory correto no workflow, npm ci + build passando

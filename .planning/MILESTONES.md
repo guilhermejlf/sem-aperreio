@@ -252,3 +252,42 @@
 - Modelo: balanced
 - Sessions: 1 sessão para Phase 17
 - Notável: Sentry SDK tem boa documentação e integração suave com Django/Vue
+
+---
+
+## Phase 17.1: Observability Hardening & Production Activation
+
+**Implemented:** 2026-05-22
+**Phases:** 17.1 (Hardening) | **Plan:** Ad-hoc
+**Git range:** `16269da` → `89f1661`
+**Files changed:** 7 files
+**Timeline:** 2026-05-22 (1 sessão)
+
+### What Was Built
+
+1. **Release Tracking** — Versão `sem-aperreio@v2.1.0` consistente entre frontend (package.json) e backend (_get_release()).
+2. **Noise Filtering** — Filtros para ResizeObserver, browser extensions, AbortError benigno, erros de analytics.
+3. **Source Maps** — Ativados no Vite build para debugging de stack traces em produção.
+4. **Healthcheck Hardening** — Timeout-safe, Celery sem bloqueio (inspect removido), Redis com fallback rápido.
+5. **ErrorBoundary Recovery** — Chunk errors disparam reload automático da página.
+6. **Repository Cleanup** — .gitignore atualizado com test-results, coverage, playwright-report, .sentryclirc.
+7. **CI/CD Validation** — Workflow GitHub Actions validado com working-directory correto.
+
+### What Worked
+
+- Healthcheck responde em ~4ms total em dev
+- Release tracking unificado entre frontend e backend
+- Noise filtering reduz significativamente o volume de erros no Sentry
+- Source maps não quebram o build
+
+### Key Lessons
+
+- Healthcheck detalhado precisa ser timeout-safe para não bloquear requisições
+- `BrowserTracing` foi removido na Sentry v8 — usar `browserTracingIntegration()`
+- Source maps são essenciais para debugging em produção mas devem ser gerados apenas no build
+
+### Production Activation Checklist
+
+- [ ] Railway: `SENTRY_DSN`, `ENVIRONMENT=production`, `RELEASE=sem-aperreio@v2.1.0`
+- [ ] Vercel: `VITE_SENTRY_DSN`, `VITE_ENVIRONMENT=production`, `VITE_RELEASE=sem-aperreio@v2.1.0`
+- [ ] Sentry project: configurar DSN e validar primeiro evento

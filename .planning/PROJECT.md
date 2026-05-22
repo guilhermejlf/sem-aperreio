@@ -92,7 +92,9 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 - Modelo ML treinado on-demand — não persistido; recomenda-se cache Redis ou Celery para datasets grandes
 - Falta paginação completa com metadados (count/next/previous) — implementado apenas limite simples (50 itens)
 - Email verification disabled for testing — `email_verified=True` on register; login does not check status
-- Sentry DSN requer variável de ambiente `SENTRY_DSN` para ativar em produção
+- Sentry DSN requer variável de ambiente `SENTRY_DSN` (backend) e `VITE_SENTRY_DSN` (frontend) para ativar em produção
+- Release format: `sem-aperreio@v2.1.0` — usado por backend e frontend
+- Source maps gerados no build do Vite para debugging em produção
 
 ## Evolution
 
@@ -156,4 +158,4 @@ This document evolves at phase transitions and milestone boundaries.
 - v2.0 shipped: testes, cache, PWA, infra completa, observabilidade
 
 ---
-*Last updated: 2026-05-22 — Phase 17 observabilidade implementada, v3.1 Auth Polish in progress*
+*Last updated: 2026-05-22 — Phase 17 + 17.1 observabilidade completa e ativa em producao, v3.1 Auth Polish in progress*
