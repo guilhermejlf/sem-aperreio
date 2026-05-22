@@ -69,6 +69,12 @@ export default {
   },
   methods: {
     handleRetry() {
+      const isChunkError = this.error?.message?.includes('chunk') || this.error?.message?.includes('loading')
+      if (isChunkError) {
+        // Chunk errors precisam de reload para baixar o novo chunk
+        window.location.reload()
+        return
+      }
       this.hasError = false
       this.error = null
       this.errorInfo = null

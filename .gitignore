@@ -73,5 +73,14 @@ htmlcov/
 
 # mypy
 .mypy_cache/
+.dmypy_cache/
 .dmypy.json
 dmypy.json
+
+# Test artifacts
+frontend/test-results/
+playwright-report/
+coverage/
+
+# Sentry
+.sentryclirc

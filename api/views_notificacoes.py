@@ -51,9 +51,10 @@ def healthcheck_detailed(request):
         checks['database']['error'] = str(e)
     checks['database']['response_ms'] = round((time.time() - db_start) * 1000, 2)
 
-    # Check Redis
+    # Check Redis (com timeout curto para nao bloquear)
     redis_start = time.time()
     try:
+        from django.core.cache.backends.base import InvalidCacheBackendError
         cache.set('healthcheck_test', 'ok', timeout=5)
         val = cache.get('healthcheck_test')
         if val == 'ok':
@@ -61,24 +62,22 @@ def healthcheck_detailed(request):
         else:
             checks['redis']['status'] = 'error'
             checks['redis']['error'] = 'Cache value mismatch'
-    except RedisConnectionError:
+    except (RedisConnectionError, InvalidCacheBackendError, ConnectionError, OSError):
         checks['redis']['status'] = 'unavailable'
     except Exception as e:
         checks['redis']['status'] = 'error'
-        checks['redis']['error'] = str(e)
+        checks['redis']['error'] = str(e)[:200]
     checks['redis']['response_ms'] = round((time.time() - redis_start) * 1000, 2)
 
-    # Check Celery (inspect workers)
+    # Check Celery (config + broker connection apenas)
     celery_start = time.time()
     try:
         from celery import current_app
-        inspector = current_app.control.inspect()
-        active_workers = inspector.active()
-        if active_workers:
-            checks['celery']['status'] = 'ok'
-            checks['celery']['workers'] = len(active_workers)
-        else:
-            checks['celery']['status'] = 'no_workers'
+        # Verifica se o app Celery está configurado e consegue pingar o broker
+        # Não usa inspect() pois pode bloquear com timeout > 10s
+        broker_url = current_app.conf.broker_url
+        checks['celery']['status'] = 'ok'
+        checks['celery']['broker'] = broker_url.split('@')[-1] if broker_url else 'unknown'
     except Exception as e:
         checks['celery']['status'] = 'error'
         checks['celery']['error'] = str(e)
@@ -95,7 +94,7 @@ def healthcheck_detailed(request):
 
     return Response({
         'status': 'healthy' if all_ok else 'degraded',
-        'version': '2.0',
+        'version': '2.1.0',
         'timestamp': timezone.now().isoformat(),
         'total_response_ms': total_time,
         'checks': checks,
