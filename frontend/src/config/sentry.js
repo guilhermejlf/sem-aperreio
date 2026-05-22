@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/vue'
-import { BrowserTracing } from '@sentry/browser'
+import { browserTracingIntegration } from '@sentry/vue'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || ''
 const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT || 'development'
@@ -17,7 +17,7 @@ export function initSentry(app) {
     environment: ENVIRONMENT,
     release: RELEASE,
     integrations: [
-      new BrowserTracing({
+      browserTracingIntegration({
         tracePropagationTargets: [
           /^https:\/\/campo-valor-production\.up\.railway\.app\/api/,
           /^http:\/\/127\.0\.0\.1:8000/,
