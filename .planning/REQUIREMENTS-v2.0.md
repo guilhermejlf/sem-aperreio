@@ -13,7 +13,7 @@
 - [x] **TEST-02**: Backend — testes de integração para endpoints críticos (auth, dashboard, gastos, receitas, metas)
 - [x] **TEST-03**: Backend — testes para previsão ML (dados mínimos, dados suficientes, fallback)
 - [x] **TEST-04**: Frontend — testes unitários para componentes Vue (EmptyState, BaseCard, DashboardInsights, ToastProvider)
-- [ ] **TEST-05**: E2E — fluxo crítico: login → dashboard → adicionar gasto → ver dashboard atualizado — *não implementado*
+- [x] **TEST-05**: E2E — fluxo crítico: login → dashboard → adicionar gasto → ver dashboard atualizado — Playwright + auth-flow.spec.js
 
 ### Cache & Performance (CACHE)
 
@@ -62,17 +62,17 @@
 | CACHE-03 | 14 | ✅ Done |
 | CACHE-04 | 14 | ✅ Done |
 | MOB-01 | 15 | ✅ Done |
-| MOB-02 | 15 | ⚠️ Parcial — SW residual de build anterior, não está no projeto atual |
-| MOB-03 | 15 | ❌ Não implementado |
-| MOB-04 | 15 | ⚠️ Parcial — IndexedDB offlineCache existe mas não é PWA ativo |
-| MOB-05 | 15 | ❌ Não implementado |
+| MOB-02 | 15 | ✅ Done — vite-plugin-pwa com Workbox |
+| MOB-03 | 15 | ✅ Done — OfflineFallback.vue |
+| MOB-04 | 15 | ✅ Done — IndexedDB offlineCache + Cache API (Workbox runtimeCaching) |
+| MOB-05 | 15 | ✅ Done — InstallPrompt.vue |
 | INFRA-04 | 16 | ✅ Done |
 | INFRA-05 | 16 | ✅ Done |
 
 **Coverage:**
 - v2.0 requirements: 16 total
 - Mapped to phases: 16
-- Done: 11 | Partial: 3 | Pending: 2
+- Done: 16 | Partial: 0 | Pending: 0
 
 ---
 

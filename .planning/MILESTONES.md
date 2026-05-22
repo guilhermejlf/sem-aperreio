@@ -148,3 +148,57 @@
 - Modelo: balanced
 - Sessions: ~3-4 sessões para fases 5-7
 - Notável: Fase 7 (IA) consumiu mais tokens devido à iteração de UX do chat
+
+---
+
+## Milestone: v2.0 Infra & Quality — Testes, Cache, PWA e Infraestrutura
+
+**Shipped:** 2026-05-20
+**Tag:** `v2.0`
+**Phases:** 12–16 (Backend Tests, Frontend Tests, Redis Cache, PWA Offline, Infra Polish) | **Plans:** 5
+**Git range:** `76720a6` → `d7dd056`
+**Files changed:** 25+ files
+**Timeline:** 2026-05-18 → 2026-05-20 (3 sessões)
+
+### What Was Built
+
+1. **Backend Tests** — 55+ tests pytest cobrindo auth, family, gastos, receitas, metas, dashboard, ML, cache
+2. **Frontend Tests** — 4 component tests com Vitest (EmptyState, BaseCard, DashboardInsights, ToastProvider)
+3. **E2E Tests** — Playwright configurado com fluxo crítico login→dashboard→add gasto
+4. **Redis Cache** — `@cached_view` decorator com TTL de 5min, invalidação automática em create/update/delete
+5. **PWA Completo** — manifest.webmanifest, Service Worker via vite-plugin-pwa, offline fallback page, install prompt customizado, IndexedDB + Cache API runtime caching
+6. **Infra Polish** — Celery Beat interno (django-celery-beat), rate limiting na API (100/min IP, 1000/min autenticado), anti-cache headers
+7. **Cache Fix** — LocMemCache fallback com `cache.clear()` para invalidação em dev
+
+### What Worked
+
+- `vite-plugin-pwa` gerou SW automaticamente sem precisar de SW manual
+- `cache.clear()` fallback resolveu stale data em dev (LocMemCache)
+- Playwright E2E login via API + localStorage tokens bypassa verificação de email
+- Rate limiting middleware customizado sem dependências externas
+
+### What Was Inefficient
+
+- E2E test precisa backend Django rodando em paralelo — não é self-contained
+- MOB-04 (IndexedDB) e MOB-02 (Workbox) são sistemas duplicados de cache offline
+- v2.0 foi implementado fora da ordem numérica (depois do v3.2) — confusão de versionamento
+
+### Patterns Established
+
+- `invalidate_user_cache()` padrão para invalidação após mutations
+- `NetworkFirst` para API caching no Workbox (dados frescos > offline)
+- `beforeinstallprompt` para install prompt customizado no PWA
+- Test setup via API direto (bypass UI) para E2E de autenticação
+
+### Key Lessons
+
+- Cache invalidation é mais difícil que cache implementation — especialmente com LocMemCache
+- Service worker residual de builds anteriores causa bugs misteriosos de stale data
+- Playwright é mais confiável que Cypress para E2E moderno com SPA Vue
+- Documentação deve ser atualizada junto com o código — drift de docs é perigoso
+
+### Cost Observations
+
+- Modelo: balanced
+- Sessions: ~3 sessões para fases 12-16
+- Notável: Debug de cache stale consumiu mais tempo que implementação de features

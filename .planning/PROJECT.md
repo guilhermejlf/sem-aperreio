@@ -52,12 +52,12 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 - ✓ **UI-04**: Loading system premium com skeletons estruturais e fallbacks async
 - ✓ **UI-05**: Micro refinamentos de alinhamento óptico, saturação e profundidade visual
 
-### Active (v2.0)
+### Validated (v2.0 — shipped 2026-05-20)
 
-- [x] **TEST-01**: Testes automatizados — 11 arquivos backend, 4 frontend
-- [x] **CACHE-01**: Cache Redis — `@cached_view` + invalidação automática
-- [x] **MOB-01**: PWA — manifest + IndexedDB (SW incompleto)
-- [ ] **BANK-01**: Open Banking — fora do escopo atual
+- ✓ **TEST-01..05**: Testes automatizados — 55+ backend tests, 4 frontend tests (Vitest), E2E (Playwright)
+- ✓ **CACHE-01..04**: Cache Redis — `@cached_view` + invalidação automática, TTL por categoria
+- ✓ **MOB-01..05**: PWA completo — manifest, Service Worker (vite-plugin-pwa), offline fallback, install prompt, IndexedDB runtime cache
+- ✓ **INFRA-04..05**: Celery Beat interno + rate limiting na API (100/min IP, 1000/min autenticado)
 
 ### Out of Scope
 
@@ -65,7 +65,7 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 |---------|--------|
 | Integração bancária (Open Banking) | Complexidade regulatória e técnica muito alta para MVP |
 | Multi-moeda (USD, EUR) | Público-alvo brasileiro; BRL suficiente |
-| PWA com cache offline | Web responsive atende; offline não é crítico para registro ocasional |
+| PWA com cache offline | ✅ Implementado no v2.0 — removido do Out of Scope |
 | Chat entre familiares | Fora do escopo de controle de gastos |
 
 ## Context
@@ -133,28 +133,25 @@ This document evolves at phase transitions and milestone boundaries.
 
 ## Current Milestone: v3.1 — Auth Polish
 
-**Goal:** Melhorar UX de autenticação com password reset, login por email, validação de senha e confirmação de email.
+**Goal:** Melhorar UX de autenticação com melhorias visuais e fluxo de onboarding.
 
 **Target features:**
-- Password reset via email (esqueci minha senha)
-- Login com username OU email
-- Validação de senha forte + confirmação de senha no registro
-- Confirmação de email no cadastro
+- Onboarding experience para novos usuários
 - Melhorias visuais na tela de login/registro
+- Convite familiar simplificado
 
 **Active backlog (future milestones):**
-- [ ] **TEST-01**: Testes automatizados (unitários + integração)
-- [ ] **CACHE-01**: Cache Redis para dashboard e previsões
-- [ ] **MOB-01**: PWA com cache offline
 - [ ] **BANK-01**: Integração bancária (Open Banking) — avaliar viabilidade regulatória
-- [ ] **CRON-01**: Migrar cron jobs externos para Celery Beat interno
+- [ ] **ONBOARD-01**: Onboarding guiado para novos usuários (v3.3)
+- [ ] **COMP-01**: Migração Vue Options API → Composition API (v4.0)
 
 **Key context:**
-- Sistema em produção estável (Railway + Vercel + PostgreSQL + SendGrid)
-- Sem testes automatizados — risco técnico para evolução
-- Modelo ML treinado on-demand — oportunidade de cache
+- Sistema em produção estável (Railway + Vercel + PostgreSQL + SendGrid + Redis)
+- 55+ backend tests, 4 frontend tests, Playwright E2E configurado
+- Modelo ML treinado on-demand — cache Redis já implementado
 - Options API no Vue pode ser mantido ou migrado gradualmente
 - Deploy automatizado funcional — focar em qualidade e novas features
+- v2.0 shipped: testes, cache, PWA, infra completa
 
 ---
-*Last updated: 2026-05-11 — milestone v3.1 Auth Polish started*
+*Last updated: 2026-05-22 — v2.0 shipped, v3.1 Auth Polish in progress*
