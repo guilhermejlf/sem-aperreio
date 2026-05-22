@@ -202,3 +202,53 @@
 - Modelo: balanced
 - Sessions: ~3 sessões para fases 12-16
 - Notável: Debug de cache stale consumiu mais tempo que implementação de features
+
+---
+
+## Phase 17: Observability & Monitoring — Sentry, Logging, Healthchecks, Error UX
+
+**Implemented:** 2026-05-22
+**Phases:** 17 (Observability & Monitoring) | **Plan:** Ad-hoc
+**Git range:** `9f1bf61` → `ae30989`
+**Files changed:** 14 files
+**Timeline:** 2026-05-22 (1 sessão)
+
+### What Was Built
+
+1. **Sentry Integration** — Frontend (Vue) + Backend (Django) + Celery workers. Captura exceptions, crashes, async failures, API failures, chunk loading errors, SW issues.
+2. **Structured Logging** — Middleware com request ID, correlation ID, timing de requests, alertas para endpoints lentos (> 500ms).
+3. **Detailed Healthcheck** — `/health/detailed/` com checks de PostgreSQL, Redis, Celery, SendGrid, OpenAI.
+4. **ErrorBoundary UX** — Componente Vue com mensagens humanizadas ("Teu Bené teve um aperreio aqui 😅"), retry contextual, fallback para home.
+5. **Performance Monitoring** — FCP, LCP, long tasks, API latency, chart render timing, chunk load errors.
+6. **PWA Observability** — Tracking de offline/online, install events, SW errors, IndexedDB failures.
+
+### What Worked
+
+- Sentry SDK com DjangoIntegration e CeleryIntegration funcionou sem fricção
+- StructuredLoggingMiddleware adicionou headers X-Request-ID e X-Response-Time em todas as responses
+- ErrorBoundary captura erros de renderização Vue e envia para Sentry
+- PerformanceObserver API fornece métricas reais de Web Vitals
+
+### What Was Inefficient
+
+- Sentry DSN precisa ser configurado via variável de ambiente (não hardcoded)
+- Performance monitoring intercepta fetch global — potencial impacto mínimo mas existe
+- ErrorBoundary não captura erros em event handlers (apenas render errors)
+
+### Patterns Established
+
+- `init_sentry()` padrão para inicialização condicional (skip se DSN ausente)
+- `captureError()` + `captureMessage()` helpers para logging contextual
+- Healthcheck pattern: status por serviço + response time + overall status
+
+### Key Lessons
+
+- Observabilidade deve ser adicionada gradualmente — não tudo de uma vez
+- ErrorBoundary com mensagens humanizadas preserva identidade do produto
+- Structured logging com correlation IDs é essencial para debugging distribuído
+
+### Cost Observations
+
+- Modelo: balanced
+- Sessions: 1 sessão para Phase 17
+- Notável: Sentry SDK tem boa documentação e integração suave com Django/Vue

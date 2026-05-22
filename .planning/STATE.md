@@ -3,10 +3,10 @@
 ## Current Milestone
 
 **Milestone:** v2.0 Infra & Quality — SHIPPED (2026-05-19)
-**Phase:** 16 — Infra Polish
+**Phase:** 17 — Observability & Monitoring
 **Plan:** `.planning/ROADMAP-v2.0.md`
-**Status:** All phases completed (12-16)
-**Last activity:** 2026-05-19 — v2.0 shipped: tests, cache, PWA, Celery Beat, rate limiting
+**Status:** Phase 17 in progress (observability)
+**Last activity:** 2026-05-22 — Phase 17: Sentry, structured logging, healthchecks, error UX
 
 ## Project Reference
 
@@ -32,6 +32,8 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - ✅ Phase 15: PWA Offline — DONE (2026-05-20)
   - Manifest + IndexedDB + OfflineFallback + InstallPrompt + vite-plugin-pwa SW
 - ✅ Phase 16: Infra Polish — DONE (2026-05-19)
+- 🔄 Phase 17: Observability & Monitoring — IN PROGRESS (2026-05-22)
+  - Sentry frontend/backend, structured logging, detailed healthchecks, error UX
 
 **Planning artifacts:**
 - `.planning/REQUIREMENTS-v2.0.md` — 16 requirements defined
@@ -43,6 +45,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 ## Recent Commits
 
+- `ae30989` Phase 17: Observability & Monitoring — Sentry, structured logging, healthchecks, error UX — 2026-05-22
 - `phase-15` Phase 15: PWA Offline — service worker, install prompt, IndexedDB cache — 2026-05-18
 - `76720a6` Phase 14: Redis Cache — caching and invalidation for ML predictions and metas — 2026-05-18
 - `dfe5695` fix(dashboard): ajustes mobile — layout saldo e centralização previsão — 2026-05-15
@@ -62,6 +65,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 14: Redis Cache — decorators, invalidation, graceful fallback ✅
 - [x] Phase 15: PWA Offline — manifest.webmanifest, IndexedDB cache, OfflineFallback, InstallPrompt, vite-plugin-pwa SW ✅
 - [x] Phase 16: Infra Polish — Celery Beat, rate limiting, periodic tasks ✅
+- [x] Phase 17: Observability & Monitoring — Sentry, logging, healthchecks, error UX ✅
 
 ## Accumulated Context
 
@@ -83,3 +87,9 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - Dashboard com visual hierarchy madura (3 níveis), motion system oficial, mobile-first consolidado
 - `clamp()` para fontes dinâmicas no mobile
 - Canvas gradients para charts orgânicos
+- Sentry integrado (frontend Vue + backend Django + Celery)
+- Structured logging com request/correlation IDs
+- Detailed healthcheck (/health/detailed) com checks de DB, Redis, Celery, email, OpenAI
+- ErrorBoundary com UX premium e mensagens humanizadas
+- Performance monitoring: FCP, LCP, long tasks, API latency, chunk errors
+- PWA observability: offline/online, SW events, install tracking, IndexedDB errors

@@ -58,6 +58,7 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 - ✓ **CACHE-01..04**: Cache Redis — `@cached_view` + invalidação automática, TTL por categoria
 - ✓ **MOB-01..05**: PWA completo — manifest, Service Worker (vite-plugin-pwa), offline fallback, install prompt, IndexedDB runtime cache
 - ✓ **INFRA-04..05**: Celery Beat interno + rate limiting na API (100/min IP, 1000/min autenticado)
+- ✓ **OBS-01..07**: Observabilidade — Sentry, structured logging, detailed healthchecks, error UX, performance monitoring, PWA observability
 
 ### Out of Scope
 
@@ -74,8 +75,8 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 
 ### Tech Stack (v1.1 — Produção)
 
-- **Backend**: Django 4.2 + Django REST Framework + djangorestframework-simplejwt
-- **Frontend**: Vue 3 (Options API) + Vite + Chart.js + PrimeVue + PrimeIcons
+- **Backend**: Django 4.2 + Django REST Framework + djangorestframework-simplejwt + Sentry SDK
+- **Frontend**: Vue 3 (Options API) + Vite + Chart.js + PrimeVue + PrimeIcons + Sentry
 - **ML**: scikit-learn (LinearRegression por categoria)
 - **Banco**: PostgreSQL (produção), SQLite (dev)
 - **Cache/Tarefas**: Redis + Celery
@@ -91,6 +92,7 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 - Modelo ML treinado on-demand — não persistido; recomenda-se cache Redis ou Celery para datasets grandes
 - Falta paginação completa com metadados (count/next/previous) — implementado apenas limite simples (50 itens)
 - Email verification disabled for testing — `email_verified=True` on register; login does not check status
+- Sentry DSN requer variável de ambiente `SENTRY_DSN` para ativar em produção
 
 ## Evolution
 
@@ -151,7 +153,7 @@ This document evolves at phase transitions and milestone boundaries.
 - Modelo ML treinado on-demand — cache Redis já implementado
 - Options API no Vue pode ser mantido ou migrado gradualmente
 - Deploy automatizado funcional — focar em qualidade e novas features
-- v2.0 shipped: testes, cache, PWA, infra completa
+- v2.0 shipped: testes, cache, PWA, infra completa, observabilidade
 
 ---
-*Last updated: 2026-05-22 — v2.0 shipped, v3.1 Auth Polish in progress*
+*Last updated: 2026-05-22 — Phase 17 observabilidade implementada, v3.1 Auth Polish in progress*
