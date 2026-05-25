@@ -23,7 +23,7 @@ def init_sentry():
     """Inicializa Sentry com integracoes Django e Celery."""
     dsn = os.environ.get('SENTRY_DSN')
     if not dsn:
-        logging.info('[Sentry] DSN nao configurado — skipping initialization')
+        print('[Sentry] DSN nao configurado — skipping initialization')
         return
 
     environment = os.environ.get('ENVIRONMENT', 'development')
@@ -54,7 +54,7 @@ def init_sentry():
         max_breadcrumbs=50,
         before_send=filter_sensitive_events,
     )
-    logging.info(f'[Sentry] Initialized — env={environment}, release={release}')
+    print(f'[Sentry] Initialized — env={environment}, release={release}')
 
 
 def filter_sensitive_events(event, hint):
