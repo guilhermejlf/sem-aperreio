@@ -38,6 +38,7 @@ urlpatterns = [
     path("metas/<int:pk>/", atualizar_meta, name="atualizar_meta"),
     path("metas/<int:pk>/deletar/", deletar_meta, name="deletar_meta"),
     path("health/", healthcheck, name="healthcheck"),
+    path("health/detailed/", healthcheck_detailed, name="healthcheck_detailed"),
     path("notificacoes/status/", notificacoes_status, name="notificacoes_status"),
     path("tasks/trigger/", trigger_tasks, name="trigger_tasks"),
     path("ai/chat/", ai_chat, name="ai_chat"),
