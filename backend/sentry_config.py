@@ -44,7 +44,7 @@ def init_sentry():
             ),
             LoggingIntegration(
                 level=logging.INFO,
-                event_level=logging.ERROR,
+                event_level=logging.WARNING,
             ),
         ],
         traces_sample_rate=float(os.environ.get('SENTRY_TRACES_SAMPLE_RATE', '0.1')),
