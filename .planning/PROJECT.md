@@ -158,4 +158,4 @@ This document evolves at phase transitions and milestone boundaries.
 - v2.0 shipped: testes, cache, PWA, infra completa, observabilidade
 
 ---
-*Last updated: 2026-05-25 — Phase 17.2 Production Activation Closure em andamento. CORS fix e auth redirect aplicados. Sentry DSNs aguardando configuração nos dashboards. v3.1 Auth Polish backlog*
+*Last updated: 2026-05-25 — Phase 17.2 COMPLETE. Sentry ingest validado (200 OK). Observabilidade oficialmente ativa em produção. v3.1 Auth Polish backlog*

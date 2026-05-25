@@ -293,4 +293,4 @@
 - [x] CORS fix: frontend sempre permitido em produção (`a241c43`)
 - [x] Auth redirect: redireciona para login quando token expira (`aba481f`)
 - [x] Healthcheck version: 2.1.0 em ambos endpoints
-- [ ] Sentry ingest validation: aguardando DSNs configurados para testar captura real
+- [x] Sentry ingest validation: ✅ confirmado — requisição POST para ingest.us.sentry.io com 200 OK
