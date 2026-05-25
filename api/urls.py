@@ -9,7 +9,6 @@ from .views_family import FamilyViewSet
 from .views_profile import ProfileView, PasswordChangeView
 from .views_notificacoes import healthcheck, healthcheck_detailed, notificacoes_status, trigger_tasks
 from .views_ai import ai_chat
-from .views_sentry_test import sentry_test_error, sentry_test_message
 
 router = DefaultRouter()
 router.register('family', FamilyViewSet, basename='family')
@@ -43,7 +42,5 @@ urlpatterns = [
     path("notificacoes/status/", notificacoes_status, name="notificacoes_status"),
     path("tasks/trigger/", trigger_tasks, name="trigger_tasks"),
     path("ai/chat/", ai_chat, name="ai_chat"),
-    path("sentry-test/error/", sentry_test_error, name="sentry_test_error"),
-    path("sentry-test/message/", sentry_test_message, name="sentry_test_message"),
     path("", include(router.urls)),
 ]
