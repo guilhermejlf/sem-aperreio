@@ -7,7 +7,7 @@
 **Plan:** `.planning/ROADMAP-v2.0.md`
 **Status:** Phase 17 + 17.1 COMPLETE (observability ativa em producao)
 **Phase 17.2:** Production Activation Closure — COMPLETE (2026-05-25)
-**Last activity:** 2026-05-25 — CORS fix, auth redirect, healthcheck version, docs sync
+**Last activity:** 2026-05-25 — Sentry ingest validado (frontend + backend), noise filtering ativo, Phase 17.2 CLOSED
 
 ## Project Reference
 
@@ -47,6 +47,11 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 ## Recent Commits
 
+- `503f914` fix(sentry): reverter event_level e remover endpoints temporarios — 2026-05-25
+- `9ea8192` feat(sentry): endpoints temporarios de teste para validar ingestao — 2026-05-25
+- `e9d7c29` fix(sentry): flush nos prints para visibilidade nos logs — 2026-05-25
+- `c828c82` fix(sentry): usa print em vez de logging para visibilidade — 2026-05-25
+- `91bb3bf` temp(sentry): abaixa event_level para WARNING para validar 404s — 2026-05-25
 - `aba481f` fix(auth): redirect para login quando token expira — 2026-05-25
 - `a241c43` fix(cors): simplifica CORS para sempre permitir frontend em producao — 2026-05-25
 - `89f1661` Phase 17.1: Observability Hardening — release tracking, noise filtering, source maps, CI validado — 2026-05-22
