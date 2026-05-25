@@ -125,9 +125,14 @@ export async function apiRequest(url, options = {}) {
         // Refaz o request original com novo token
         headers['Authorization'] = `Bearer ${getAccessToken()}`
         response = await fetch(url, { ...config, headers })
+      } else {
+        // Refresh falhou — token expirado, redireciona para login
+        clearTokens()
+        window.location.href = '/login'
+        throw new Error('Sessão expirada. Faça login novamente.')
       }
     }
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       let msg = errorData.erro || errorData.detail || (errorData.non_field_errors && errorData.non_field_errors[0]) || `HTTP ${response.status}`
