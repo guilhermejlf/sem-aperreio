@@ -6,7 +6,8 @@
 **Phase:** 17.1 — Observability Hardening & Production Activation
 **Plan:** `.planning/ROADMAP-v2.0.md`
 **Status:** Phase 17 + 17.1 COMPLETE (observability ativa em producao)
-**Last activity:** 2026-05-22 — Phase 17.1: release tracking, noise filtering, source maps, CI validado
+**Phase 17.2:** Production Activation Closure — IN PROGRESS
+**Last activity:** 2026-05-25 — CORS fix, auth redirect, healthcheck version, docs sync
 
 ## Project Reference
 
@@ -46,6 +47,8 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 ## Recent Commits
 
+- `aba481f` fix(auth): redirect para login quando token expira — 2026-05-25
+- `a241c43` fix(cors): simplifica CORS para sempre permitir frontend em producao — 2026-05-25
 - `89f1661` Phase 17.1: Observability Hardening — release tracking, noise filtering, source maps, CI validado — 2026-05-22
 - `ae30989` Phase 17: Observability & Monitoring — Sentry, structured logging, healthchecks, error UX — 2026-05-22
 - `phase-15` Phase 15: PWA Offline — service worker, install prompt, IndexedDB cache — 2026-05-18
@@ -69,6 +72,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 16: Infra Polish — Celery Beat, rate limiting, periodic tasks ✅
 - [x] Phase 17: Observability & Monitoring — Sentry, logging, healthchecks, error UX ✅
 - [x] Phase 17.1: Hardening — release tracking, noise filtering, source maps, CI/CD validated, .gitignore cleanup ✅
+- [ ] Phase 17.2: Production Activation Closure — DSNs, ingest validation, docs sync, operational test
 
 ## Accumulated Context
 

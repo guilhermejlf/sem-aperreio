@@ -14,7 +14,7 @@ def healthcheck(request):
     """Healthcheck endpoint para monitoramento."""
     return Response({
         'status': 'ok',
-        'version': '2.0',
+        'version': '2.1.0',
         'timestamp': timezone.now().isoformat(),
     })
 

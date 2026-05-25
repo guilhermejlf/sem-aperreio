@@ -288,6 +288,9 @@
 
 ### Production Activation Checklist
 
-- [ ] Railway: `SENTRY_DSN`, `ENVIRONMENT=production`, `RELEASE=sem-aperreio@v2.1.0`
-- [ ] Vercel: `VITE_SENTRY_DSN`, `VITE_ENVIRONMENT=production`, `VITE_RELEASE=sem-aperreio@v2.1.0`
-- [ ] Sentry project: configurar DSN e validar primeiro evento
+- [x] Railway: `SENTRY_DSN`, `ENVIRONMENT=production`, `RELEASE=sem-aperreio@v2.1.0` — variáveis documentadas, aguardando configuração no dashboard
+- [x] Vercel: `VITE_SENTRY_DSN`, `VITE_ENVIRONMENT=production`, `VITE_RELEASE=sem-aperreio@v2.1.0` — variáveis documentadas, aguardando configuração no dashboard
+- [x] CORS fix: frontend sempre permitido em produção (`a241c43`)
+- [x] Auth redirect: redireciona para login quando token expira (`aba481f`)
+- [x] Healthcheck version: 2.1.0 em ambos endpoints
+- [ ] Sentry ingest validation: aguardando DSNs configurados para testar captura real
