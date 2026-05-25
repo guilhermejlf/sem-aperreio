@@ -99,6 +99,15 @@ export function initSentry(app) {
   })
 
   console.info(`[Sentry] Initialized — env=${ENVIRONMENT}, release=${RELEASE}`)
+
+  // Expor Sentry no window para debugging e testes manuais
+  if (typeof window !== 'undefined') {
+    window.Sentry = Sentry
+    window.testSentry = () => {
+      Sentry.captureException(new Error('teste sentry manual via window.testSentry()'))
+      console.info('[Sentry] Evento de teste enviado — verifique o dashboard em ~30s')
+    }
+  }
 }
 
 export function captureError(error, context = {}) {
