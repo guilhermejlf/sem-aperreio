@@ -115,6 +115,10 @@ export async function apiRequest(url, options = {}) {
     ...options,
   }
 
+  // Extrair silent antes de passar para fetch (nao e uma opcao valida do fetch)
+  const isSilent = config.silent
+  delete config.silent
+
   try {
     let response = await fetch(url, config)
     
@@ -162,7 +166,9 @@ export async function apiRequest(url, options = {}) {
     
     return await response.json()
   } catch (error) {
-    console.error('API Error:', error)
+    if (!isSilent) {
+      console.error('API Error:', error)
+    }
     throw error
   }
 }
@@ -215,9 +221,14 @@ export async function deleteReceita(id) {
 
 export async function getFamily() {
   try {
-    return await apiRequest(API_ENDPOINTS.FAMILY)
+    return await apiRequest(API_ENDPOINTS.FAMILY, { silent: true })
   } catch (error) {
-    if (error.message && error.message.includes('404')) {
+    // Sem grupo familiar e um estado esperado para usuarios novos
+    const expected = [
+      'Você não está em nenhum grupo familiar',
+      '404',
+    ]
+    if (error.message && expected.some(msg => error.message.includes(msg))) {
       return null
     }
     throw error

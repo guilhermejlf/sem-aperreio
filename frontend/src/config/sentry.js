@@ -17,6 +17,9 @@ const NOISE_PATTERNS = [
   'NetworkError when attempting to fetch resource',
   'The operation was aborted',
   'The user aborted a request',
+  'Você não está em nenhum grupo familiar',
+  'Não foi possível obter dados da família',
+  'API Error',
 ]
 
 function isNoiseEvent(event) {
