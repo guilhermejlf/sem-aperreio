@@ -34,10 +34,7 @@
       </div>
 
       <!-- Empty -->
-      <StatementEmptyState
-        v-if="itens.length === 0"
-        @action="$emit('add-transaction')"
-      />
+      <StatementEmptyState v-if="itens.length === 0" />
 
       <!-- Timeline -->
       <StatementTimeline
@@ -71,6 +68,8 @@
         </div>
       </Transition>
     </div>
+
+    <div class="page-spacer" v-if="itens.length > 0"></div>
   </div>
 </template>
 
@@ -104,8 +103,8 @@ export default {
       resumo: null,
       showExportDropdown: false,
       filters: {
-        mes: hoje.getMonth() + 1,
-        ano: hoje.getFullYear(),
+        mes: '',
+        ano: '',
         categoria: '',
         tipo: '',
         pago: ''
@@ -206,15 +205,23 @@ export default {
   position: relative;
 }
 
+.page-spacer {
+  height: 64px;
+}
+
 /* Summary Strip */
 .summary-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
-  padding: 4px 0 12px;
-  margin-bottom: 4px;
+  gap: 6px 14px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
   font-size: 12px;
-  color: #475569;
+  line-height: 1.5;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 /* Export FAB */
@@ -297,16 +304,21 @@ export default {
 
 @media (max-width: 768px) {
   .extrato-page {
-    padding: 16px 16px max(16px, env(safe-area-inset-bottom)) 16px;
+    padding: 20px 20px max(20px, env(safe-area-inset-bottom)) 20px;
   }
 
   .summary-strip {
     font-size: 11px;
-    padding: 2px 0 8px;
-    margin-bottom: 0;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    line-height: 1.5;
   }
 
   .export-fab-wrapper {
+    display: none;
+  }
+
+  .page-spacer {
     display: none;
   }
 }

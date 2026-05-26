@@ -7,29 +7,12 @@
     <p class="statement-empty__description">
       Bora registrar tua primeira despesa ou receita pra começar a acompanhar teu histórico financeiro?
     </p>
-    <button
-      v-if="showAction"
-      class="statement-empty__action"
-      @click="$emit('action')"
-    >
-      <i class="pi pi-plus"></i>
-      Adicionar lançamento
-    </button>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'StatementEmptyState',
-
-  props: {
-    showAction: {
-      type: Boolean,
-      default: true
-    }
-  },
-
-  emits: ['action']
+  name: 'StatementEmptyState'
 }
 </script>
 
@@ -66,25 +49,25 @@ export default {
 }
 
 .statement-empty__action {
-  margin-top: 8px;
+  margin-top: 4px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
-  font-size: 13px;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #64748b;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .statement-empty__action:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
 }
 
 @media (max-width: 768px) {

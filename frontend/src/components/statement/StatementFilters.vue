@@ -2,16 +2,13 @@
   <div class="statement-filters">
     <!-- Desktop: inline filters -->
     <div class="filters-desktop">
-      <div class="filters-row">
-        <div class="filter-chip" v-if="activeFilters.length > 0">
+      <div class="filters-row" v-if="activeFilters.length > 0">
+        <div class="filter-chip">
           <span v-for="f in activeFilters" :key="f.key" class="chip">
             {{ f.label }}
             <i class="pi pi-times" @click="clearFilter(f.key)"></i>
           </span>
         </div>
-        <span v-else class="filters-placeholder">
-          Extrato • {{ currentPeriod }}
-        </span>
       </div>
 
       <div class="filters-inline">
@@ -60,8 +57,11 @@
 
     <!-- Mobile: compact header + bottom sheet -->
     <div class="filters-mobile">
-      <div class="filters-mobile-header">
-        <span class="filters-period">Extrato • {{ currentPeriod }}</span>
+      <div class="filters-mobile-actions">
+        <button class="btn-export" @click="exportar('csv')" title="Exportar">
+          <i class="pi pi-download"></i>
+          Exportar
+        </button>
         <button class="btn-filters" @click="showSheet = true">
           <i class="pi pi-filter"></i>
           Filtros
@@ -343,6 +343,11 @@ export default {
   box-sizing: border-box;
 }
 
+.filter-group select option {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
 .filter-group select:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 0.15);
@@ -375,25 +380,20 @@ export default {
   display: none;
 }
 
-.filters-mobile-header {
+.filters-mobile-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.filters-period {
-  font-size: 15px;
-  font-weight: 600;
-  color: #e2e8f0;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .btn-filters {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 7px 14px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #cbd5e1;
@@ -404,6 +404,25 @@ export default {
 
 .btn-filters:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-export:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
 }
 
 .filters-badge {
@@ -423,8 +442,8 @@ export default {
 .filters-mobile-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 /* Bottom Sheet */
@@ -511,6 +530,11 @@ export default {
   transition: border-color 0.15s ease;
   height: 44px;
   box-sizing: border-box;
+}
+
+.sheet-field select option {
+  background: #1e293b;
+  color: #cbd5e1;
 }
 
 .sheet-field select:focus {

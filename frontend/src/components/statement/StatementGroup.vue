@@ -42,14 +42,14 @@ export default {
 .statement-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .statement-group__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 4px 8px;
+  padding: 8px 4px 12px;
 }
 
 .statement-group__title {
@@ -70,6 +70,6 @@ export default {
 .statement-group__items {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 </style>

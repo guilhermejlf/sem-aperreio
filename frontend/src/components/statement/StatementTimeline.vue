@@ -63,17 +63,17 @@ export default {
 .statement-timeline {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 28px;
 }
 
 .statement-timeline > * {
-  animation: fadeInUp 0.35s ease var(--stagger-delay, 0ms) both;
+  animation: fadeInUp 0.4s ease var(--stagger-delay, 0ms) both;
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;

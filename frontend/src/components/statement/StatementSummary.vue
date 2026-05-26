@@ -147,37 +147,14 @@ export default {
   color: #ef4444;
 }
 
-/* Mobile horizontal scroll */
-.statement-summary--mobile {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  gap: 10px;
-  padding-bottom: 8px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.statement-summary--mobile::-webkit-scrollbar {
-  display: none;
-}
-
-.statement-summary--mobile .summary-card {
-  flex: 0 0 140px;
-  scroll-snap-align: start;
-  min-width: 140px;
-}
-
 @media (max-width: 768px) {
   .statement-summary {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    margin-bottom: 20px;
+    padding: 0 4px;
+    margin-bottom: 28px;
+    width: 100%;
   }
 
   .statement-summary::-webkit-scrollbar {
@@ -185,24 +162,50 @@ export default {
   }
 
   .summary-card {
-    flex: 0 0 120px;
-    scroll-snap-align: start;
-    min-width: 120px;
-    padding: 12px;
-    gap: 10px;
+    padding: 8px 10px;
+    gap: 6px;
     border-radius: 12px;
+    border-color: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.02);
+    min-width: 0;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .summary-card__icon {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .summary-card__label {
-    font-size: 10px;
+    font-size: 8px;
+    letter-spacing: 0.5px;
+    opacity: 0.5;
+    white-space: nowrap;
   }
 
   .summary-card__value {
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .summary-saldo {
+    grid-column: 1 / -1;
+    padding: 12px 16px;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .summary-saldo .summary-card__icon {
+    font-size: 20px;
+  }
+
+  .summary-saldo .summary-card__value {
+    font-size: 18px;
+    font-weight: 700;
   }
 }
 </style>

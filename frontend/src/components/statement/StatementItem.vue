@@ -257,14 +257,17 @@ export default {
 
 @media (max-width: 768px) {
   .statement-item {
-    padding: 12px;
+    padding: 10px 12px;
     gap: 10px;
+    background: rgba(255, 255, 255, 0.01);
+    border-color: rgba(255, 255, 255, 0.02);
   }
 
   .statement-item__icon {
-    width: 32px;
-    height: 32px;
-    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    border-radius: 8px;
   }
 
   .statement-item__title {
@@ -273,6 +276,31 @@ export default {
 
   .statement-item__value {
     font-size: 13px;
+  }
+
+  .statement-item__meta {
+    gap: 5px;
+    font-size: 10px;
+  }
+
+  .statement-item__category {
+    padding: 1px 5px;
+    font-size: 9px;
+    background: rgba(255, 255, 255, 0.03);
+    color: #475569;
+  }
+
+  .statement-item__status {
+    padding: 1px 5px;
+    font-size: 9px;
+  }
+
+  .status--pago {
+    background: rgba(96, 166, 55, 0.06);
+  }
+
+  .status--pendente {
+    background: rgba(245, 158, 11, 0.06);
   }
 }
 </style>
