@@ -173,10 +173,11 @@ export default {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    gap: 10px;
-    padding-bottom: 8px;
+    gap: 8px;
+    padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    margin-bottom: 20px;
   }
 
   .statement-summary::-webkit-scrollbar {
@@ -184,14 +185,24 @@ export default {
   }
 
   .summary-card {
-    flex: 0 0 140px;
+    flex: 0 0 120px;
     scroll-snap-align: start;
-    min-width: 140px;
-    padding: 14px;
+    min-width: 120px;
+    padding: 12px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
+  .summary-card__icon {
+    font-size: 18px;
+  }
+
+  .summary-card__label {
+    font-size: 10px;
   }
 
   .summary-card__value {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
 </style>

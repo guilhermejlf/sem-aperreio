@@ -39,29 +39,29 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 24px;
+  padding: 48px 24px;
   text-align: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .statement-empty__icon {
-  font-size: 48px;
-  opacity: 0.6;
-  margin-bottom: 8px;
+  font-size: 40px;
+  opacity: 0.4;
+  margin-bottom: 4px;
 }
 
 .statement-empty__title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #e2e8f0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #94a3b8;
   margin: 0;
 }
 
 .statement-empty__description {
-  font-size: 14px;
-  color: #64748b;
-  max-width: 320px;
-  line-height: 1.6;
+  font-size: 13px;
+  color: #475569;
+  max-width: 280px;
+  line-height: 1.5;
   margin: 0;
 }
 
@@ -70,34 +70,38 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: 10px;
-  background: #3b82f6;
-  color: #fff;
-  font-size: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 13px;
   font-weight: 500;
-  border: none;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .statement-empty__action:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
 }
 
 @media (max-width: 768px) {
   .statement-empty {
-    padding: 40px 20px;
+    padding: 32px 20px;
+  }
+
+  .statement-empty__icon {
+    font-size: 32px;
   }
 
   .statement-empty__title {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .statement-empty__description {
-    font-size: 13px;
+    font-size: 12px;
   }
 }
 </style>

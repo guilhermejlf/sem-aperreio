@@ -142,19 +142,18 @@ export default {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.15s ease;
   cursor: pointer;
 }
 
 .statement-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .statement-item__icon {
@@ -225,10 +224,11 @@ export default {
 }
 
 .statement-item__category {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   padding: 2px 8px;
   border-radius: 4px;
-  color: #94a3b8;
+  color: #64748b;
+  font-size: 11px;
 }
 
 .statement-item__status {
@@ -239,12 +239,12 @@ export default {
 }
 
 .status--pago {
-  background: rgba(96, 166, 55, 0.1);
+  background: rgba(96, 166, 55, 0.08);
   color: #60A637;
 }
 
 .status--pendente {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 158, 11, 0.08);
   color: #f59e0b;
 }
 

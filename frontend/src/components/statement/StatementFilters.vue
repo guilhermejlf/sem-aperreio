@@ -125,6 +125,23 @@
                   <option value="false">Pendentes</option>
                 </select>
               </div>
+
+              <div class="sheet-divider"></div>
+
+              <div class="sheet-export">
+                <label>Exportar</label>
+                <div class="export-options">
+                  <button @click="exportar('csv')">
+                    <i class="pi pi-file-export"></i> CSV
+                  </button>
+                  <button @click="exportar('xlsx')">
+                    <i class="pi pi-file-excel"></i> Excel
+                  </button>
+                  <button @click="exportar('pdf')">
+                    <i class="pi pi-file-pdf"></i> PDF
+                  </button>
+                </div>
+              </div>
             </div>
             <div class="bottom-sheet__footer">
               <button class="btn-secondary" @click="limparFiltros">Limpar</button>
@@ -156,7 +173,7 @@ export default {
     }
   },
 
-  emits: ['update:modelValue', 'change'],
+  emits: ['update:modelValue', 'change', 'export'],
 
   data() {
     return {
@@ -228,6 +245,11 @@ export default {
     clearFilter(key) {
       this.filters[key] = key === 'pago' ? '' : ''
       this.onChange()
+    },
+
+    exportar(formato) {
+      this.$emit('export', formato)
+      this.showSheet = false
     }
   }
 }
@@ -531,6 +553,49 @@ export default {
 
 .btn-primary:hover {
   background: #2563eb;
+}
+
+.sheet-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.04);
+  margin: 4px 0;
+}
+
+.sheet-export label {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.export-options {
+  display: flex;
+  gap: 8px;
+}
+
+.export-options button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.export-options button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
 }
 
 @keyframes slideUp {

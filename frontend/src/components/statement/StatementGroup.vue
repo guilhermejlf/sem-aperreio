@@ -49,28 +49,27 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 4px;
-  margin-bottom: 4px;
+  padding: 4px 4px 8px;
 }
 
 .statement-group__title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
 }
 
 .statement-group__total {
   font-size: 12px;
   font-weight: 500;
-  color: #64748b;
+  color: #475569;
   font-variant-numeric: tabular-nums;
 }
 
 .statement-group__items {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 </style>

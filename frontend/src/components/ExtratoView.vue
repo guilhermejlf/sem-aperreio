@@ -11,6 +11,7 @@
         :categorias="categorias"
         :meses-labels="mesesLabels"
         @change="carregarExtrato"
+        @export="exportar"
       />
 
       <!-- Summary -->
@@ -210,13 +211,10 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 12px;
-  padding: 10px 16px;
-  margin-bottom: 20px;
-  font-size: 13px;
-  color: #64748b;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 4px 0 12px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #475569;
 }
 
 /* Export FAB */
@@ -228,29 +226,26 @@ export default {
 }
 
 .export-fab {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: #3b82f6;
-  border: none;
-  color: #fff;
-  font-size: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
   transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
 }
 
 .export-fab:hover {
-  background: #2563eb;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
-}
-
-.export-fab:active {
-  transform: translateY(0);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
 .export-menu {
@@ -302,24 +297,17 @@ export default {
 
 @media (max-width: 768px) {
   .extrato-page {
-    padding: 16px;
+    padding: 16px 16px max(16px, env(safe-area-inset-bottom)) 16px;
   }
 
   .summary-strip {
-    font-size: 12px;
-    padding: 8px 12px;
-    margin-bottom: 16px;
+    font-size: 11px;
+    padding: 2px 0 8px;
+    margin-bottom: 0;
   }
 
   .export-fab-wrapper {
-    bottom: 80px;
-    right: 16px;
-  }
-
-  .export-fab {
-    width: 48px;
-    height: 48px;
-    font-size: 16px;
+    display: none;
   }
 }
 </style>
