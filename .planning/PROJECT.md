@@ -73,26 +73,28 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 
 Sistema completo de controle de gastos domésticos com autenticação JWT, grupos familiares, dashboard com filtros por período (mês/ano), ranking de categorias, comparativo mês a mês, previsão via ML com dados reais, exportação CSV/Excel/PDF, receitas, metas de orçamento com alertas visuais, assistente de IA, notificações por email e interface moderna em tema escuro com glassmorphism. Backend Django + DRF + PostgreSQL, frontend Vue 3 + Vite, deploy automatizado via Railway + Vercel.
 
-### Tech Stack (v1.1 — Produção)
+### Tech Stack (v3.3 — Produção)
 
 - **Backend**: Django 4.2 + Django REST Framework + djangorestframework-simplejwt + Sentry SDK
 - **Frontend**: Vue 3 (Options API) + Vite + Chart.js + PrimeVue + PrimeIcons + Sentry
 - **ML**: scikit-learn (LinearRegression por categoria)
 - **Banco**: PostgreSQL (produção), SQLite (dev)
-- **Cache/Tarefas**: Redis + Celery
+- **Cache/Tarefas**: Redis + Celery + django-celery-beat
 - **Export**: openpyxl (XLSX), csv/StreamingHttpResponse (CSV), reportlab (PDF)
 - **Email**: SendGrid
 - **IA**: OpenAI API
+- **Observabilidade**: Sentry (frontend + backend + Celery), structured logging, detailed healthchecks
+- **PWA**: vite-plugin-pwa, IndexedDB offline cache, install prompt
 - **Deploy**: Railway (backend) + Vercel (frontend)
 - **CI/CD**: GitHub Actions
 
 ### Known Issues / Tech Debt
 
 - Options API no Vue — Composition API seria mais moderna, mas código legado funcional
-- Modelo ML treinado on-demand — não persistido; recomenda-se cache Redis ou Celery para datasets grandes
-- Falta paginação completa com metadados (count/next/previous) — implementado apenas limite simples (50 itens)
+- Modelo ML treinado on-demand — cache Redis implementado
+- Paginação parcial (limite simples de 50 itens, sem metadados count/next/previous)
 - Email verification disabled for testing — `email_verified=True` on register; login does not check status
-- Sentry DSN requer variável de ambiente `SENTRY_DSN` (backend) e `VITE_SENTRY_DSN` (frontend) para ativar em produção
+- Sentry ativo em produção com DSNs configurados
 - Release format: `sem-aperreio@v2.1.0` — usado por backend e frontend
 - Source maps gerados no build do Vite para debugging em produção
 
@@ -135,27 +137,26 @@ This document evolves at phase transitions and milestone boundaries.
 | Fallback parser IA (regex) | OpenAI pode estar indisponível ou sem créditos; regex cobre 80% dos casos | ✓ Good |
 | Drawer lateral para chat IA | Modal bloqueia interação; drawer permite acesso ao dashboard enquanto conversa | ✓ Good |
 
-## Current Milestone: v3.1 — Auth Polish
+## Current Milestone: v3.3 Statement Premium — SHIPPED (2026-05-26)
 
-**Goal:** Melhorar UX de autenticação com melhorias visuais e fluxo de onboarding.
+**Goal:** Elevar a experiência do extrato com design system premium, timeline organizada e refinamentos mobile.
 
-**Target features:**
-- Onboarding experience para novos usuários
-- Melhorias visuais na tela de login/registro
-- Convite familiar simplificado
+**Delivered:**
+- Extrato premium: timeline com agrupamento por data, componentização statement/, filtros adaptativos
+- Harmonização visual: design system consistente, spacing refinado, motion system no extrato
+- KPI Layout Simplification (mobile): grid sem scroll, saldo em destaque, labels reduzidas
 
 **Active backlog (future milestones):**
 - [ ] **BANK-01**: Integração bancária (Open Banking) — avaliar viabilidade regulatória
-- [ ] **ONBOARD-01**: Onboarding guiado para novos usuários (v3.3)
+- [ ] **ONBOARD-01**: Onboarding guiado para novos usuários
 - [ ] **COMP-01**: Migração Vue Options API → Composition API (v4.0)
+- [ ] **AUTH-01**: Auth Polish — melhorias visuais no login/registro
 
 **Key context:**
-- Sistema em produção estável (Railway + Vercel + PostgreSQL + SendGrid + Redis)
+- Sistema em produção estável (Railway + Vercel + PostgreSQL + SendGrid + Redis + Sentry)
 - 55+ backend tests, 4 frontend tests, Playwright E2E configurado
-- Modelo ML treinado on-demand — cache Redis já implementado
-- Options API no Vue pode ser mantido ou migrado gradualmente
-- Deploy automatizado funcional — focar em qualidade e novas features
 - v2.0 shipped: testes, cache, PWA, infra completa, observabilidade
+- v3.3 shipped: extrato premium com timeline e design system
 
 ---
-*Last updated: 2026-05-25 — Phase 17.2 COMPLETE. Sentry ingest validado (200 OK). Observabilidade oficialmente ativa em produção. v3.1 Auth Polish backlog*
+*Last updated: 2026-05-27 — v3.3 Statement Premium SHIPPED. Todas as fases até 18.4 completas.*

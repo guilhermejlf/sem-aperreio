@@ -15,6 +15,12 @@
 | 14 | Redis Cache | Cache backend + invalidation | Phase 12 |
 | 15 | PWA Offline | Manifest, SW, offline support | Phase 13 |
 | 16 | Infra Polish | Celery Beat, rate limiting | Phase 14 |
+| 17 | Observability | Sentry, logging, healthchecks | Phase 16 |
+| 17.1 | Hardening | Release tracking, noise filtering | Phase 17 |
+| 17.2 | Production Activation | DSN config, ingest validation | Phase 17.1 |
+| 18 | Premium Statement | Timeline, componentização extrato | Phase 17.2 |
+| 18.1 | Visual Harmonization | Design system, spacing, motion | Phase 18 |
+| 18.4 | KPI Layout Mobile | Grid simplificado, labels reduzidas | Phase 18.1 |
 
 ---
 
@@ -147,6 +153,133 @@
 **Files:**
 - `backend/celerybeat_schedule.py`
 - `backend/api/ratelimit.py`
+
+---
+
+## Phase 17 — Observability & Monitoring
+
+**Goal:** Visibilidade completa do sistema em produção com rastreamento de erros, logging estruturado e healthchecks.
+
+**Deliverables:**
+- Sentry Integration — Frontend (Vue) + Backend (Django) + Celery workers
+- Structured Logging — Middleware com request ID, correlation ID, timing
+- Detailed Healthcheck — `/health/detailed/` com checks de PostgreSQL, Redis, Celery, SendGrid, OpenAI
+- ErrorBoundary UX — Mensagens humanizadas, retry contextual, fallback para home
+- Performance Monitoring — FCP, LCP, long tasks, API latency
+- PWA Observability — Tracking de offline/online, install events, SW errors
+
+**Verification:**
+- Sentry recebe eventos de frontend e backend
+- Healthcheck responde < 500ms com todos os serviços OK
+- ErrorBoundary captura erros de renderização Vue
+
+**Files:**
+- `frontend/src/utils/sentry.js`
+- `backend/settings/sentry.py`
+- `api/middleware.py` (StructuredLoggingMiddleware)
+- `api/healthcheck.py`
+- `frontend/src/components/ErrorBoundary.vue`
+
+---
+
+## Phase 17.1 — Hardening & Production Activation
+
+**Goal:** Preparar o sistema para produção com hardening de observabilidade.
+
+**Deliverables:**
+- Release Tracking — Versão `sem-aperreio@v2.1.0` consistente entre frontend e backend
+- Noise Filtering — Filtros para ResizeObserver, browser extensions, AbortError
+- Source Maps — Ativados no Vite build para debugging de stack traces
+- Healthcheck Hardening — Timeout-safe, Celery sem bloqueio, Redis com fallback
+- ErrorBoundary Recovery — Chunk errors disparam reload automático
+- Repository Cleanup — .gitignore atualizado
+
+**Verification:**
+- Release aparece corretamente em todos os eventos Sentry
+- Healthcheck responde em ~4ms total em dev
+- Source maps não quebram o build
+
+**Files:**
+- `frontend/vite.config.js` (source maps)
+- `frontend/package.json` (version)
+- `backend/settings/base.py` (_get_release)
+
+---
+
+## Phase 17.2 — Production Activation Closure
+
+**Goal:** Validar que a observabilidade está 100% funcional em produção.
+
+**Deliverables:**
+- Sentry Ingest Validation — Confirmação de eventos chegando ao dashboard
+- CORS Fix — Simplificação para sempre permitir frontend em produção
+- Auth Redirect — Redirecionamento automático para login quando token expira
+- Docs Sync — Atualização de STATE.md, PROJECT.md, MILESTONES.md
+
+**Verification:**
+- Sentry frontend ingest: 200 OK confirmado
+- Sentry backend ingest: exceptions e mensagens chegando
+- Deploy automatizado funcional após CORS fix
+
+---
+
+## Phase 18 — Premium Statement Experience
+
+**Goal:** Elevar a experiência do extrato com timeline organizada e componentização premium.
+
+**Deliverables:**
+- Timeline Organizada — Agrupamento de transações por data
+- Componentização Premium — 7 componentes no namespace `statement/`
+  - `StatementTimeline`, `StatementGroup`, `StatementItem`
+  - `StatementFilters`, `StatementSummary`, `StatementEmptyState`, `StatementSkeleton`
+- Filtros Adaptativos — Por período, categoria, tipo e status
+- Utility `timeline.js` — Agrupamento com formatação relativa
+
+**Verification:**
+- Extrato renderiza corretamente com dados agrupados por data
+- Filtros funcionam em conjunto (AND lógico)
+- Stagger animation suave na entrada
+
+**Files:**
+- `frontend/src/components/statement/*.vue`
+- `frontend/src/utils/timeline.js`
+- `frontend/src/components/ExtratoView.vue`
+
+---
+
+## Phase 18.1 — Visual Harmonization
+
+**Goal:** Consistência visual e motion system no extrato.
+
+**Deliverables:**
+- Design System Consistente — Cores, spacing e tipografia alinhados
+- Spacing Refinado — Padding, gap e margin harmonizados
+- Motion System — Transições de hover e entrada consistentes
+- Mobile Polish — Ajustes de font-size e padding
+
+**Verification:**
+- Lighthouse audit: nenhum layout shift inesperado
+- Consistência visual entre todos os componentes `statement/`
+
+---
+
+## Phase 18.4 — KPI Layout Simplification (mobile)
+
+**Goal:** Otimizar o layout mobile dos KPIs do extrato.
+
+**Deliverables:**
+- Grid sem Scroll — `grid-template-columns: repeat(2, minmax(0, 1fr))`
+- Saldo em Destaque — Layout reestruturado para destacar saldo
+- Labels Reduzidas — 8px labels, 13px valores no mobile
+- Ajustes Finais — Padding, gap, border-radius otimizados
+
+**Verification:**
+- Sem scroll horizontal no mobile
+- Todos os KPIs visíveis sem quebra
+- Legibilidade mantida com labels reduzidas
+
+**Files:**
+- `frontend/src/components/statement/StatementSummary.vue`
 
 ---
 

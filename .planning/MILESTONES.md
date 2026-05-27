@@ -295,3 +295,129 @@
 - [x] Healthcheck version: 2.1.0 em ambos endpoints
 - [x] Sentry frontend ingest: ✅ confirmado — eventos chegando ao dashboard do Sentry
 - [x] Sentry backend ingest: ✅ confirmado — exceptions e mensagens chegando ao dashboard do Sentry
+
+---
+
+## Phase 17.2: Production Activation Closure
+
+**Implemented:** 2026-05-25
+**Phases:** 17.2 (Production Activation Closure) | **Plan:** Ad-hoc
+**Git range:** `c828c82` → `ceef988`
+**Files changed:** 14 files
+**Timeline:** 2026-05-22 → 2026-05-25 (3 sessões)
+
+### What Was Built
+
+1. **Sentry Ingest Validation** — Confirmação de que eventos frontend e backend chegam corretamente ao dashboard Sentry.
+2. **CORS Fix** — Simplificação do CORS para sempre permitir o frontend em produção (`a241c43`).
+3. **Auth Redirect** — Redirecionamento automático para login quando token expira e refresh falha (`aba481f`).
+4. **Docs Sync** — Sincronização de STATE.md, PROJECT.md e MILESTONES.md com status de produção.
+5. **Cleanup** — Remoção de endpoints temporários de teste do Sentry.
+
+### What Worked
+
+- Sentry ingest validado com sucesso (200 OK)
+- CORS simplificado eliminou erros de conexão entre Vercel e Railway
+- Auth redirect melhorou UX quando sessão expira
+
+### Key Lessons
+
+- python-decouple lê .env primeiro — usar `os.environ.get()` para override em produção
+- `vite-plugin-pwa` gera source maps no `dev-dist/` que não devem ser commitados
+- Documentação deve ser atualizada junto com o código — drift de docs é perigoso
+
+---
+
+## Phase 18: Premium Statement Experience
+
+**Implemented:** 2026-05-26
+**Phases:** 18 (Premium Statement) | **Plan:** Ad-hoc
+**Git range:** `750365e`
+**Files changed:** 9 files, +1770/-598 LOC
+**Timeline:** 2026-05-26 (1 sessão)
+
+### What Was Built
+
+1. **Timeline Organizada** — Agrupamento de transações por data com `StatementTimeline.vue` e `StatementGroup.vue`.
+2. **Componentização Premium** — 6 componentes no namespace `statement/`:
+   - `StatementTimeline` — agrupamento e stagger animation
+   - `StatementGroup` — header com data e total do dia
+   - `StatementItem` — item individual com ícone, metadados, hover effects
+   - `StatementFilters` — filtros adaptativos por período, categoria, tipo e status
+   - `StatementSummary` — cards de resumo (receitas, gastos, saldo)
+   - `StatementEmptyState` — estado vazio ilustrado
+   - `StatementSkeleton` — loading state estrutural
+3. **Filtros Adaptativos** — Filtro por mês/ano, categoria, tipo (gasto/receita), status (pago/pendente).
+4. **Utility `timeline.js`** — Agrupamento de itens por data com formatação relativa ("Hoje", "Ontem", "Segunda-feira").
+
+### What Worked
+
+- Componentização permitiu manutenção isolada de cada parte do extrato
+- Agrupamento por data tornou a leitura mais natural
+- Stagger animation de entrada melhorou percepção de performance
+
+### What Was Inefficient
+
+- `ExtratoView.vue` ainda é grande (~737 linhas) apesar da componentização
+- Filtros requerem re-fetch da API em vez de filtrar dados já carregados no cliente
+
+### Patterns Established
+
+- Namespace `statement/` para componentes do extrato
+- Agrupamento por data com fallback para data ISO
+- `isMobile` computado via `window.innerWidth`
+
+### Key Lessons
+
+- Componentização melhora manutenibilidade mas não elimina complexidade do container
+- Stagger animation via inline styles (`transitionDelay`) é simples e eficaz
+
+---
+
+## Phase 18.1: Visual Harmonization
+
+**Implemented:** 2026-05-26
+**Phases:** 18.1 (Visual Harmonization) | **Plan:** Ad-hoc
+**Git range:** `95e2cfc`
+**Files changed:** 11 files, +160/-87 LOC
+**Timeline:** 2026-05-26 (1 sessão)
+
+### What Was Built
+
+1. **Design System Consistente** — Cores, spacing e tipografia alinhados entre todos os componentes `statement/`.
+2. **Spacing Refinado** — Padding, gap e margin harmonizados entre `StatementItem`, `StatementGroup`, `StatementSummary`.
+3. **Motion System** — Transições de hover e entrada aplicadas consistentemente.
+4. **Mobile Polish** — Ajustes de font-size, padding e layout para telas pequenas.
+
+### What Worked
+
+- Micro ajustes de CSS (~5-10%) criaram percepção de coesão visual
+- Consistência de spacing entre componentes irmãos melhorou legibilidade
+
+---
+
+## Phase 18.4: KPI Layout Simplification (mobile)
+
+**Implemented:** 2026-05-26
+**Phases:** 18.4 (KPI Layout Simplification) | **Plan:** Ad-hoc
+**Git range:** `9dcd980`
+**Files changed:** 9 files, +160/-110 LOC
+**Timeline:** 2026-05-26 (1 sessão)
+
+### What Was Built
+
+1. **Grid sem Scroll** — `StatementSummary` mobile com `grid-template-columns: repeat(2, minmax(0, 1fr))` — sem scroll horizontal.
+2. **Saldo em Destaque** — Layout mobile reestruturado para destacar saldo total.
+3. **Labels Reduzidas** — Font-size de labels mobile reduzidas para 8px, valores para 13px.
+4. **Ajustes Finais** — Padding, gap e border-radius ajustados para melhor aproveitamento de espaço.
+
+### What Worked
+
+- Grid de 2 colunas resolveu overflow horizontal no mobile
+- Redução de labels melhorou a densidade sem perder legibilidade
+- Saldo em destaque reforçou a hierarquia de informações
+
+### Key Lessons
+
+- No mobile, menos é mais: reduzir labels e valores em ~10-15% melhora percepção de organização
+- Grid CSS com `minmax(0, 1fr)` evita overflow em containers pequenos

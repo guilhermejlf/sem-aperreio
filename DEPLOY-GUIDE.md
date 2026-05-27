@@ -1,7 +1,7 @@
 # Guia de Deploy — Sem Aperreio
 
 **URLs de Produção:**
-- Backend: https://campo-valor.up.railway.app
+- Backend: https://campo-valor-production.up.railway.app
 - Frontend: https://sem-aperreio.vercel.app
 
 **Fase:** Configuração das plataformas Railway + Vercel + SendGrid

@@ -2,16 +2,16 @@
 
 ## Current Milestone
 
-**Milestone:** v2.0 Infra & Quality — SHIPPED (2026-05-19)
-**Phase:** 17.1 — Observability Hardening & Production Activation
+**Milestone:** v3.3 Statement Premium — SHIPPED (2026-05-26)
+**Phase:** 18.4 — KPI Layout Simplification (mobile)
 **Plan:** `.planning/ROADMAP-v2.0.md`
-**Status:** Phase 17 + 17.1 COMPLETE (observability ativa em producao)
+**Status:** Phase 17.2 + 18 + 18.1 + 18.4 COMPLETE
 **Phase 17.2:** Production Activation Closure — COMPLETE (2026-05-25)
-**Last activity:** 2026-05-25 — Sentry ingest validado (frontend + backend), noise filtering ativo, Phase 17.2 CLOSED
+**Last activity:** 2026-05-26 — Simplificação dos KPIs mobile: grid sem scroll, saldo em destaque, labels menores
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-15)
+See: `.planning/PROJECT.md` (updated 2026-05-27)
 See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 **Core value:** Familiares conseguem registrar e visualizar todos os gastos do lar em um só lugar, com análises claras que revelam padrões de consumo e oportunidades de economia.
@@ -24,7 +24,7 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 ## What's Next
 
-**Current milestone:** v2.0 Infra & Quality — STARTED
+**Current milestone:** v3.3 Statement Premium — SHIPPED (2026-05-26)
 
 **Phases:**
 - ✅ Phase 12: Backend Tests — DONE
@@ -36,13 +36,21 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - ✅ Phase 17: Observability & Monitoring — DONE (2026-05-22)
 - ✅ Phase 17.1: Hardening & Production Activation — DONE (2026-05-22)
   - Sentry frontend/backend, structured logging, detailed healthchecks, error UX
+- ✅ Phase 17.2: Production Activation Closure — DONE (2026-05-25)
+  - Sentry ingest validado (frontend + backend), DSNs configurados
+- ✅ Phase 18: Premium Statement Experience — DONE (2026-05-26)
+  - Timeline, componentização, filtros adaptativos, design system
+- ✅ Phase 18.1: Visual Harmonization — DONE (2026-05-26)
+  - Design system, spacing, motion no extrato
+- ✅ Phase 18.4: KPI Layout Simplification (mobile) — DONE (2026-05-26)
+  - Grid sem scroll, saldo em destaque, labels menores
 
 **Planning artifacts:**
 - `.planning/REQUIREMENTS-v2.0.md` — 16 requirements defined
 - `.planning/ROADMAP-v2.0.md` — 5 phases with dependencies
 
 **Deferred:**
-- v3.1 Auth Polish — After v2.0
+- v3.1 Auth Polish — Backlog
 - v3.3 Onboarding Experience — Backlog
 
 ## Recent Commits
@@ -78,6 +86,9 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 17: Observability & Monitoring — Sentry, logging, healthchecks, error UX ✅
 - [x] Phase 17.1: Hardening — release tracking, noise filtering, source maps, CI/CD validated, .gitignore cleanup ✅
 - [x] Phase 17.2: Production Activation Closure — DSNs configurados, ingest validado, docs sync ✅
+- [x] Phase 18: Premium Statement Experience — timeline, componentização, filtros adaptativos ✅
+- [x] Phase 18.1: Visual Harmonization — design system, spacing, motion no extrato ✅
+- [x] Phase 18.4: KPI Layout Simplification (mobile) — grid sem scroll, saldo em destaque, labels menores ✅
 
 ## Accumulated Context
 
@@ -112,3 +123,5 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - ErrorBoundary: recovery automatico para chunk errors (page reload)
 - .gitignore: test-results, coverage, playwright-report, .sentryclirc
 - CI/CD validado: working-directory correto no workflow, npm ci + build passando
+- Extrato premium: timeline, componentização statement/, filtros adaptativos, design system
+- Mobile-first refinado no extrato: grid sem scroll, labels reduzidas, saldo em destaque

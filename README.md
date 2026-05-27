@@ -9,7 +9,8 @@ Sistema web completo para controle de gastos domésticos em família, com previs
 - **Django REST Framework** — API REST
 - **SimpleJWT** — Autenticação JWT
 - **PostgreSQL** — Banco de dados (produção)
-- **Redis + Celery** — Tarefas assíncronas e notificações
+- **Redis + Celery** — Cache, tarefas assíncronas e notificações
+- **Sentry** — Observabilidade e monitoramento de erros
 - **Scikit-learn / Pandas / NumPy** — Machine Learning
 - **OpenAI** — Assistente de IA
 - **SendGrid** — Envio de emails
@@ -37,6 +38,10 @@ Sistema web completo para controle de gastos domésticos em família, com previs
 | **Exportação** | CSV, Excel (XLSX) e PDF |
 | **Assistente IA** | Chat integrado para ajudar com dúvidas e análise de gastos |
 | **Notificações** | Lembretes semanais por email + alerta quando gasto ultrapassa média histórica |
+| **Cache** | Redis com invalidação automática (dashboard, previsões, metas) |
+| **PWA** | Instalável, funciona offline, cache de dados via IndexedDB |
+| **Observabilidade** | Sentry (frontend + backend), logging estruturado, healthchecks detalhados |
+| **Rate Limiting** | 100 req/min por IP, 1000 req/min autenticado |
 | **UI** | Tema escuro, glassmorphism, responsivo, header sticky com navegação centrada |
 
 ## 📱 Categorias de Gasto
@@ -148,7 +153,8 @@ npm run dev
 - `GET /api/export/pdf/` — Exportar PDF
 
 ### Notificações & IA
-- `GET /api/health/` — Healthcheck
+- `GET /api/health/` — Healthcheck básico
+- `GET /api/health/detailed/` — Healthcheck detalhado (DB, Redis, Celery, email, OpenAI)
 - `GET /api/notificacoes/status/` — Status das notificações
 - `POST /api/tasks/trigger/` — Disparar tarefas manualmente
 - `POST /api/ai/chat/` — Chat com assistente IA
