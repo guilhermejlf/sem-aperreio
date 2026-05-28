@@ -7,11 +7,11 @@
 **Plan:** `.planning/ROADMAP-v2.0.md`
 **Status:** Phase 17.2 + 18 + 18.1 + 18.4 COMPLETE
 **Phase 17.2:** Production Activation Closure — COMPLETE (2026-05-25)
-**Last activity:** 2026-05-26 — Simplificação dos KPIs mobile: grid sem scroll, saldo em destaque, labels menores
+**Last activity:** 2026-05-28 — Paginação completa implementada: 20 itens/página, metadados count/page/pages/next/previous em gastos, receitas e extrato
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-27)
+See: `.planning/PROJECT.md` (updated 2026-05-28)
 See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 **Core value:** Familiares conseguem registrar e visualizar todos os gastos do lar em um só lugar, com análises claras que revelam padrões de consumo e oportunidades de economia.
@@ -125,3 +125,4 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - CI/CD validado: working-directory correto no workflow, npm ci + build passando
 - Extrato premium: timeline, componentização statement/, filtros adaptativos, design system
 - Mobile-first refinado no extrato: grid sem scroll, labels reduzidas, saldo em destaque
+- Paginação completa: 20 itens/página, metadados count/page/pages/next/previous em gastos, receitas e extrato

@@ -40,6 +40,7 @@ Sistema web completo para controle de gastos domésticos em família, com previs
 | **Notificações** | Lembretes semanais por email + alerta quando gasto ultrapassa média histórica |
 | **Cache** | Redis com invalidação automática (dashboard, previsões, metas) |
 | **PWA** | Instalável, funciona offline, cache de dados via IndexedDB |
+| **Paginação** | 20 itens/página em gastos, receitas e extrato, com navegação anterior/próxima |
 | **Observabilidade** | Sentry (frontend + backend), logging estruturado, healthchecks detalhados |
 | **Rate Limiting** | 100 req/min por IP, 1000 req/min autenticado |
 | **UI** | Tema escuro, glassmorphism, responsivo, header sticky com navegação centrada |

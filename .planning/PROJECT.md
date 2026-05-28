@@ -92,7 +92,7 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 
 - Options API no Vue — Composition API seria mais moderna, mas código legado funcional
 - Modelo ML treinado on-demand — cache Redis implementado
-- Paginação parcial (limite simples de 50 itens, sem metadados count/next/previous)
+- ~~Paginação parcial~~ → **Resolvido em 2026-05-28** — Paginação completa implementada (20 itens/página, metadados count/page/pages/next/previous) em gastos, receitas e extrato
 - Email verification disabled for testing — `email_verified=True` on register; login does not check status
 - Sentry ativo em produção com DSNs configurados
 - Release format: `sem-aperreio@v2.1.0` — usado por backend e frontend
@@ -159,4 +159,4 @@ This document evolves at phase transitions and milestone boundaries.
 - v3.3 shipped: extrato premium com timeline e design system
 
 ---
-*Last updated: 2026-05-27 — v3.3 Statement Premium SHIPPED. Todas as fases até 18.4 completas.*
+*Last updated: 2026-05-28 — Paginação completa implementada nos endpoints de listagem (gastos, receitas, extrato). v3.3 Statement Premium SHIPPED.*
