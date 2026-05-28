@@ -11,7 +11,13 @@ class TestGastosList:
     def test_lista_gastos_autenticado(self, authenticated_client, gasto):
         response = authenticated_client.get('/api/gastos/')
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) >= 1
+        assert 'gastos' in response.data
+        assert len(response.data['gastos']) >= 1
+        assert 'page' in response.data
+        assert 'pages' in response.data
+        assert 'total' in response.data
+        assert 'next' in response.data
+        assert 'previous' in response.data
 
     def test_lista_gastos_nao_autenticado(self, api_client):
         response = api_client.get('/api/gastos/')

@@ -8,7 +8,13 @@ class TestReceitas:
     def test_lista_receitas(self, authenticated_client, receita):
         response = authenticated_client.get('/api/receitas/')
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) >= 1
+        assert 'receitas' in response.data
+        assert len(response.data['receitas']) >= 1
+        assert 'page' in response.data
+        assert 'pages' in response.data
+        assert 'total' in response.data
+        assert 'next' in response.data
+        assert 'previous' in response.data
 
     def test_criar_receita(self, authenticated_client):
         from datetime import date

@@ -237,6 +237,25 @@
                 </template>
               </BaseCard>
             </div>
+
+            <!-- Paginação -->
+            <div v-if="gastosPagination.pages > 1" class="pagination-bar">
+              <button
+                :disabled="!gastosPagination.previous"
+                @click="goToPageGastos(gastosPagination.page - 1)"
+                class="btn-pagination"
+              >
+                <i class="pi pi-chevron-left"></i>
+              </button>
+              <span class="pagination-info">Página {{ gastosPagination.page }} de {{ gastosPagination.pages }}</span>
+              <button
+                :disabled="!gastosPagination.next"
+                @click="goToPageGastos(gastosPagination.page + 1)"
+                class="btn-pagination"
+              >
+                <i class="pi pi-chevron-right"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -401,6 +420,14 @@ export default {
       gastoFilter: 'todos', // 'todos' | 'grupo' | 'meus'
       loading: false,
       error: null,
+      gastosPagination: {
+        page: 1,
+        pages: 1,
+        pageSize: 20,
+        total: 0,
+        next: null,
+        previous: null,
+      },
       showAddModal: false,
       expenseEditingData: null,
       confirmVisible: false,
@@ -472,17 +499,28 @@ export default {
   },
 
   methods: {
-    async carregarGastos() {
+    async carregarGastos(page = 1) {
       try {
         this.loading = true
         this.error = null
-        const data = await apiRequest(API_ENDPOINTS.GASTOS_LIST)
+        const url = `${API_ENDPOINTS.GASTOS_LIST}?page=${page}&page_size=${this.gastosPagination.pageSize}`
+        const data = await apiRequest(url)
         this.gastos = data.gastos || []
+        this.gastosPagination.page = data.page || 1
+        this.gastosPagination.pages = data.pages || 1
+        this.gastosPagination.total = data.total || 0
+        this.gastosPagination.next = data.next || null
+        this.gastosPagination.previous = data.previous || null
       } catch (error) {
         this.error = 'Erro ao carregar despesas: ' + error.message
         console.error('Erro ao carregar despesas:', error)
       } finally {
         this.loading = false
+      }
+    },
+    goToPageGastos(page) {
+      if (page >= 1 && page <= this.gastosPagination.pages) {
+        this.carregarGastos(page)
       }
     },
 

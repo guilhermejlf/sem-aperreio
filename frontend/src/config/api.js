@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
   // Gastos
   GASTOS_LIST: `${API_BASE_URL}/api/gastos/`,
   GASTO_DETAIL: (id) => `${API_BASE_URL}/api/gastos/${id}/`,
+  GASTOS_PAGE: (page, pageSize) => `${API_BASE_URL}/api/gastos/?page=${page}&page_size=${pageSize}`,
   
   // Previsão
   PREVER_GASTO: `${API_BASE_URL}/api/prever/`,
@@ -195,8 +196,9 @@ export async function fetchDashboard(mes, ano) {
   return await apiRequest(API_ENDPOINTS.DASHBOARD(mes, ano))
 }
 
-export async function fetchReceitas() {
-  return await apiRequest(API_ENDPOINTS.RECEITAS_LIST)
+export async function fetchReceitas(page = 1, pageSize = 20) {
+  const url = `${API_ENDPOINTS.RECEITAS_LIST}?page=${page}&page_size=${pageSize}`
+  return await apiRequest(url)
 }
 
 export async function addReceita(data) {
@@ -274,8 +276,9 @@ export async function deleteFamily() {
 }
 
 // Metas de Gasto
-export async function fetchExtrato(params = {}) {
-  return await apiRequest(API_ENDPOINTS.EXTRATO(params))
+export async function fetchExtrato(params = {}, page = 1, pageSize = 20) {
+  const url = `${API_ENDPOINTS.EXTRATO(params)}${params && Object.keys(params).length > 0 ? '&' : '?'}page=${page}&page_size=${pageSize}`
+  return await apiRequest(url)
 }
 
 export async function downloadExport(format, params = {}) {

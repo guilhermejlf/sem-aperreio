@@ -50,6 +50,25 @@
           </template>
         </BaseCard>
       </div>
+
+        <!-- Paginação -->
+        <div v-if="pagination.pages > 1" class="pagination-bar">
+          <button
+            :disabled="!pagination.previous"
+            @click="goToPageReceitas(pagination.page - 1)"
+            class="btn-pagination"
+          >
+            <i class="pi pi-chevron-left"></i>
+          </button>
+          <span class="pagination-info">Página {{ pagination.page }} de {{ pagination.pages }}</span>
+          <button
+            :disabled="!pagination.next"
+            @click="goToPageReceitas(pagination.page + 1)"
+            class="btn-pagination"
+          >
+            <i class="pi pi-chevron-right"></i>
+          </button>
+        </div>
       </div>
     </template>
 
@@ -102,6 +121,14 @@ export default {
       loading: false,
       showModal: false,
       revenueEditingData: null,
+      pagination: {
+        page: 1,
+        pages: 1,
+        pageSize: 20,
+        total: 0,
+        next: null,
+        previous: null,
+      },
       confirmVisible: false,
       confirmTitle: '',
       confirmMessage: '',
@@ -130,15 +157,25 @@ export default {
     this.carregarReceitas()
   },
   methods: {
-    async carregarReceitas() {
+    async carregarReceitas(page = 1) {
       try {
         this.loading = true
-        const res = await fetchReceitas()
+        const res = await fetchReceitas(page, this.pagination.pageSize)
         this.receitas = res.receitas || []
+        this.pagination.page = res.page || 1
+        this.pagination.pages = res.pages || 1
+        this.pagination.total = res.total || 0
+        this.pagination.next = res.next || null
+        this.pagination.previous = res.previous || null
       } catch (error) {
         console.error('Erro ao carregar receitas:', error)
       } finally {
         this.loading = false
+      }
+    },
+    goToPageReceitas(page) {
+      if (page >= 1 && page <= this.pagination.pages) {
+        this.carregarReceitas(page)
       }
     },
     abrirModal() {

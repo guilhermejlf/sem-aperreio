@@ -42,6 +42,25 @@
         :itens="itens"
         :categorias="categorias"
       />
+
+      <!-- Paginação -->
+      <div v-if="pagination.pages > 1" class="pagination-bar">
+        <button
+          :disabled="!pagination.previous"
+          @click="goToPageExtrato(pagination.page - 1)"
+          class="btn-pagination"
+        >
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        <span class="pagination-info">Página {{ pagination.page }} de {{ pagination.pages }}</span>
+        <button
+          :disabled="!pagination.next"
+          @click="goToPageExtrato(pagination.page + 1)"
+          class="btn-pagination"
+        >
+          <i class="pi pi-chevron-right"></i>
+        </button>
+      </div>
     </template>
 
     <!-- Export FAB -->
@@ -109,6 +128,14 @@ export default {
         tipo: '',
         pago: ''
       },
+      pagination: {
+        page: 1,
+        pages: 1,
+        pageSize: 20,
+        total: 0,
+        next: null,
+        previous: null,
+      },
       categorias: [
         { value: 'moradia', label: 'Moradia' },
         { value: 'mercado', label: 'Mercado' },
@@ -135,7 +162,7 @@ export default {
   },
 
   methods: {
-    async carregarExtrato() {
+    async carregarExtrato(page = 1) {
       this.loading = true
       try {
         const params = {}
@@ -145,14 +172,24 @@ export default {
         if (this.filters.tipo) params.tipo = this.filters.tipo
         if (this.filters.pago !== '') params.pago = this.filters.pago
 
-        const data = await fetchExtrato(params)
+        const data = await fetchExtrato(params, page, this.pagination.pageSize)
         this.itens = data.itens || []
         this.resumo = data.resumo || null
+        this.pagination.page = data.page || 1
+        this.pagination.pages = data.pages || 1
+        this.pagination.total = data.total || 0
+        this.pagination.next = data.next || null
+        this.pagination.previous = data.previous || null
       } catch (error) {
         console.error('Erro ao carregar extrato:', error)
         this.$toast.error(toastMessages.export.loadError, { title: toastTitles.error })
       } finally {
         this.loading = false
+      }
+    },
+    goToPageExtrato(page) {
+      if (page >= 1 && page <= this.pagination.pages) {
+        this.carregarExtrato(page)
       }
     },
 

@@ -98,7 +98,8 @@ class TestCache:
         # Segunda requisição (deve ser cacheada)
         response2 = authenticated_client.get('/api/extrato/')
         assert response2.status_code == status.HTTP_200_OK
-        assert response2.data == response1.data
+        assert response2.data['itens'] == response1.data['itens']
+        assert response2.data['resumo'] == response1.data['resumo']
 
     def test_gastos_list_cache(self, authenticated_client, gasto):
         # Primeira requisição
@@ -108,7 +109,8 @@ class TestCache:
         # Segunda requisição (deve ser cacheada)
         response2 = authenticated_client.get('/api/gastos/')
         assert response2.status_code == status.HTTP_200_OK
-        assert response2.data == response1.data
+        assert response2.data['gastos'] == response1.data['gastos']
+        assert response2.data['total'] == response1.data['total']
 
     def test_receitas_list_cache(self, authenticated_client, receita):
         # Primeira requisição
@@ -118,4 +120,5 @@ class TestCache:
         # Segunda requisição (deve ser cacheada)
         response2 = authenticated_client.get('/api/receitas/')
         assert response2.status_code == status.HTTP_200_OK
-        assert response2.data == response1.data
+        assert response2.data['receitas'] == response1.data['receitas']
+        assert response2.data['total'] == response1.data['total']

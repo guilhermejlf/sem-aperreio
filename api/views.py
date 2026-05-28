@@ -19,6 +19,7 @@ from .models import Gasto, FamilyMembership, Receita, Family, MetaGasto
 from .serializers import GastoSerializer, ReceitaSerializer, MetaGastoSerializer
 from .permissions import GastoPermission
 from .cache_utils import cached_view, invalidate_gastos, invalidate_receitas, invalidate_metas
+from .pagination import paginate_queryset
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 
@@ -271,15 +272,17 @@ def gastos(request):
             queryset = queryset.order_by('-data_efetiva', '-criado_em')
 
             # Paginação simples
-            limite = int(request.query_params.get('limite', 50))
-            if limite > 100:
-                limite = 100
-            queryset = queryset[:limite]
+            page_data, meta = paginate_queryset(queryset, request, page_size=20, max_page_size=100)
+            serializer = GastoSerializer(page_data, many=True)
 
-            serializer = GastoSerializer(queryset, many=True)
             return Response({
                 "gastos": serializer.data,
-                "total": len(serializer.data)
+                "total": meta['count'],
+                "page": meta['page'],
+                "pages": meta['pages'],
+                "page_size": meta['page_size'],
+                "next": meta['next'],
+                "previous": meta['previous'],
             })
 
         elif request.method == 'POST':
@@ -732,16 +735,17 @@ def receitas(request):
 
             queryset = queryset.order_by('-data', '-criado_em')
 
-            # Paginação simples
-            limite = int(request.query_params.get('limite', 50))
-            if limite > 100:
-                limite = 100
-            queryset = queryset[:limite]
+            page_data, meta = paginate_queryset(queryset, request, page_size=20, max_page_size=100)
+            serializer = ReceitaSerializer(page_data, many=True)
 
-            serializer = ReceitaSerializer(queryset, many=True)
             return Response({
                 "receitas": serializer.data,
-                "total": len(serializer.data)
+                "total": meta['count'],
+                "page": meta['page'],
+                "pages": meta['pages'],
+                "page_size": meta['page_size'],
+                "next": meta['next'],
+                "previous": meta['previous'],
             })
 
         elif request.method == 'POST':
@@ -876,18 +880,27 @@ def extrato(request):
         # Ordenar por data decrescente
         itens.sort(key=lambda x: x["data"] or "", reverse=True)
 
-        # Resumo
+        # Resumo (calculado ANTES da paginação, para refletir o total real)
         total_gastos = sum(float(i["valor"]) for i in itens if i["tipo"] == "gasto")
         total_receitas = sum(float(i["valor"]) for i in itens if i["tipo"] == "receita")
+        resumo = {
+            "total_gastos": round(total_gastos, 2),
+            "total_receitas": round(total_receitas, 2),
+            "saldo": round(total_receitas - total_gastos, 2),
+        }
+
+        # Paginação completa
+        page_data, meta = paginate_queryset(itens, request, page_size=20, max_page_size=100)
 
         return Response({
-            "itens": itens,
-            "total": len(itens),
-            "resumo": {
-                "total_gastos": round(total_gastos, 2),
-                "total_receitas": round(total_receitas, 2),
-                "saldo": round(total_receitas - total_gastos, 2),
-            }
+            "itens": page_data,
+            "total": meta['count'],
+            "resumo": resumo,
+            "page": meta['page'],
+            "pages": meta['pages'],
+            "page_size": meta['page_size'],
+            "next": meta['next'],
+            "previous": meta['previous'],
         })
 
     except Exception as e:
