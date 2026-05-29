@@ -26,51 +26,36 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StatementSummary',
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { formatarValor } from '../../utils/formatCurrency.js'
 
-  props: {
-    resumo: {
-      type: Object,
-      required: true
-    }
-  },
-
-  data() {
-    return {
-      isMobile: window.innerWidth <= 768
-    }
-  },
-
-  computed: {
-    saldoClasse() {
-      if (!this.resumo) return ''
-      return this.resumo.saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo'
-    }
-  },
-
-  mounted() {
-    window.addEventListener('resize', this.onResize)
-  },
-
-  beforeUnmount() {
-    window.removeEventListener('resize', this.onResize)
-  },
-
-  methods: {
-    onResize() {
-      this.isMobile = window.innerWidth <= 768
-    },
-
-    formatarValor(valor) {
-      return parseFloat(valor || 0).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
-    }
+const props = defineProps({
+  resumo: {
+    type: Object,
+    required: true
   }
+})
+
+const isMobile = ref(false)
+
+const saldoClasse = computed(() => {
+  if (!props.resumo) return ''
+  return props.resumo.saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo'
+})
+
+function onResize() {
+  isMobile.value = window.innerWidth <= 768
 }
+
+onMounted(() => {
+  isMobile.value = window.innerWidth <= 768
+  window.addEventListener('resize', onResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onResize)
+})
 </script>
 
 <style scoped>

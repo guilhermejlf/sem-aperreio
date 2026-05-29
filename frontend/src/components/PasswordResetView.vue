@@ -61,65 +61,59 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import Button from 'primevue/button'
 import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 
-export default {
-  components: { Button },
-  data() {
-    return {
-      password: '',
-      password_confirm: '',
-      loading: false,
-      error: null,
-      success: null,
-      token: null
-    }
-  },
-  computed: {
-    hasMinLength() { return this.password.length >= 8 },
-    hasUppercase() { return /[A-Z]/.test(this.password) },
-    hasLowercase() { return /[a-z]/.test(this.password) },
-    hasNumber() { return /[0-9]/.test(this.password) },
-    hasSpecial() { return /[@!#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(this.password) },
-    formValido() {
-      return this.hasMinLength && this.hasUppercase && this.hasLowercase &&
-             this.hasNumber && this.hasSpecial && this.password === this.password_confirm
-    }
-  },
-  mounted() {
-    const urlParams = new URLSearchParams(window.location.search)
-    this.token = urlParams.get('token')
-    if (!this.token) {
-      this.error = 'Link inválido. Solicite uma nova redefinição de senha.'
-    }
-  },
-  methods: {
-    async handleSubmit() {
-      if (!this.token) return
-      this.loading = true
-      this.error = null
+const password = ref('')
+const password_confirm = ref('')
+const loading = ref(false)
+const error = ref(null)
+const success = ref(null)
+const token = ref(null)
 
-      try {
-        const data = await apiRequest(API_ENDPOINTS.AUTH_PASSWORD_RESET_CONFIRM, {
-          method: 'POST',
-          body: JSON.stringify({
-            token: this.token,
-            new_password: this.password
-          })
-        })
-        this.success = data.mensagem || 'Senha redefinida com sucesso!'
-      } catch (error) {
-        this.error = error.message || 'Erro ao redefinir senha. O link pode ter expirado.'
-      } finally {
-        this.loading = false
-      }
-    },
-    goToLogin() {
-      window.location.href = '/'
-    }
+const hasMinLength = computed(() => password.value.length >= 8)
+const hasUppercase = computed(() => /[A-Z]/.test(password.value))
+const hasLowercase = computed(() => /[a-z]/.test(password.value))
+const hasNumber = computed(() => /[0-9]/.test(password.value))
+const hasSpecial = computed(() => /[@!#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password.value))
+const formValido = computed(() =>
+  hasMinLength.value && hasUppercase.value && hasLowercase.value &&
+  hasNumber.value && hasSpecial.value && password.value === password_confirm.value
+)
+
+onMounted(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  token.value = urlParams.get('token')
+  if (!token.value) {
+    error.value = 'Link inválido. Solicite uma nova redefinição de senha.'
   }
+})
+
+async function handleSubmit() {
+  if (!token.value) return
+  loading.value = true
+  error.value = null
+
+  try {
+    const data = await apiRequest(API_ENDPOINTS.AUTH_PASSWORD_RESET_CONFIRM, {
+      method: 'POST',
+      body: JSON.stringify({
+        token: token.value,
+        new_password: password.value
+      })
+    })
+    success.value = data.mensagem || 'Senha redefinida com sucesso!'
+  } catch (err) {
+    error.value = err.message || 'Erro ao redefinir senha. O link pode ter expirado.'
+  } finally {
+    loading.value = false
+  }
+}
+
+function goToLogin() {
+  window.location.href = '/'
 }
 </script>
 

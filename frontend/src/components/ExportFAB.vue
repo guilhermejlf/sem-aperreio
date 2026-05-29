@@ -3,13 +3,13 @@
     <button
       class="export-fab"
       @click="toggleDropdown"
-      ref="exportBtn"
+      ref="exportBtnRef"
       title="Exportar"
     >
       <i class="pi pi-download"></i>
     </button>
     <Transition name="fade">
-      <div v-if="showDropdown" class="export-menu" ref="exportDropdown">
+      <div v-if="showDropdown" class="export-menu" ref="exportDropdownRef">
         <button @click="emitExport('csv')">
           <i class="pi pi-file-export"></i> CSV
         </button>
@@ -24,47 +24,41 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ExportFAB',
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-  emits: ['export'],
+const showDropdown = ref(false)
+const exportBtnRef = ref(null)
+const exportDropdownRef = ref(null)
 
-  data() {
-    return {
-      showDropdown: false,
-    }
-  },
+const emit = defineEmits(['export'])
 
-  mounted() {
-    document.addEventListener('click', this.closeDropdown)
-  },
-
-  beforeUnmount() {
-    document.removeEventListener('click', this.closeDropdown)
-  },
-
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown
-    },
-
-    closeDropdown(e) {
-      if (
-        this.$refs.exportDropdown &&
-        !this.$refs.exportDropdown.contains(e.target) &&
-        !this.$refs.exportBtn.contains(e.target)
-      ) {
-        this.showDropdown = false
-      }
-    },
-
-    emitExport(formato) {
-      this.showDropdown = false
-      this.$emit('export', formato)
-    },
-  },
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value
 }
+
+function closeDropdown(e) {
+  if (
+    exportDropdownRef.value &&
+    !exportDropdownRef.value.contains(e.target) &&
+    !exportBtnRef.value.contains(e.target)
+  ) {
+    showDropdown.value = false
+  }
+}
+
+function emitExport(formato) {
+  showDropdown.value = false
+  emit('export', formato)
+}
+
+onMounted(() => {
+  document.addEventListener('click', closeDropdown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeDropdown)
+})
 </script>
 
 <style scoped>

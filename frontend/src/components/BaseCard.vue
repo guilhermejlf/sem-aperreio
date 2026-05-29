@@ -3,14 +3,14 @@
     <div class="base-card__body">
       <div class="base-card__info">
         <div class="base-card__header">
-          <span v-if="icon && !$slots.icon" class="base-card__icon">{{ icon }}</span>
+          <span v-if="icon && !slots.icon" class="base-card__icon">{{ icon }}</span>
           <slot name="icon"></slot>
           <h4 class="base-card__title">
             <slot name="title">{{ title }}</slot>
           </h4>
           <slot name="header-badge"></slot>
         </div>
-        <p v-if="subtitle || $slots.subtitle" class="base-card__subtitle">
+        <p v-if="subtitle || slots.subtitle" class="base-card__subtitle">
           <slot name="subtitle">{{ subtitle }}</slot>
         </p>
         <div class="base-card__extras">
@@ -29,29 +29,27 @@
         </div>
       </div>
     </div>
-    <div v-if="$slots.actions" class="base-card__actions-col">
+    <div v-if="slots.actions" class="base-card__actions-col">
       <slot name="actions"></slot>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'BaseCard',
-  props: {
-    icon: { type: String, default: '' },
-    title: { type: String, default: '' },
-    subtitle: { type: String, default: '' },
-    value: { type: String, default: '' },
-    valueColor: { type: String, default: '#60A637' },
-    isGroup: { type: Boolean, default: false }
-  },
-  computed: {
-    valueStyle() {
-      return this.valueColor ? { color: this.valueColor } : {}
-    }
-  }
-}
+<script setup>
+import { computed, useSlots } from 'vue'
+
+const props = defineProps({
+  icon: { type: String, default: '' },
+  title: { type: String, default: '' },
+  subtitle: { type: String, default: '' },
+  value: { type: String, default: '' },
+  valueColor: { type: String, default: '#60A637' },
+  isGroup: { type: Boolean, default: false }
+})
+
+const slots = useSlots()
+
+const valueStyle = computed(() => props.valueColor ? { color: props.valueColor } : {})
 </script>
 
 <style scoped>

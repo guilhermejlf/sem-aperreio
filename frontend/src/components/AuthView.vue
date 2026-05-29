@@ -36,24 +36,19 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import LoginForm from './LoginForm.vue'
 import RegisterForm from './RegisterForm.vue'
 import ForgotPasswordModal from './ForgotPasswordModal.vue'
 
-export default {
-  components: { LoginForm, RegisterForm, ForgotPasswordModal },
-  data() {
-    return {
-      activeTab: 'login',
-      showForgotModal: false
-    }
-  },
-  methods: {
-    handleAuth() {
-      this.$emit('authenticated')
-    }
-  }
+const activeTab = ref('login')
+const showForgotModal = ref(false)
+
+const emit = defineEmits(['authenticated'])
+
+function handleAuth() {
+  emit('authenticated')
 }
 </script>
 
