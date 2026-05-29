@@ -12,30 +12,19 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StatementGroup',
+<script setup>
+import { formatarValor } from '../../utils/formatCurrency.js'
 
-  props: {
-    titulo: {
-      type: String,
-      required: true
-    },
-    total: {
-      type: Number,
-      default: null
-    }
+defineProps({
+  titulo: {
+    type: String,
+    required: true
   },
-
-  methods: {
-    formatarValor(valor) {
-      return parseFloat(valor || 0).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
-    }
+  total: {
+    type: Number,
+    default: null
   }
-}
+})
 </script>
 
 <style scoped>

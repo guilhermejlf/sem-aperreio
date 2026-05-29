@@ -16,13 +16,10 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'SkeletonGeneric',
-  props: {
-    count: { type: Number, default: 3 },
-  },
-}
+<script setup>
+defineProps({
+  count: { type: Number, default: 3 },
+})
 </script>
 
 <style scoped>

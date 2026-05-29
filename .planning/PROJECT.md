@@ -90,7 +90,7 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 
 ### Known Issues / Tech Debt
 
-- Options API no Vue — Composition API seria mais moderna, mas código legado funcional
+- Options API no Vue → **Migração iniciada 2026-05-29** — Fase 1: 4 componentes leaf migrados (AppLoading, BeneAvatar, SkeletonGeneric, StatementGroup). usePagination composable criado. Restam ~45 componentes.
 - Modelo ML treinado on-demand — cache Redis implementado
 - ~~Paginação parcial~~ → **Resolvido em 2026-05-28** — Paginação completa implementada (20 itens/página, metadados count/page/pages/next/previous) em gastos, receitas e extrato
 - ~~ExtratoView.vue concentrado~~ → **Resolvido em 2026-05-28** — Extraído ExportFAB.vue, pagination mixin e formatCurrency.js. De 363 para 226 linhas (-38%)
@@ -160,4 +160,4 @@ This document evolves at phase transitions and milestone boundaries.
 - v3.3 shipped: extrato premium com timeline e design system
 
 ---
-*Last updated: 2026-05-28 — Refatoração ExtratoView.vue: ExportFAB, pagination mixin, formatCurrency. Paginação completa implementada. v3.3 Statement Premium SHIPPED.*
+*Last updated: 2026-05-29 — Fase 1 migração Composition API: 4 componentes leaf + usePagination composable. Paginação completa implementada. v3.3 Statement Premium SHIPPED.*

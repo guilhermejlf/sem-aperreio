@@ -11,21 +11,18 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'BeneAvatar',
-  props: {
-    size: {
-      type: String,
-      default: 'floating',
-      validator: (v) => ['small', 'medium', 'floating'].includes(v),
-    },
-    breathing: {
-      type: Boolean,
-      default: true,
-    },
+<script setup>
+defineProps({
+  size: {
+    type: String,
+    default: 'floating',
+    validator: (v) => ['small', 'medium', 'floating'].includes(v),
   },
-}
+  breathing: {
+    type: Boolean,
+    default: true,
+  },
+})
 </script>
 
 <style scoped>

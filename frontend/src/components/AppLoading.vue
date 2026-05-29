@@ -10,15 +10,12 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AppLoading',
-  props: {
-    inline: { type: Boolean, default: false },
-    fullscreen: { type: Boolean, default: false },
-    message: { type: String, default: '' },
-  },
-}
+<script setup>
+defineProps({
+  inline: { type: Boolean, default: false },
+  fullscreen: { type: Boolean, default: false },
+  message: { type: String, default: '' },
+})
 </script>
 
 <style scoped>
