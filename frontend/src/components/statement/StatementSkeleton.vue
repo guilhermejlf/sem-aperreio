@@ -30,10 +30,7 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StatementSkeleton'
-}
+<script setup>
 </script>
 
 <style scoped>

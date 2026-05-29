@@ -18,29 +18,26 @@
   </ModalBase>
 </template>
 
-<script>
+<script setup>
 import ModalBase from '../ModalBase.vue'
 
-export default {
-  name: 'ConfirmModal',
-  components: { ModalBase },
-  props: {
-    visible: { type: Boolean, default: false },
-    title: { type: String, default: 'Confirmar' },
-    message: { type: String, default: '' },
-    acceptLabel: { type: String, default: 'Confirmar' },
-    rejectLabel: { type: String, default: 'Cancelar' },
-    danger: { type: Boolean, default: false }
-  },
-  emits: ['accept', 'reject'],
-  methods: {
-    onAccept() {
-      this.$emit('accept')
-    },
-    onReject() {
-      this.$emit('reject')
-    }
-  }
+defineProps({
+  visible: { type: Boolean, default: false },
+  title: { type: String, default: 'Confirmar' },
+  message: { type: String, default: '' },
+  acceptLabel: { type: String, default: 'Confirmar' },
+  rejectLabel: { type: String, default: 'Cancelar' },
+  danger: { type: Boolean, default: false }
+})
+
+const emit = defineEmits(['accept', 'reject'])
+
+function onAccept() {
+  emit('accept')
+}
+
+function onReject() {
+  emit('reject')
 }
 </script>
 

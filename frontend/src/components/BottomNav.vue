@@ -4,7 +4,7 @@
       v-for="item in items"
       :key="item.tab"
       :class="['bottom-nav-item', { active: activeTab === item.tab }]"
-      @click="$emit('navigate', item.tab)"
+      @click="emit('navigate', item.tab)"
     >
       <i :class="item.icon"></i>
       <span>{{ item.label }}</span>
@@ -12,29 +12,26 @@
   </nav>
 </template>
 
-<script>
-export default {
-  name: 'BottomNav',
-  props: {
-    activeTab: {
-      type: String,
-      required: true
-    }
-  },
-  emits: ['navigate'],
-  data() {
-    return {
-      items: [
-        { tab: 'dashboard', label: 'Painel', icon: 'pi pi-home' },
-        { tab: 'extrato', label: 'Extrato', icon: 'pi pi-list' },
-        { tab: 'gastos', label: 'Despesas', icon: 'pi pi-arrow-up-right' },
-        { tab: 'receitas', label: 'Receitas', icon: 'pi pi-chart-line' },
-        { tab: 'metas', label: 'Metas', icon: 'pi pi-bullseye' },
-        { tab: 'grupo', label: 'Grupo', icon: 'pi pi-users' },
-      ]
-    }
+<script setup>
+import { ref } from 'vue'
+
+defineProps({
+  activeTab: {
+    type: String,
+    required: true
   }
-}
+})
+
+const emit = defineEmits(['navigate'])
+
+const items = ref([
+  { tab: 'dashboard', label: 'Painel', icon: 'pi pi-home' },
+  { tab: 'extrato', label: 'Extrato', icon: 'pi pi-list' },
+  { tab: 'gastos', label: 'Despesas', icon: 'pi pi-arrow-up-right' },
+  { tab: 'receitas', label: 'Receitas', icon: 'pi pi-chart-line' },
+  { tab: 'metas', label: 'Metas', icon: 'pi pi-bullseye' },
+  { tab: 'grupo', label: 'Grupo', icon: 'pi pi-users' },
+])
 </script>
 
 <style scoped>

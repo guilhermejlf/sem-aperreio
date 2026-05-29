@@ -9,31 +9,28 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'OfflineFallback',
-  data() {
-    return {
-      isOffline: !navigator.onLine
-    }
-  },
-  mounted() {
-    window.addEventListener('online', this.handleOnline)
-    window.addEventListener('offline', this.handleOffline)
-  },
-  beforeUnmount() {
-    window.removeEventListener('online', this.handleOnline)
-    window.removeEventListener('offline', this.handleOffline)
-  },
-  methods: {
-    handleOnline() {
-      this.isOffline = false
-    },
-    handleOffline() {
-      this.isOffline = true
-    }
-  }
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+const isOffline = ref(!navigator.onLine)
+
+function handleOnline() {
+  isOffline.value = false
 }
+
+function handleOffline() {
+  isOffline.value = true
+}
+
+onMounted(() => {
+  window.addEventListener('online', handleOnline)
+  window.addEventListener('offline', handleOffline)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('online', handleOnline)
+  window.removeEventListener('offline', handleOffline)
+})
 </script>
 
 <style scoped>

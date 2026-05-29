@@ -17,45 +17,34 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import StatementGroup from './StatementGroup.vue'
 import StatementItem from './StatementItem.vue'
 import { groupByTimeline } from '../../utils/timeline.js'
 
-export default {
-  name: 'StatementTimeline',
-
-  components: { StatementGroup, StatementItem },
-
-  props: {
-    itens: {
-      type: Array,
-      required: true
-    },
-    categorias: {
-      type: Array,
-      default: () => []
-    }
+const props = defineProps({
+  itens: {
+    type: Array,
+    required: true
   },
-
-  computed: {
-    grupos() {
-      return groupByTimeline(this.itens)
-    }
-  },
-
-  methods: {
-    calcularTotal(itens) {
-      return itens.reduce((acc, item) => {
-        const valor = parseFloat(item.valor || 0)
-        return item.tipo === 'receita' ? acc + valor : acc - valor
-      }, 0)
-    },
-
-    getStaggerDelay(index) {
-      return { '--stagger-delay': `${index * 50}ms` }
-    }
+  categorias: {
+    type: Array,
+    default: () => []
   }
+})
+
+const grupos = computed(() => groupByTimeline(props.itens))
+
+function calcularTotal(itens) {
+  return itens.reduce((acc, item) => {
+    const valor = parseFloat(item.valor || 0)
+    return item.tipo === 'receita' ? acc + valor : acc - valor
+  }, 0)
+}
+
+function getStaggerDelay(index) {
+  return { '--stagger-delay': `${index * 50}ms` }
 }
 </script>
 
