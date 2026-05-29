@@ -23,15 +23,11 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
 import { captureError } from '../config/sentry.js'
 
 const hasError = ref(false)
 const error = ref(null)
 const errorInfo = ref(null)
-
-const router = useRouter()
-const route = useRoute()
 
 const displayMessage = computed(() => {
   if (error.value?.message?.includes('network') || error.value?.message?.includes('fetch')) {
@@ -46,7 +42,7 @@ const displayMessage = computed(() => {
   return 'Algo inesperado aconteceu, mas já estamos cuidando disso.'
 })
 
-const canGoHome = computed(() => route && route.path !== '/')
+const canGoHome = computed(() => window.location.pathname !== '/')
 
 const emit = defineEmits(['retry'])
 
@@ -60,7 +56,7 @@ function errorCaptured(err, instance, info) {
   captureError(err, {
     component: instance?.$options?.name || 'unknown',
     errorInfo: info,
-    route: route?.path,
+    route: window.location.pathname,
   })
 
   return false
@@ -82,11 +78,7 @@ function goHome() {
   hasError.value = false
   error.value = null
   errorInfo.value = null
-  if (router) {
-    router.push('/')
-  } else {
-    window.location.href = '/'
-  }
+  window.location.href = '/'
 }
 </script>
 
