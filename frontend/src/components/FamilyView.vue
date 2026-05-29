@@ -181,12 +181,14 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch } from 'vue'
 import Toast from 'primevue/toast'
 import BaseCard from './BaseCard.vue'
 import EmptyState from './EmptyState.vue'
 import ConfirmModal from './modals/ConfirmModal.vue'
 import { toastMessages, toastTitles } from '../utils/toastMessages.js'
+import { toastStore } from '../stores/toast.store.js'
 import {
   createFamily,
   joinFamily,
@@ -196,222 +198,214 @@ import {
   deleteFamily
 } from '../config/api.js'
 
-export default {
-  name: 'FamilyView',
-  components: {
-    EmptyState,
-    Toast,
-    BaseCard,
-    ConfirmModal
+const props = defineProps({
+  family: {
+    type: Object,
+    default: null
   },
-  props: {
-    family: {
-      type: Object,
-      default: null
-    },
-    currentUser: {
-      type: Object,
-      default: null
-    }
-  },
-  emits: ['family-action'],
-  data() {
-    return {
-      pageState: 'no-group',
-      newGroupName: '',
-      joinCode: '',
-      loading: false,
-      actionLoading: false,
-      confirmVisible: false,
-      confirmTitle: '',
-      confirmMessage: '',
-      confirmDanger: false,
-      confirmAcceptLabel: 'Confirmar',
-      confirmRejectLabel: 'Cancelar',
-      confirmOnAccept: null
-    }
-  },
-  computed: {
-    familyData() {
-      return this.family || null
-    },
-    members() {
-      return this.familyData?.members || []
-    },
-    isAdmin() {
-      if (!this.familyData || !this.currentUser) return false
-      const me = this.members.find(m => m.user.id === this.currentUser.id)
-      return me?.role === 'admin'
-    },
-    codeExpiringSoon() {
-      if (!this.familyData?.code_expires_at) return false
-      const expires = new Date(this.familyData.code_expires_at)
-      const now = new Date()
-      const diffHours = (expires - now) / (1000 * 60 * 60)
-      return diffHours < 24
-    },
-    expirationText() {
-      if (!this.familyData?.code_expires_at) return ''
-      const expires = new Date(this.familyData.code_expires_at)
-      const now = new Date()
-      if (now > expires) return 'Código expirado'
-      const diffDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24))
-      return diffDays <= 1 ? 'Expira em menos de 24h' : `Expira em ${diffDays} dias`
-    }
-  },
-  watch: {
-    family: {
-      immediate: true,
-      handler(newVal) {
-        this.updateState(newVal)
-      }
-    }
-  },
-  methods: {
-    updateState(family) {
-      if (family) {
-        this.pageState = 'has-group'
-      } else {
-        this.pageState = 'no-group'
-      }
-      this.newGroupName = ''
-      this.joinCode = ''
-    },
-    isCurrentUser(member) {
-      return member.user.id === this.currentUser?.id
-    },
-    getInitials(name) {
-      return name.charAt(0).toUpperCase()
-    },
-    getAvatarColor(str) {
-      const colors = ['#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899', '#10b981', '#f97316']
-      let hash = 0
-      for (let i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash)
-      }
-      return colors[Math.abs(hash) % colors.length]
-    },
-    async handleCreate() {
-      const name = this.newGroupName.trim()
-      if (!name) {
-        this.$toast.error(toastMessages.family.nameRequired, { title: toastTitles.error })
-        return
-      }
-      this.actionLoading = true
-      try {
-        const data = await createFamily(name)
-        this.$emit('family-action', { action: 'created', data })
-        this.$toast.success(toastMessages.family.created, { title: toastTitles.success })
-      } catch (error) {
-        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
-      } finally {
-        this.actionLoading = false
-      }
-    },
-    async handleJoin() {
-      const code = this.joinCode.trim().toUpperCase()
-      if (code.length !== 6) {
-        this.$toast.error(toastMessages.family.codeLength, { title: toastTitles.error })
-        return
-      }
-      this.actionLoading = true
-      try {
-        const data = await joinFamily(code)
-        this.$emit('family-action', { action: 'joined', data })
-        this.$toast.success(toastMessages.family.joined, { title: toastTitles.success })
-      } catch (error) {
-        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
-      } finally {
-        this.actionLoading = false
-      }
-    },
-    async handleRegenerateCode() {
-      this.actionLoading = true
-      try {
-        const data = await regenerateFamilyCode()
-        this.$emit('family-action', { action: 'code-regenerated', data })
-        this.$toast.success(toastMessages.family.codeRegenerated, { title: toastTitles.success })
-      } catch (error) {
-        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
-      } finally {
-        this.actionLoading = false
-      }
-    },
-    async handleLeave() {
-      this.actionLoading = true
-      try {
-        await leaveFamily()
-        this.$emit('family-action', { action: 'left' })
-        this.$toast.success(toastMessages.family.left, { title: toastTitles.success })
-      } catch (error) {
-        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
-      } finally {
-        this.actionLoading = false
-      }
-    },
-    async handleExpel(member) {
-      this.actionLoading = true
-      try {
-        await removeFamilyMember(member.user.id)
-        this.$emit('family-action', { action: 'member-removed', data: member })
-        this.$toast.success(toastMessages.family.memberRemoved, { title: toastTitles.success })
-      } catch (error) {
-        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
-      } finally {
-        this.actionLoading = false
-      }
-    },
-    async handleDeleteGroup() {
-      this.actionLoading = true
-      try {
-        await deleteFamily()
-        this.$emit('family-action', { action: 'deleted' })
-        this.$toast.success(toastMessages.family.groupDeleted, { title: toastTitles.success })
-      } catch (error) {
-        this.$toast.error(toastMessages.family.saveError, { title: toastTitles.error })
-      } finally {
-        this.actionLoading = false
-      }
-    },
-    copyCode() {
-      navigator.clipboard.writeText(this.familyData.code)
-      this.$toast.success(toastMessages.family.codeCopied, { title: toastTitles.success })
-    },
-    confirmLeave() {
-      this.confirmTitle = 'Sair do Grupo'
-      this.confirmMessage = 'Tem certeza que deseja sair do grupo? Se for o único membro, o grupo será excluído.'
-      this.confirmDanger = true
-      this.confirmAcceptLabel = 'Sair'
-      this.confirmRejectLabel = 'Cancelar'
-      this.confirmOnAccept = this.handleLeave
-      this.confirmVisible = true
-    },
-    confirmDeleteGroup() {
-      this.confirmTitle = 'Excluir Grupo?'
-      this.confirmMessage = 'Todos os membros serão removidos e as despesas permanecerão vinculadas apenas aos criadores.'
-      this.confirmDanger = true
-      this.confirmAcceptLabel = 'Excluir'
-      this.confirmRejectLabel = 'Cancelar'
-      this.confirmOnAccept = this.handleDeleteGroup
-      this.confirmVisible = true
-    },
-    confirmExpel(member) {
-      this.confirmTitle = 'Expulsar Membro'
-      this.confirmMessage = `Remover ${member.user.first_name || member.user.username} do grupo?`
-      this.confirmDanger = true
-      this.confirmAcceptLabel = 'Remover'
-      this.confirmRejectLabel = 'Cancelar'
-      this.confirmOnAccept = () => this.handleExpel(member)
-      this.confirmVisible = true
-    },
+  currentUser: {
+    type: Object,
+    default: null
+  }
+})
 
-    async onConfirmAccept() {
-      this.confirmVisible = false
-      if (this.confirmOnAccept) {
-        await this.confirmOnAccept()
-        this.confirmOnAccept = null
-      }
-    }
+const emit = defineEmits(['family-action'])
+
+const pageState = ref('no-group')
+const newGroupName = ref('')
+const joinCode = ref('')
+const loading = ref(false)
+const actionLoading = ref(false)
+const confirmVisible = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmDanger = ref(false)
+const confirmAcceptLabel = ref('Confirmar')
+const confirmRejectLabel = ref('Cancelar')
+let confirmOnAccept = null
+
+const familyData = computed(() => props.family || null)
+const members = computed(() => familyData.value?.members || [])
+const isAdmin = computed(() => {
+  if (!familyData.value || !props.currentUser) return false
+  const me = members.value.find(m => m.user.id === props.currentUser.id)
+  return me?.role === 'admin'
+})
+const codeExpiringSoon = computed(() => {
+  if (!familyData.value?.code_expires_at) return false
+  const expires = new Date(familyData.value.code_expires_at)
+  const now = new Date()
+  const diffHours = (expires - now) / (1000 * 60 * 60)
+  return diffHours < 24
+})
+const expirationText = computed(() => {
+  if (!familyData.value?.code_expires_at) return ''
+  const expires = new Date(familyData.value.code_expires_at)
+  const now = new Date()
+  if (now > expires) return 'Código expirado'
+  const diffDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24))
+  return diffDays <= 1 ? 'Expira em menos de 24h' : `Expira em ${diffDays} dias`
+})
+
+watch(() => props.family, (newVal) => {
+  updateState(newVal)
+}, { immediate: true })
+
+function updateState(family) {
+  if (family) {
+    pageState.value = 'has-group'
+  } else {
+    pageState.value = 'no-group'
+  }
+  newGroupName.value = ''
+  joinCode.value = ''
+}
+
+function isCurrentUser(member) {
+  return member.user.id === props.currentUser?.id
+}
+
+function getInitials(name) {
+  return name.charAt(0).toUpperCase()
+}
+
+function getAvatarColor(str) {
+  const colors = ['#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899', '#10b981', '#f97316']
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return colors[Math.abs(hash) % colors.length]
+}
+
+async function handleCreate() {
+  const name = newGroupName.value.trim()
+  if (!name) {
+    toastStore.error(toastMessages.family.nameRequired, { title: toastTitles.error })
+    return
+  }
+  actionLoading.value = true
+  try {
+    const data = await createFamily(name)
+    emit('family-action', { action: 'created', data })
+    toastStore.success(toastMessages.family.created, { title: toastTitles.success })
+  } catch (err) {
+    toastStore.error(toastMessages.family.saveError, { title: toastTitles.error })
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function handleJoin() {
+  const code = joinCode.value.trim().toUpperCase()
+  if (code.length !== 6) {
+    toastStore.error(toastMessages.family.codeLength, { title: toastTitles.error })
+    return
+  }
+  actionLoading.value = true
+  try {
+    const data = await joinFamily(code)
+    emit('family-action', { action: 'joined', data })
+    toastStore.success(toastMessages.family.joined, { title: toastTitles.success })
+  } catch (err) {
+    toastStore.error(toastMessages.family.saveError, { title: toastTitles.error })
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function handleRegenerateCode() {
+  actionLoading.value = true
+  try {
+    const data = await regenerateFamilyCode()
+    emit('family-action', { action: 'code-regenerated', data })
+    toastStore.success(toastMessages.family.codeRegenerated, { title: toastTitles.success })
+  } catch (err) {
+    toastStore.error(toastMessages.family.saveError, { title: toastTitles.error })
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function handleLeave() {
+  actionLoading.value = true
+  try {
+    await leaveFamily()
+    emit('family-action', { action: 'left' })
+    toastStore.success(toastMessages.family.left, { title: toastTitles.success })
+  } catch (err) {
+    toastStore.error(toastMessages.family.saveError, { title: toastTitles.error })
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function handleExpel(member) {
+  actionLoading.value = true
+  try {
+    await removeFamilyMember(member.user.id)
+    emit('family-action', { action: 'member-removed', data: member })
+    toastStore.success(toastMessages.family.memberRemoved, { title: toastTitles.success })
+  } catch (err) {
+    toastStore.error(toastMessages.family.saveError, { title: toastTitles.error })
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function handleDeleteGroup() {
+  actionLoading.value = true
+  try {
+    await deleteFamily()
+    emit('family-action', { action: 'deleted' })
+    toastStore.success(toastMessages.family.groupDeleted, { title: toastTitles.success })
+  } catch (err) {
+    toastStore.error(toastMessages.family.saveError, { title: toastTitles.error })
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(familyData.value.code)
+  toastStore.success(toastMessages.family.codeCopied, { title: toastTitles.success })
+}
+
+function confirmLeave() {
+  confirmTitle.value = 'Sair do Grupo'
+  confirmMessage.value = 'Tem certeza que deseja sair do grupo? Se for o único membro, o grupo será excluído.'
+  confirmDanger.value = true
+  confirmAcceptLabel.value = 'Sair'
+  confirmRejectLabel.value = 'Cancelar'
+  confirmOnAccept = handleLeave
+  confirmVisible.value = true
+}
+
+function confirmDeleteGroup() {
+  confirmTitle.value = 'Excluir Grupo?'
+  confirmMessage.value = 'Todos os membros serão removidos e as despesas permanecerão vinculadas apenas aos criadores.'
+  confirmDanger.value = true
+  confirmAcceptLabel.value = 'Excluir'
+  confirmRejectLabel.value = 'Cancelar'
+  confirmOnAccept = handleDeleteGroup
+  confirmVisible.value = true
+}
+
+function confirmExpel(member) {
+  confirmTitle.value = 'Expulsar Membro'
+  confirmMessage.value = `Remover ${member.user.first_name || member.user.username} do grupo?`
+  confirmDanger.value = true
+  confirmAcceptLabel.value = 'Remover'
+  confirmRejectLabel.value = 'Cancelar'
+  confirmOnAccept = () => handleExpel(member)
+  confirmVisible.value = true
+}
+
+async function onConfirmAccept() {
+  confirmVisible.value = false
+  if (confirmOnAccept) {
+    await confirmOnAccept()
+    confirmOnAccept = null
   }
 }
 </script>

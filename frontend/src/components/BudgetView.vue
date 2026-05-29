@@ -141,12 +141,14 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
 import { fetchMetas, createMeta, updateMeta, deleteMeta } from '../config/api.js'
 import GoalModal from './modals/GoalModal.vue'
 import ConfirmModal from './modals/ConfirmModal.vue'
 import EmptyState from './EmptyState.vue'
 import { toastMessages, toastTitles } from '../utils/toastMessages.js'
+import { toastStore } from '../stores/toast.store.js'
 
 const MES_NOMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -161,208 +163,186 @@ const CATEGORIA_EMOJIS = {
   'saude': '💊',
   'educacao': '📚',
   'lazer': '🎮',
-  'contas': '�',
-  'compras': '�️',
+  'contas': '💡',
+  'compras': '🛍️',
   'outros': '📦'
 }
 
-export default {
-  name: 'BudgetView',
-  components: { GoalModal, ConfirmModal, EmptyState },
-  data() {
-    const hoje = new Date()
-    return {
-      periodo: {
-        mes: hoje.getMonth() + 1,
-        ano: hoje.getFullYear()
-      },
-      metasData: { geral: null, por_categoria: [] },
-      loading: false,
-      modalVisible: false,
-      metaSelecionada: null,
-      metaToDelete: null,
-      confirmVisible: false,
-      confirmTitle: '',
-      confirmMessage: '',
-      confirmDanger: false,
-      confirmAcceptLabel: 'Confirmar',
-      confirmRejectLabel: 'Cancelar',
-      confirmOnAccept: null
-    }
-  },
-  computed: {
-    mesesNomes() {
-      return MES_NOMES
-    },
-    anosDisponiveis() {
-      const atual = new Date().getFullYear()
-      return [atual, atual - 1, atual - 2]
-    },
-    mesNome() {
-      return MES_NOMES[this.periodo.mes - 1]
-    },
-    temMetas() {
-      return this.metaGeral || this.metasPorCategoria.length > 0
-    },
-    metaGeral() {
-      return this.metasData && this.metasData.geral ? this.metasData.geral : null
-    },
-    metasPorCategoria() {
-      const lista = (this.metasData && this.metasData.por_categoria) ? this.metasData.por_categoria : []
-      return [...lista].sort((a, b) => (b.percentual_usado || 0) - (a.percentual_usado || 0))
-    },
-    categoriasUsadas() {
-      const cats = (this.metasData && this.metasData.por_categoria) ? this.metasData.por_categoria : []
-      return cats.map(m => m.categoria)
-    }
-  },
-  mounted() {
-    this.carregarMetas()
-  },
-  watch: {
-    periodo: {
-      deep: true,
-      handler() {
-        this.carregarMetas()
-      }
-    }
-  },
-  methods: {
-    async carregarMetas() {
-      try {
-        this.loading = true
-        const data = await fetchMetas(this.periodo.mes, this.periodo.ano)
-        const metas = data.metas || { geral: null, por_categoria: [] }
-        // Normaliza: se API retornar lista plana, converte para objeto
-        if (Array.isArray(metas)) {
-          this.metasData = {
-            geral: metas.find(m => m.categoria === null) || null,
-            por_categoria: metas.filter(m => m.categoria !== null)
-          }
-        } else {
-          this.metasData = metas
-        }
-      } catch (error) {
-        console.error('Erro ao carregar metas:', error)
-        this.metasData = { geral: null, por_categoria: [] }
-      } finally {
-        this.loading = false
-      }
-    },
+const hoje = new Date()
+const periodo = ref({
+  mes: hoje.getMonth() + 1,
+  ano: hoje.getFullYear()
+})
+const metasData = ref({ geral: null, por_categoria: [] })
+const loading = ref(false)
+const modalVisible = ref(false)
+const metaSelecionada = ref(null)
+const confirmVisible = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmDanger = ref(false)
+const confirmAcceptLabel = ref('Confirmar')
+const confirmRejectLabel = ref('Cancelar')
+let confirmOnAccept = null
 
-    pctClamped(pct) {
-      return Math.min(pct || 0, 100)
-    },
+const mesesNomes = computed(() => MES_NOMES)
+const anosDisponiveis = computed(() => {
+  const atual = new Date().getFullYear()
+  return [atual, atual - 1, atual - 2]
+})
+const mesNome = computed(() => MES_NOMES[periodo.value.mes - 1])
+const temMetas = computed(() => metaGeral.value || metasPorCategoria.value.length > 0)
+const metaGeral = computed(() => metasData.value && metasData.value.geral ? metasData.value.geral : null)
+const metasPorCategoria = computed(() => {
+  const lista = (metasData.value && metasData.value.por_categoria) ? metasData.value.por_categoria : []
+  return [...lista].sort((a, b) => (b.percentual_usado || 0) - (a.percentual_usado || 0))
+})
+const categoriasUsadas = computed(() => {
+  const cats = (metasData.value && metasData.value.por_categoria) ? metasData.value.por_categoria : []
+  return cats.map(m => m.categoria)
+})
 
-    formatarValor(valor) {
-      return parseFloat(valor || 0).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
+onMounted(() => {
+  carregarMetas()
+})
+
+watch(periodo, () => {
+  carregarMetas()
+}, { deep: true })
+
+async function carregarMetas() {
+  try {
+    loading.value = true
+    const data = await fetchMetas(periodo.value.mes, periodo.value.ano)
+    const metas = data.metas || { geral: null, por_categoria: [] }
+    if (Array.isArray(metas)) {
+      metasData.value = {
+        geral: metas.find(m => m.categoria === null) || null,
+        por_categoria: metas.filter(m => m.categoria !== null)
+      }
+    } else {
+      metasData.value = metas
+    }
+  } catch (err) {
+    console.error('Erro ao carregar metas:', err)
+    metasData.value = { geral: null, por_categoria: [] }
+  } finally {
+    loading.value = false
+  }
+}
+
+function pctClamped(pct) {
+  return Math.min(pct || 0, 100)
+}
+
+function formatarValor(valor) {
+  return parseFloat(valor || 0).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  })
+}
+
+function categoriaEmoji(categoria) {
+  return CATEGORIA_EMOJIS[categoria] || '🏷️'
+}
+
+function formatarCategoriaDisplay(categoria, categoriaNome) {
+  if (categoriaNome && categoriaNome !== categoria) return categoriaNome
+  const map = {
+    alimentacao: 'Alimentação',
+    vestuario: 'Vestuário',
+    servicos: 'Serviços',
+    moradia: 'Moradia',
+    mercado: 'Mercado',
+    restaurantes: 'Restaurantes / Delivery',
+    transporte: 'Transporte',
+    saude: 'Saúde',
+    educacao: 'Educação',
+    lazer: 'Lazer',
+    contas: 'Contas e serviços',
+    compras: 'Compras',
+    outros: 'Outros'
+  }
+  return map[categoria] || (categoria ? categoria.charAt(0).toUpperCase() + categoria.slice(1).replace(/_/g, ' ') : 'Geral')
+}
+
+function abrirEditar(meta) {
+  metaSelecionada.value = { ...meta, modo: 'editar' }
+  modalVisible.value = true
+}
+
+function abrirCriarMetaGeral() {
+  metaSelecionada.value = {
+    categoria: null,
+    categoria_nome: 'Geral',
+    valor_meta: '',
+    mes: periodo.value.mes,
+    ano: periodo.value.ano,
+    modo: 'criar'
+  }
+  modalVisible.value = true
+}
+
+function abrirCriarCategoria() {
+  metaSelecionada.value = {
+    categoria: '',
+    categoria_nome: '',
+    valor_meta: '',
+    mes: periodo.value.mes,
+    ano: periodo.value.ano,
+    modo: 'criar_categoria'
+  }
+  modalVisible.value = true
+}
+
+function onDeleteMeta(meta) {
+  const nome = formatarCategoriaDisplay(meta.categoria, meta.categoria_nome) || 'Meta Geral'
+  confirmTitle.value = 'Excluir Meta'
+  confirmMessage.value = `Deseja excluir a meta "${nome}" para ${MES_NOMES[periodo.value.mes - 1]} ${periodo.value.ano}?`
+  confirmDanger.value = true
+  confirmAcceptLabel.value = 'Excluir'
+  confirmRejectLabel.value = 'Cancelar'
+  confirmOnAccept = async () => {
+    try {
+      if (meta && meta.id) {
+        await deleteMeta(meta.id)
+        carregarMetas()
+        toastStore.success(toastMessages.goals.deleted, { title: toastTitles.success })
+      }
+    } catch (err) {
+      console.error('Erro ao excluir meta:', err)
+      toastStore.error(toastMessages.goals.deleteError, { title: toastTitles.error })
+    }
+  }
+  confirmVisible.value = true
+}
+
+async function onConfirmAccept() {
+  confirmVisible.value = false
+  if (confirmOnAccept) {
+    await confirmOnAccept()
+    confirmOnAccept = null
+  }
+}
+
+async function onSaveMeta(meta) {
+  try {
+    if (meta.id) {
+      await updateMeta(meta.id, { valor_meta: meta.valor_meta })
+    } else {
+      await createMeta({
+        categoria: meta.categoria,
+        mes: meta.mes,
+        ano: meta.ano,
+        valor_meta: meta.valor_meta
       })
-    },
-
-    categoriaEmoji(categoria) {
-      return CATEGORIA_EMOJIS[categoria] || '🏷️'
-    },
-
-    formatarCategoriaDisplay(categoria, categoriaNome) {
-      if (categoriaNome && categoriaNome !== categoria) return categoriaNome
-      const map = {
-        alimentacao: 'Alimentação',
-        vestuario: 'Vestuário',
-        servicos: 'Serviços',
-        moradia: 'Moradia',
-        mercado: 'Mercado',
-        restaurantes: 'Restaurantes / Delivery',
-        transporte: 'Transporte',
-        saude: 'Saúde',
-        educacao: 'Educação',
-        lazer: 'Lazer',
-        contas: 'Contas e serviços',
-        compras: 'Compras',
-        outros: 'Outros'
-      }
-      return map[categoria] || (categoria ? categoria.charAt(0).toUpperCase() + categoria.slice(1).replace(/_/g, ' ') : 'Geral')
-    },
-
-    abrirEditar(meta) {
-      this.metaSelecionada = { ...meta, modo: 'editar' }
-      this.modalVisible = true
-    },
-
-    abrirCriarMetaGeral() {
-      this.metaSelecionada = {
-        categoria: null,
-        categoria_nome: 'Geral',
-        valor_meta: '',
-        mes: this.periodo.mes,
-        ano: this.periodo.ano,
-        modo: 'criar'
-      }
-      this.modalVisible = true
-    },
-
-    abrirCriarCategoria() {
-      this.metaSelecionada = {
-        categoria: '',
-        categoria_nome: '',
-        valor_meta: '',
-        mes: this.periodo.mes,
-        ano: this.periodo.ano,
-        modo: 'criar_categoria'
-      }
-      this.modalVisible = true
-    },
-
-    onDeleteMeta(meta) {
-      const nome = this.formatarCategoriaDisplay(meta.categoria, meta.categoria_nome) || 'Meta Geral'
-      this.confirmTitle = 'Excluir Meta'
-      this.confirmMessage = `Deseja excluir a meta "${nome}" para ${MES_NOMES[this.periodo.mes - 1]} ${this.periodo.ano}?`
-      this.confirmDanger = true
-      this.confirmAcceptLabel = 'Excluir'
-      this.confirmRejectLabel = 'Cancelar'
-      this.confirmOnAccept = async () => {
-        try {
-          if (meta && meta.id) {
-            await deleteMeta(meta.id)
-            this.carregarMetas()
-            this.$toast.success(toastMessages.goals.deleted, { title: toastTitles.success })
-          }
-        } catch (error) {
-          console.error('Erro ao excluir meta:', error)
-          this.$toast.error(toastMessages.goals.deleteError, { title: toastTitles.error })
-        }
-      }
-      this.confirmVisible = true
-    },
-
-    async onConfirmAccept() {
-      this.confirmVisible = false
-      if (this.confirmOnAccept) {
-        await this.confirmOnAccept()
-        this.confirmOnAccept = null
-      }
-    },
-    async onSaveMeta(meta) {
-      try {
-        if (meta.id) {
-          await updateMeta(meta.id, { valor_meta: meta.valor_meta })
-        } else {
-          await createMeta({
-            categoria: meta.categoria,
-            mes: meta.mes,
-            ano: meta.ano,
-            valor_meta: meta.valor_meta
-          })
-        }
-        this.modalVisible = false
-        this.carregarMetas()
-        this.$toast.success(toastMessages.goals.updated, { title: toastTitles.success })
-      } catch (error) {
-        console.error('Erro ao salvar meta:', error)
-        this.$toast.error(toastMessages.goals.saveError, { title: toastTitles.error })
-      }
     }
+    modalVisible.value = false
+    carregarMetas()
+    toastStore.success(toastMessages.goals.updated, { title: toastTitles.success })
+  } catch (err) {
+    console.error('Erro ao salvar meta:', err)
+    toastStore.error(toastMessages.goals.saveError, { title: toastTitles.error })
   }
 }
 </script>
