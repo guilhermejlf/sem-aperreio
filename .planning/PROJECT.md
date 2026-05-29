@@ -76,7 +76,7 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 ### Tech Stack (v3.3 — Produção)
 
 - **Backend**: Django 4.2 + Django REST Framework + djangorestframework-simplejwt + Sentry SDK
-- **Frontend**: Vue 3 (Options API) + Vite + Chart.js + PrimeVue + PrimeIcons + Sentry
+- **Frontend**: Vue 3 (Composition API, `<script setup>`) + Vite + Chart.js + PrimeVue + PrimeIcons + Sentry
 - **ML**: scikit-learn (LinearRegression por categoria)
 - **Banco**: PostgreSQL (produção), SQLite (dev)
 - **Cache/Tarefas**: Redis + Celery + django-celery-beat
@@ -90,11 +90,23 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 
 ### Known Issues / Tech Debt
 
-- Options API no Vue → **Concluído em 2026-05-29** — Todos os 42 componentes Vue migrados para Composition API com `<script setup>` (Fases 1–11). usePagination composable criado.
-- Modelo ML treinado on-demand — cache Redis implementado
-- ~~Paginação parcial~~ → **Resolvido em 2026-05-28** — Paginação completa implementada (20 itens/página, metadados count/page/pages/next/previous) em gastos, receitas e extrato
-- ~~ExtratoView.vue concentrado~~ → **Resolvido em 2026-05-28** — Extraído ExportFAB.vue, pagination mixin e formatCurrency.js. De 363 para 226 linhas (-38%)
-- Email verification disabled for testing — `email_verified=True` on register; login does not check status
+#### Ativas
+
+| # | Item | Status | Detalhe |
+|---|------|--------|---------|
+| 1 | **Modelo ML on-demand** | Parcial | Cache Redis implementado, mas modelo ainda treina sob demanda |
+| 2 | **Email verification** | Consciente | Desabilitado para testes: `email_verified=True` no registro; login não verifica status |
+
+#### Resolvidas
+
+| # | Item | Quando | Detalhe |
+|---|------|--------|---------|
+| 1 | ~~Options API no Vue~~ | **2026-05-29** | 42 componentes migrados para `<script setup>` (Fases 1–11); usePagination composable criado |
+| 2 | ~~Paginação parcial~~ | **2026-05-28** | Paginação completa (20 itens/página) em gastos, receitas e extrato |
+| 3 | ~~ExtratoView.vue concentrado~~ | **2026-05-28** | Extraído ExportFAB.vue, pagination mixin e formatCurrency.js (-38% linhas) |
+
+#### Notas de infra
+
 - Sentry ativo em produção com DSNs configurados
 - Release format: `sem-aperreio@v2.1.0` — usado por backend e frontend
 - Source maps gerados no build do Vite para debugging em produção
@@ -129,7 +141,7 @@ This document evolves at phase transitions and milestone boundaries.
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Manter Options API no Vue | Código já usa Options API; migrar para Composition seria retrabalho sem ganho imediato | — Pending (candidato v2) |
+| Migrar para Composition API | Código usava Options API; `<script setup>` simplifica reatividade, elimina `this.` e alinha com Vue 3 moderno | **Concluído 2026-05-29** — 42 componentes migrados |
 | SQLite para MVP / PostgreSQL produção | Zero config local; DATABASE_URL em produção trivial com Django | ✓ Good |
 | Lazy-load do modelo ML | pickle carregado sob demanda; evita startup lento se arquivo ausente | ✓ Good |
 | JWT ao invés de session cookies | Frontend SPA separado do backend; JWT facilita CORS e mobile futuro | ✓ Good |
@@ -150,7 +162,7 @@ This document evolves at phase transitions and milestone boundaries.
 **Active backlog (future milestones):**
 - [ ] **BANK-01**: Integração bancária (Open Banking) — avaliar viabilidade regulatória
 - [ ] **ONBOARD-01**: Onboarding guiado para novos usuários
-- [ ] **COMP-01**: Migração Vue Options API → Composition API (v4.0)
+- [x] **COMP-01**: Migração Vue Options API → Composition API — **Concluído 2026-05-29**
 - [ ] **AUTH-01**: Auth Polish — melhorias visuais no login/registro
 
 **Key context:**
@@ -160,4 +172,4 @@ This document evolves at phase transitions and milestone boundaries.
 - v3.3 shipped: extrato premium com timeline e design system
 
 ---
-*Last updated: 2026-05-29 — Fase 1 migração Composition API: 4 componentes leaf + usePagination composable. Paginação completa implementada. v3.3 Statement Premium SHIPPED.*
+*Last updated: 2026-05-29 — Migração Composition API concluída (42 componentes, Fases 1–11). Tech debt reavaliado. v3.3 Statement Premium SHIPPED.*
