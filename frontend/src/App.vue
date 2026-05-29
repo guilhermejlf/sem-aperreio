@@ -16,6 +16,13 @@
       <AuthView @authenticated="handleLoginSuccess" />
     </template>
 
+    <!-- WELCOME MODAL -->
+    <WelcomeModal
+      v-if="showWelcomeModal"
+      @start="startOnboarding"
+      @explore="dismissWelcome"
+    />
+
     <!-- APP CONTENT -->
     <template v-else>
     <!-- HEADER -->
@@ -130,6 +137,11 @@
       <!-- DASHBOARD TAB -->
       <div v-if="activeTab === 'dashboard'" class="tab-content">
         <div class="gastos-container">
+          <OnboardingChecklist
+            v-if="showOnboardingChecklist && !onboardingStatus.completed"
+            :status="onboardingStatus"
+            @dismiss="dismissChecklist"
+          />
           <DashboardCharts />
         </div>
       </div>
@@ -353,6 +365,8 @@ import SkeletonGeneric from './components/SkeletonGeneric.vue'
 import OfflineFallback from './components/OfflineFallback.vue'
 import InstallPrompt from './components/InstallPrompt.vue'
 import ErrorBoundary from './components/ErrorBoundary.vue'
+import WelcomeModal from './components/onboarding/WelcomeModal.vue'
+import OnboardingChecklist from './components/onboarding/OnboardingChecklist.vue'
 
 const asyncView = (loader, loading, delay = 200) => defineAsyncComponent({
   loader,
@@ -409,6 +423,18 @@ const confirmRejectLabel = ref('Cancelar')
 let confirmOnAccept = null
 const pendingIncomeEdit = ref(null)
 const aiAssistant = ref(null)
+
+// Onboarding state
+const onboardingStatus = ref({
+  group_created: false,
+  first_expense: false,
+  first_revenue: false,
+  first_goal: false,
+  progress: 0,
+  completed: false,
+})
+const showWelcomeModal = ref(false)
+const showOnboardingChecklist = ref(true)
 
 const categorias = ref([
   { value: 'moradia', label: 'Moradia' },
@@ -617,6 +643,42 @@ async function handleLoginSuccess() {
   await fetchUser()
   await fetchFamily()
   carregarGastos()
+  await fetchOnboardingStatus()
+  if (!onboardingStatus.value.completed) {
+    showWelcomeModal.value = true
+  }
+}
+
+async function fetchOnboardingStatus() {
+  try {
+    const data = await apiRequest(API_ENDPOINTS.ONBOARDING)
+    onboardingStatus.value = data
+    showOnboardingChecklist.value = !data.completed
+  } catch (err) {
+    console.warn('Erro ao buscar onboarding:', err)
+  }
+}
+
+function dismissWelcome() {
+  showWelcomeModal.value = false
+}
+
+function startOnboarding() {
+  showWelcomeModal.value = false
+  activeTab.value = 'dashboard'
+}
+
+async function dismissChecklist() {
+  showOnboardingChecklist.value = false
+  try {
+    await apiRequest(API_ENDPOINTS.ONBOARDING, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'complete' })
+    })
+    onboardingStatus.value.completed = true
+  } catch (err) {
+    console.warn('Erro ao completar onboarding:', err)
+  }
 }
 
 async function fetchUser() {

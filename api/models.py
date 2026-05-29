@@ -180,5 +180,12 @@ class UserProfile(models.Model):
     reset_token = models.CharField(max_length=64, blank=True, null=True)
     reset_token_expires = models.DateTimeField(blank=True, null=True)
 
+    # Onboarding tracking
+    onboarding_completed = models.BooleanField(default=False)
+    seen_family_tooltip = models.BooleanField(default=False)
+    seen_budget_tooltip = models.BooleanField(default=False)
+    seen_bene_tooltip = models.BooleanField(default=False)
+    seen_statement_tooltip = models.BooleanField(default=False)
+
     def __str__(self):
         return f"Profile: {self.user.username}"

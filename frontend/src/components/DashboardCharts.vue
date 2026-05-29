@@ -19,7 +19,7 @@
     <EmptyState
       v-else-if="dashboardData && dashboardData.quantidade_gastos === 0 && (dashboardData.total_receitas || 0) === 0"
       title="Nenhum movimento neste período"
-      :description="dashboardData.periodo ? `Adicione uma receita ou despesa pra ver o painel de ${dashboardData.periodo.mes_nome} ${dashboardData.periodo.ano}.` : 'Adicione uma receita ou despesa pra ver o painel.'"
+      :description="dashboardData.periodo ? `Adicione uma receita ou despesa pra ver o painel de ${dashboardData.periodo.mes_nome} ${dashboardData.periodo.ano}.` : 'Teu painel ganhará vida depois dos primeiros lançamentos.'"
       icon="pi pi-inbox"
     />
 

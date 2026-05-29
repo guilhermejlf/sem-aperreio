@@ -19,6 +19,9 @@ export const API_ENDPOINTS = {
   PROFILE: `${API_BASE_URL}/api/profile/`,
   PASSWORD_CHANGE: `${API_BASE_URL}/api/password/`,
 
+  // Onboarding
+  ONBOARDING: `${API_BASE_URL}/api/onboarding/`,
+
   // Gastos
   GASTOS_LIST: `${API_BASE_URL}/api/gastos/`,
   GASTO_DETAIL: (id) => `${API_BASE_URL}/api/gastos/${id}/`,

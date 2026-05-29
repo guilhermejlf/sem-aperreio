@@ -249,3 +249,62 @@ class UserView(APIView):
             "first_name": user.first_name,
             "last_name": user.last_name,
         })
+
+
+class OnboardingStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        profile = user.profile
+
+        group_created = hasattr(user, 'membership') and user.membership is not None
+        first_expense = user.gastos.exists()
+        first_revenue = user.receitas.exists()
+        first_goal = user.metas.exists()
+
+        completed_count = sum([group_created, first_expense, first_revenue, first_goal])
+        progress = int((completed_count / 4) * 100)
+
+        return Response({
+            "group_created": group_created,
+            "first_expense": first_expense,
+            "first_revenue": first_revenue,
+            "first_goal": first_goal,
+            "progress": progress,
+            "completed": profile.onboarding_completed,
+            "seen_family_tooltip": profile.seen_family_tooltip,
+            "seen_budget_tooltip": profile.seen_budget_tooltip,
+            "seen_bene_tooltip": profile.seen_bene_tooltip,
+            "seen_statement_tooltip": profile.seen_statement_tooltip,
+        })
+
+    def post(self, request):
+        user = request.user
+        profile = user.profile
+        action = request.data.get('action')
+
+        if action == 'complete':
+            profile.onboarding_completed = True
+            profile.save()
+            return Response({"mensagem": "Onboarding concluído."})
+
+        if action == 'reset':
+            profile.onboarding_completed = False
+            profile.save()
+            return Response({"mensagem": "Onboarding reiniciado."})
+
+        if action == 'dismiss_tooltip':
+            tooltip = request.data.get('tooltip')
+            if tooltip == 'family':
+                profile.seen_family_tooltip = True
+            elif tooltip == 'budget':
+                profile.seen_budget_tooltip = True
+            elif tooltip == 'bene':
+                profile.seen_bene_tooltip = True
+            elif tooltip == 'statement':
+                profile.seen_statement_tooltip = True
+            profile.save()
+            return Response({"mensagem": "Tooltip marcado como visto."})
+
+        return Response({"erro": "Ação inválida."}, status=status.HTTP_400_BAD_REQUEST)

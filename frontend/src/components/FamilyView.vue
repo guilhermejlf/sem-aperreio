@@ -11,7 +11,7 @@
       <div class="family-empty-state">
         <EmptyState
           title="Nenhum grupo criado"
-          description="Convide alguém pra compartilhar o controle financeiro."
+          description="Compartilha despesas e acompanha o orçamento em família."
           icon="pi pi-users"
           action-label="Criar Grupo Familiar"
           @action="pageState = 'create-form'"

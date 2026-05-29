@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import prever_gasto, gastos, gasto_detail, dashboard, receitas, receita_detail, exportar_csv, exportar_xlsx, exportar_pdf, listar_metas, criar_meta, atualizar_meta, deletar_meta, extrato
 from .views_auth import (
     RegisterView, LoginView, RefreshView, UserView,
-    VerifyEmailView, ResendVerificationView, PasswordResetRequestView, PasswordResetConfirmView
+    VerifyEmailView, ResendVerificationView, PasswordResetRequestView, PasswordResetConfirmView,
+    OnboardingStatusView
 )
 from .views_family import FamilyViewSet
 from .views_profile import ProfileView, PasswordChangeView
@@ -22,6 +23,7 @@ urlpatterns = [
     path("auth/resend-verification/", ResendVerificationView.as_view(), name="resend_verification"),
     path("auth/password-reset/", PasswordResetRequestView.as_view(), name="password_reset"),
     path("auth/password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
+    path("onboarding/", OnboardingStatusView.as_view(), name="onboarding"),
     path("profile/", ProfileView.as_view(), name="profile"),
     path("password/", PasswordChangeView.as_view(), name="password_change"),
     path("prever/", prever_gasto, name="prever_gasto"),
