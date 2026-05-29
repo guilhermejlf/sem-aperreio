@@ -175,291 +175,270 @@
   </Teleport>
 </template>
 
-<script>
+<script setup>
+import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import BeneAvatar from './BeneAvatar.vue'
 import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 
-export default {
-  name: 'AIAssistant',
-  components: { BeneAvatar },
-  emits: ['saved', 'edit-expense', 'edit-income'],
+const props = defineProps({
+  hideFab: {
+    type: Boolean,
+    default: false
+  }
+})
 
-  props: {
-    hideFab: {
-      type: Boolean,
-      default: false
+const emit = defineEmits(['saved', 'edit-expense', 'edit-income'])
+
+const visible = ref(false)
+const input = ref('')
+const loading = ref(false)
+const messages = ref([])
+const isMobile = ref(false)
+const sessionContext = ref({
+  awaiting_field: null,
+  partial_data: {}
+})
+const quickSuggestions = ref([
+  'Uber 25',
+  'Feira 320',
+  'Paguei internet 140',
+  'Recebi salário 5 mil'
+])
+const inputRef = ref(null)
+const messagesContainer = ref(null)
+
+onMounted(() => {
+  isMobile.value = window.innerWidth < 768
+  window.addEventListener('resize', handleResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+function handleResize() {
+  isMobile.value = window.innerWidth < 768
+}
+
+function open() {
+  visible.value = true
+  nextTick(() => {
+    inputRef.value?.focus()
+    scrollToBottom()
+  })
+}
+
+function close() {
+  visible.value = false
+}
+
+function scrollToBottom() {
+  nextTick(() => {
+    const container = messagesContainer.value
+    if (container) {
+      container.scrollTop = container.scrollHeight
     }
-  },
+  })
+}
 
-  data() {
-    return {
-      visible: false,
-      input: '',
-      loading: false,
-      messages: [],
-      isMobile: window.innerWidth < 768,
-      sessionContext: {
+async function send(suggestionText = null) {
+  const text = (typeof suggestionText === 'string' ? suggestionText : input.value).trim()
+  if (!text || loading.value) return
+
+  input.value = ''
+
+  messages.value.push({ role: 'user', text })
+  loading.value = true
+  scrollToBottom()
+
+  try {
+    const history = messages.value
+      .filter(m => m.role === 'user' || m.role === 'ai')
+      .slice(-10)
+      .map(m => ({
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: m.text || ''
+      }))
+
+    const payload = {
+      message: text,
+      context: sessionContext.value,
+      conversation_history: history
+    }
+
+    const response = await apiRequest(API_ENDPOINTS.AI_CHAT, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+
+    if (response.awaiting_field) {
+      sessionContext.value = {
+        awaiting_field: response.awaiting_field,
+        partial_data: response.partial_data || {}
+      }
+    } else {
+      sessionContext.value = {
         awaiting_field: null,
         partial_data: {}
-      },
-      conversationHistory: [],
-      quickSuggestions: [
-        'Uber 25',
-        'Feira 320',
-        'Paguei internet 140',
-        'Recebi salário 5 mil'
-      ]
+      }
     }
-  },
 
-  mounted() {
-    window.addEventListener('resize', this.handleResize)
-  },
+    messages.value.push({
+      role: 'ai',
+      text: response.message,
+      confirmation: response.confirmation_required ? response : null,
+      processing: false
+    })
+  } catch (err) {
+    messages.value.push({
+      role: 'ai',
+      text: 'Opa, deu um ruim aqui. Tenta de novo daqui a pouco?',
+      confirmation: null
+    })
+    sessionContext.value = {
+      awaiting_field: null,
+      partial_data: {}
+    }
+  } finally {
+    loading.value = false
+    scrollToBottom()
+    nextTick(() => {
+      inputRef.value?.focus()
+    })
+  }
+}
 
-  beforeUnmount() {
-    window.removeEventListener('resize', this.handleResize)
-  },
+async function confirmAction(msg, index) {
+  const confirmation = msg.confirmation
+  if (!confirmation || !confirmation.data) return
 
-  methods: {
-    handleResize() {
-      this.isMobile = window.innerWidth < 768
-    },
+  msg.processing = true
 
-    open() {
-      this.visible = true
-      this.$nextTick(() => {
-        this.$refs.inputRef?.focus()
-        this.scrollToBottom()
-      })
-    },
-
-    close() {
-      this.visible = false
-    },
-
-    scrollToBottom() {
-      this.$nextTick(() => {
-        const container = this.$refs.messagesContainer
-        if (container) {
-          container.scrollTop = container.scrollHeight
-        }
-      })
-    },
-
-    async send(suggestionText = null) {
-      // Ignorar eventos Vue (KeyboardEvent/MouseEvent) — aceitar apenas string
-      const text = (typeof suggestionText === 'string' ? suggestionText : this.input).trim()
-      if (!text || this.loading) return
-
-      this.input = ''
-
-      // Add user message
-      this.messages.push({ role: 'user', text })
-      this.loading = true
-      this.scrollToBottom()
-
-      try {
-        // Build conversation history from messages (last 10, excluding current)
-        const history = this.messages
-          .filter(m => m.role === 'user' || m.role === 'ai')
-          .slice(-10)
-          .map(m => ({
-            role: m.role === 'user' ? 'user' : 'assistant',
-            content: m.text || ''
-          }))
-
-        const payload = {
-          message: text,
-          context: this.sessionContext,
-          conversation_history: history
-        }
-
-        const response = await apiRequest(API_ENDPOINTS.AI_CHAT, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        })
-
-        // Se IA está perguntando algo (awaiting_field), guardar contexto
-        if (response.awaiting_field) {
-          this.sessionContext = {
-            awaiting_field: response.awaiting_field,
-            partial_data: response.partial_data || {}
-          }
-        } else {
-          // Resposta completa - limpar contexto
-          this.sessionContext = {
-            awaiting_field: null,
-            partial_data: {}
-          }
-        }
-
-        // Add AI response
-        this.messages.push({
-          role: 'ai',
-          text: response.message,
-          confirmation: response.confirmation_required ? response : null,
-          processing: false
-        })
-      } catch (error) {
-        this.messages.push({
-          role: 'ai',
-          text: 'Opa, deu um ruim aqui. Tenta de novo daqui a pouco?',
-          confirmation: null
-        })
-        // Limpar contexto em caso de erro
-        this.sessionContext = {
-          awaiting_field: null,
-          partial_data: {}
-        }
-      } finally {
-        this.loading = false
-        this.scrollToBottom()
-        // Restaurar foco no input após resposta
-        this.$nextTick(() => {
-          this.$refs.inputRef?.focus()
-        })
-      }
-    },
-
-    async confirmAction(msg, index) {
-      const confirmation = msg.confirmation
-      if (!confirmation || !confirmation.data) return
-
-      msg.processing = true
-
-      try {
-        if (confirmation.intent === 'add_expense') {
-          await apiRequest(API_ENDPOINTS.GASTOS_LIST, {
-            method: 'POST',
-            body: JSON.stringify({
-              valor: confirmation.data.valor,
-              categoria: confirmation.data.categoria,
-              descricao: confirmation.data.descricao,
-              data: confirmation.data.data,
-              data_competencia: confirmation.data.data,
-              pago: false
-            })
-          })
-        } else if (confirmation.intent === 'add_income') {
-          await apiRequest(API_ENDPOINTS.RECEITAS_LIST, {
-            method: 'POST',
-            body: JSON.stringify({
-              valor: confirmation.data.valor,
-              descricao: confirmation.data.descricao,
-              data: confirmation.data.data,
-              data_competencia: confirmation.data.data
-            })
-          })
-        }
-
-        // Update message to show success
-        this.messages[index] = {
-          role: 'ai',
-          text: `${msg.text} \u2713 Pronto, salvo!`,
-          confirmation: null,
-          processing: false
-        }
-
-        // Limpar contexto da sessao
-        this.sessionContext = {
-          awaiting_field: null,
-          partial_data: {}
-        }
-
-        // Adicionar sugestões rápidas para próximo lançamento
-        this.messages.push({
-          role: 'ai',
-          text: 'Mais alguma coisa pra registrar? 😄',
-          confirmation: null,
-          suggestions: ['+ Mercado', '+ Transporte', '+ Restaurante', '+ Receita', 'Nenhum']
-        })
-
-        this.$emit('saved')
-      } catch (error) {
-        this.messages[index] = {
-          role: 'ai',
-          text: `${msg.text} \u2717 Erro ao salvar. Tente novamente pelo formulário.`,
-          confirmation: null,
-          processing: false
-        }
-      } finally {
-        this.scrollToBottom()
-        // Restaurar foco no input para continuar conversa
-        this.$nextTick(() => {
-          this.$refs.inputRef?.focus()
-        })
-      }
-    },
-
-    editAction(msg, index) {
-      const confirmation = msg.confirmation
-      if (!confirmation || !confirmation.data) return
-
-      // Receita → emitir evento específico para receitas
-      if (confirmation.intent === 'add_income') {
-        this.$emit('edit-income', {
-          valor: confirmation.data.valor,
-          descricao: confirmation.data.descricao,
-          data: confirmation.data.data
-        })
-      } else {
-        // Gasto → modal de gasto
-        this.$emit('edit-expense', {
+  try {
+    if (confirmation.intent === 'add_expense') {
+      await apiRequest(API_ENDPOINTS.GASTOS_LIST, {
+        method: 'POST',
+        body: JSON.stringify({
           valor: confirmation.data.valor,
           categoria: confirmation.data.categoria,
           descricao: confirmation.data.descricao,
-          data: confirmation.data.data
+          data: confirmation.data.data,
+          data_competencia: confirmation.data.data,
+          pago: false
         })
-      }
-
-      // Fechar o drawer para o usuário ver o modal
-      this.close()
-
-      // Atualizar a mensagem no chat
-      this.messages[index] = {
-        role: 'ai',
-        text: 'Abri o formulário pra você revisar antes de salvar.',
-        confirmation: null
-      }
-    },
-
-    cancelAction(index) {
-      this.messages[index] = {
-        role: 'ai',
-        text: 'Beleza, cancelado. Manda outra quando quiser.',
-        confirmation: null
-      }
-      this.sessionContext = {
-        awaiting_field: null,
-        partial_data: {}
-      }
-      this.scrollToBottom()
-    },
-
-    formatarValor(valor) {
-      return parseFloat(valor).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
       })
-    },
-
-    getCategoriaLabel(categoriaValue) {
-      const categorias = {
-        moradia: 'Moradia',
-        mercado: 'Mercado',
-        restaurantes: 'Restaurantes / Delivery',
-        transporte: 'Transporte',
-        saude: 'Saúde',
-        educacao: 'Educação',
-        lazer: 'Lazer',
-        contas: 'Contas e serviços',
-        compras: 'Compras',
-        outros: 'Outros'
-      }
-      return categorias[categoriaValue] || categoriaValue
+    } else if (confirmation.intent === 'add_income') {
+      await apiRequest(API_ENDPOINTS.RECEITAS_LIST, {
+        method: 'POST',
+        body: JSON.stringify({
+          valor: confirmation.data.valor,
+          descricao: confirmation.data.descricao,
+          data: confirmation.data.data,
+          data_competencia: confirmation.data.data
+        })
+      })
     }
+
+    messages.value[index] = {
+      role: 'ai',
+      text: `${msg.text} \u2713 Pronto, salvo!`,
+      confirmation: null,
+      processing: false
+    }
+
+    sessionContext.value = {
+      awaiting_field: null,
+      partial_data: {}
+    }
+
+    messages.value.push({
+      role: 'ai',
+      text: 'Mais alguma coisa pra registrar? 😄',
+      confirmation: null,
+      suggestions: ['+ Mercado', '+ Transporte', '+ Restaurante', '+ Receita', 'Nenhum']
+    })
+
+    emit('saved')
+  } catch (err) {
+    messages.value[index] = {
+      role: 'ai',
+      text: `${msg.text} \u2717 Erro ao salvar. Tente novamente pelo formulário.`,
+      confirmation: null,
+      processing: false
+    }
+  } finally {
+    scrollToBottom()
+    nextTick(() => {
+      inputRef.value?.focus()
+    })
   }
 }
+
+function editAction(msg, index) {
+  const confirmation = msg.confirmation
+  if (!confirmation || !confirmation.data) return
+
+  if (confirmation.intent === 'add_income') {
+    emit('edit-income', {
+      valor: confirmation.data.valor,
+      descricao: confirmation.data.descricao,
+      data: confirmation.data.data
+    })
+  } else {
+    emit('edit-expense', {
+      valor: confirmation.data.valor,
+      categoria: confirmation.data.categoria,
+      descricao: confirmation.data.descricao,
+      data: confirmation.data.data
+    })
+  }
+
+  close()
+
+  messages.value[index] = {
+    role: 'ai',
+    text: 'Abri o formulário pra você revisar antes de salvar.',
+    confirmation: null
+  }
+}
+
+function cancelAction(index) {
+  messages.value[index] = {
+    role: 'ai',
+    text: 'Beleza, cancelado. Manda outra quando quiser.',
+    confirmation: null
+  }
+  sessionContext.value = {
+    awaiting_field: null,
+    partial_data: {}
+  }
+  scrollToBottom()
+}
+
+function formatarValor(valor) {
+  return parseFloat(valor).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  })
+}
+
+function getCategoriaLabel(categoriaValue) {
+  const categorias = {
+    moradia: 'Moradia',
+    mercado: 'Mercado',
+    restaurantes: 'Restaurantes / Delivery',
+    transporte: 'Transporte',
+    saude: 'Saúde',
+    educacao: 'Educação',
+    lazer: 'Lazer',
+    contas: 'Contas e serviços',
+    compras: 'Compras',
+    outros: 'Outros'
+  }
+  return categorias[categoriaValue] || categoriaValue
+}
+
+defineExpose({ open })
 </script>
 
 <style scoped>

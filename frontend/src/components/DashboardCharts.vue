@@ -135,7 +135,7 @@
         <div class="chart-container">
           <h3>Despesas por Categoria</h3>
           <div class="chart-wrapper">
-            <canvas ref="categoriaChart"></canvas>
+            <canvas ref="categoriaChartRef"></canvas>
           </div>
           <div v-if="categoriaDominante" class="chart-mini-insight">
             <i class="pi pi-chart-pie" />
@@ -150,7 +150,7 @@
         <div class="chart-container chart-evolucao">
           <h3>Evolução Mensal</h3>
           <div class="chart-wrapper">
-            <canvas ref="evolucaoChart"></canvas>
+            <canvas ref="evolucaoChartRef"></canvas>
           </div>
         </div>
       </div>
@@ -159,7 +159,8 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { Chart, registerables } from 'chart.js'
 import EmptyState from './EmptyState.vue'
 import DashboardInsights from './DashboardInsights.vue'
@@ -172,284 +173,271 @@ const MES_NOMES = [
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ]
 
-export default {
-  name: 'DashboardCharts',
-  components: { EmptyState, DashboardInsights },
-  data() {
-    const hoje = new Date()
-    return {
-      periodo: {
-        mes: hoje.getMonth() + 1,
-        ano: hoje.getFullYear()
-      },
-      dashboardData: null,
-      loading: false,
-      categoriaChart: null,
-      evolucaoChart: null
-    }
-  },
-  computed: {
-    mesesNomes() {
-      return MES_NOMES
-    },
-    anosDisponiveis() {
-      const atual = new Date().getFullYear()
-      return [atual, atual - 1, atual - 2]
-    },
-    variacaoClasse() {
-      if (!this.dashboardData) return 'neutral'
-      return this.dashboardData.variacao_percentual <= 0 ? 'positive' : 'negative'
-    },
-    variacaoIcone() {
-      if (!this.dashboardData) return '➖'
-      return this.dashboardData.variacao_percentual <= 0 ? '↓' : '↑'
-    },
-    saldoClasse() {
-      if (!this.dashboardData || this.dashboardData.saldo === undefined) return 'neutral'
-      return this.dashboardData.saldo >= 0 ? 'positive' : 'negative'
-    },
-    saldoIcone() {
-      if (!this.dashboardData || this.dashboardData.saldo === undefined) return '⚖️'
-      return this.dashboardData.saldo >= 0 ? '🟢' : '🔴'
-    },
-    saldoInsuficiente() {
-      if (!this.dashboardData) return false
-      const saldo = this.dashboardData.saldo || 0
-      const aPagar = this.dashboardData.total_a_pagar || 0
-      return aPagar > 0 && saldo < aPagar
-    },
-    categoriaDominante() {
-      const ranking = this.dashboardData?.ranking_categorias
-      if (!ranking || ranking.length === 0) return null
-      return ranking[0]
-    },
-    mostrarComparacao() {
-      if (!this.dashboardData) return false
-      const abs = Math.abs(this.dashboardData.variacao_absoluta || 0)
-      return abs > 0.01
-    },
-    metasPorCategoria() {
-      if (!this.dashboardData || !this.dashboardData.metas) return []
-      const metas = this.dashboardData.metas.por_categoria || []
-      return [...metas].sort((a, b) => b.percentual_usado - a.percentual_usado)
-    },
-  },
-  mounted() {
-    this.carregarDashboard()
-  },
-  watch: {
-    periodo: {
-      deep: true,
-      handler() {
-        this.carregarDashboard()
-      }
-    }
-  },
-  methods: {
-    async carregarDashboard() {
-      try {
-        this.loading = true
-        this.dashboardData = await fetchDashboard(this.periodo.mes, this.periodo.ano)
-      } catch (error) {
-        console.error('Erro ao carregar dashboard:', error)
-      } finally {
-        this.loading = false
-        this.$nextTick(() => {
-          this.destroyCharts()
-          this.initCharts()
-        })
-      }
-    },
+const hoje = new Date()
+const periodo = ref({
+  mes: hoje.getMonth() + 1,
+  ano: hoje.getFullYear()
+})
+const dashboardData = ref(null)
+const loading = ref(false)
+let categoriaChart = null
+let evolucaoChart = null
 
-    initCharts() {
-      if (!this.dashboardData) return
-      this.initCategoriaChart()
-      this.initEvolucaoChart()
-    },
+const categoriaChartRef = ref(null)
+const evolucaoChartRef = ref(null)
 
-    destroyCharts() {
-      if (this.categoriaChart) {
-        this.categoriaChart.destroy()
-        this.categoriaChart = null
-      }
-      if (this.evolucaoChart) {
-        this.evolucaoChart.destroy()
-        this.evolucaoChart = null
-      }
-    },
+const mesesNomes = computed(() => MES_NOMES)
+const anosDisponiveis = computed(() => {
+  const atual = new Date().getFullYear()
+  return [atual, atual - 1, atual - 2]
+})
+const variacaoClasse = computed(() => {
+  if (!dashboardData.value) return 'neutral'
+  return dashboardData.value.variacao_percentual <= 0 ? 'positive' : 'negative'
+})
+const variacaoIcone = computed(() => {
+  if (!dashboardData.value) return '➖'
+  return dashboardData.value.variacao_percentual <= 0 ? '↓' : '↑'
+})
+const saldoClasse = computed(() => {
+  if (!dashboardData.value || dashboardData.value.saldo === undefined) return 'neutral'
+  return dashboardData.value.saldo >= 0 ? 'positive' : 'negative'
+})
+const saldoIcone = computed(() => {
+  if (!dashboardData.value || dashboardData.value.saldo === undefined) return '⚖️'
+  return dashboardData.value.saldo >= 0 ? '🟢' : '🔴'
+})
+const saldoInsuficiente = computed(() => {
+  if (!dashboardData.value) return false
+  const saldo = dashboardData.value.saldo || 0
+  const aPagar = dashboardData.value.total_a_pagar || 0
+  return aPagar > 0 && saldo < aPagar
+})
+const categoriaDominante = computed(() => {
+  const ranking = dashboardData.value?.ranking_categorias
+  if (!ranking || ranking.length === 0) return null
+  return ranking[0]
+})
+const mostrarComparacao = computed(() => {
+  if (!dashboardData.value) return false
+  const abs = Math.abs(dashboardData.value.variacao_absoluta || 0)
+  return abs > 0.01
+})
+const metasPorCategoria = computed(() => {
+  if (!dashboardData.value || !dashboardData.value.metas) return []
+  const metas = dashboardData.value.metas.por_categoria || []
+  return [...metas].sort((a, b) => b.percentual_usado - a.percentual_usado)
+})
 
-    initCategoriaChart() {
-      try {
-        const ctx = this.$refs.categoriaChart
-        if (!ctx) return
+onMounted(() => {
+  carregarDashboard()
+})
 
-        if (this.categoriaChart) {
-          this.categoriaChart.destroy()
-          this.categoriaChart = null
-        }
+watch(periodo, () => {
+  carregarDashboard()
+}, { deep: true })
 
-        const ranking = this.dashboardData.ranking_categorias
-        if (!ranking || ranking.length === 0) return
-
-        const cores = [
-          '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4',
-          '#ec4899', '#6b7280', '#10b981', '#f97316', '#6366f1'
-        ]
-
-        this.categoriaChart = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: ranking.map(d => d.nome),
-            datasets: [{
-              data: ranking.map(d => d.total),
-              backgroundColor: cores.slice(0, ranking.length),
-              borderWidth: 2,
-              borderColor: '#1f2937'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  color: '#e5e7eb',
-                  padding: 15,
-                  font: { size: 12 }
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: (context) => {
-                    const value = this.formatarValor(context.parsed)
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0)
-                    const percentage = ((context.parsed / total) * 100).toFixed(1)
-                    return `${value} (${percentage}%)`
-                  }
-                }
-              }
-            }
-          }
-        })
-      } catch (error) {
-        console.error('Erro ao inicializar gráfico de categorias:', error)
-      }
-    },
-
-    initEvolucaoChart() {
-      try {
-        const ctx = this.$refs.evolucaoChart
-        if (!ctx) return
-
-        if (this.evolucaoChart) {
-          this.evolucaoChart.destroy()
-          this.evolucaoChart = null
-        }
-
-        const evolucao = this.dashboardData.evolucao_mensal || this.dashboardData.evolucao_12meses || []
-        const labels = evolucao.map(e => `${e.mes}/${e.ano.toString().slice(-2)}`)
-        const dadosReceitas = evolucao.map(e => e.receitas || 0)
-        const dadosGastos = evolucao.map(e => e.gastos || e.total || 0)
-
-        const chartCtx = ctx.getContext('2d')
-        const gradReceitas = chartCtx.createLinearGradient(0, 0, 0, 300)
-        gradReceitas.addColorStop(0, 'rgba(16, 185, 129, 0.18)')
-        gradReceitas.addColorStop(1, 'rgba(16, 185, 129, 0)')
-
-        const gradDespesas = chartCtx.createLinearGradient(0, 0, 0, 300)
-        gradDespesas.addColorStop(0, 'rgba(239, 68, 68, 0.12)')
-        gradDespesas.addColorStop(1, 'rgba(239, 68, 68, 0)')
-
-        this.evolucaoChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [
-              {
-                label: 'Receitas',
-                data: dadosReceitas,
-                borderColor: 'rgba(16, 185, 129, 0.85)',
-                backgroundColor: gradReceitas,
-                borderWidth: 2.5,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: 'rgba(16, 185, 129, 0.85)',
-                pointBorderColor: '#1f2937',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6
-              },
-              {
-                label: 'Despesas',
-                data: dadosGastos,
-                borderColor: 'rgba(239, 68, 68, 0.85)',
-                backgroundColor: gradDespesas,
-                borderWidth: 2.5,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: 'rgba(239, 68, 68, 0.85)',
-                pointBorderColor: '#1f2937',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'top',
-                labels: {
-                  color: '#e5e7eb',
-                  font: { size: 12 },
-                  usePointStyle: true
-                }
-              },
-              tooltip: {
-                callbacks: {
-                  label: (context) => {
-                    return `${context.dataset.label}: ${this.formatarValor(context.parsed.y)}`
-                  }
-                }
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                ticks: {
-                  color: '#9ca3af',
-                  callback: (value) => this.formatarValor(value)
-                }
-              },
-              x: {
-                grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                ticks: { color: '#9ca3af' }
-              }
-            }
-          }
-        })
-      } catch (error) {
-        console.error('Erro ao inicializar gráfico de evolução:', error)
-      }
-    },
-
-    formatarValor(valor) {
-      return parseFloat(valor).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
-    },
-
-    formatarVariacao(valor) {
-      const sinal = valor > 0 ? '+' : ''
-      return `${sinal}${valor.toFixed(1)}%`
-    },
-
+async function carregarDashboard() {
+  try {
+    loading.value = true
+    dashboardData.value = await fetchDashboard(periodo.value.mes, periodo.value.ano)
+  } catch (err) {
+    console.error('Erro ao carregar dashboard:', err)
+  } finally {
+    loading.value = false
+    nextTick(() => {
+      destroyCharts()
+      initCharts()
+    })
   }
+}
+
+function initCharts() {
+  if (!dashboardData.value) return
+  initCategoriaChart()
+  initEvolucaoChart()
+}
+
+function destroyCharts() {
+  if (categoriaChart) {
+    categoriaChart.destroy()
+    categoriaChart = null
+  }
+  if (evolucaoChart) {
+    evolucaoChart.destroy()
+    evolucaoChart = null
+  }
+}
+
+function initCategoriaChart() {
+  try {
+    const ctx = categoriaChartRef.value
+    if (!ctx) return
+
+    if (categoriaChart) {
+      categoriaChart.destroy()
+      categoriaChart = null
+    }
+
+    const ranking = dashboardData.value.ranking_categorias
+    if (!ranking || ranking.length === 0) return
+
+    const cores = [
+      '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4',
+      '#ec4899', '#6b7280', '#10b981', '#f97316', '#6366f1'
+    ]
+
+    categoriaChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ranking.map(d => d.nome),
+        datasets: [{
+          data: ranking.map(d => d.total),
+          backgroundColor: cores.slice(0, ranking.length),
+          borderWidth: 2,
+          borderColor: '#1f2937'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#e5e7eb',
+              padding: 15,
+              font: { size: 12 }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const value = formatarValor(context.parsed)
+                const total = context.dataset.data.reduce((a, b) => a + b, 0)
+                const percentage = ((context.parsed / total) * 100).toFixed(1)
+                return `${value} (${percentage}%)`
+              }
+            }
+          }
+        }
+      }
+    })
+  } catch (err) {
+    console.error('Erro ao inicializar gráfico de categorias:', err)
+  }
+}
+
+function initEvolucaoChart() {
+  try {
+    const ctx = evolucaoChartRef.value
+    if (!ctx) return
+
+    if (evolucaoChart) {
+      evolucaoChart.destroy()
+      evolucaoChart = null
+    }
+
+    const evolucao = dashboardData.value.evolucao_mensal || dashboardData.value.evolucao_12meses || []
+    const labels = evolucao.map(e => `${e.mes}/${e.ano.toString().slice(-2)}`)
+    const dadosReceitas = evolucao.map(e => e.receitas || 0)
+    const dadosGastos = evolucao.map(e => e.gastos || e.total || 0)
+
+    const chartCtx = ctx.getContext('2d')
+    const gradReceitas = chartCtx.createLinearGradient(0, 0, 0, 300)
+    gradReceitas.addColorStop(0, 'rgba(16, 185, 129, 0.18)')
+    gradReceitas.addColorStop(1, 'rgba(16, 185, 129, 0)')
+
+    const gradDespesas = chartCtx.createLinearGradient(0, 0, 0, 300)
+    gradDespesas.addColorStop(0, 'rgba(239, 68, 68, 0.12)')
+    gradDespesas.addColorStop(1, 'rgba(239, 68, 68, 0)')
+
+    evolucaoChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Receitas',
+            data: dadosReceitas,
+            borderColor: 'rgba(16, 185, 129, 0.85)',
+            backgroundColor: gradReceitas,
+            borderWidth: 2.5,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: 'rgba(16, 185, 129, 0.85)',
+            pointBorderColor: '#1f2937',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          },
+          {
+            label: 'Despesas',
+            data: dadosGastos,
+            borderColor: 'rgba(239, 68, 68, 0.85)',
+            backgroundColor: gradDespesas,
+            borderWidth: 2.5,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: 'rgba(239, 68, 68, 0.85)',
+            pointBorderColor: '#1f2937',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              color: '#e5e7eb',
+              font: { size: 12 },
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `${context.dataset.label}: ${formatarValor(context.parsed.y)}`
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+            ticks: {
+              color: '#9ca3af',
+              callback: (value) => formatarValor(value)
+            }
+          },
+          x: {
+            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+            ticks: { color: '#9ca3af' }
+          }
+        }
+      }
+    })
+  } catch (err) {
+    console.error('Erro ao inicializar gráfico de evolução:', err)
+  }
+}
+
+function formatarValor(valor) {
+  return parseFloat(valor).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  })
+}
+
+function formatarVariacao(valor) {
+  const sinal = valor > 0 ? '+' : ''
+  return `${sinal}${valor.toFixed(1)}%`
 }
 </script>
 
