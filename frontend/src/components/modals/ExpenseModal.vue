@@ -18,7 +18,7 @@
             min="0.01"
             class="form-input input-field"
             placeholder="0,00"
-            ref="inputValor"
+            ref="inputValorRef"
           />
         </div>
       </div>
@@ -88,10 +88,12 @@
   </ModalBase>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, nextTick } from 'vue'
 import ModalBase from '../ModalBase.vue'
 import { apiRequest, API_ENDPOINTS } from '../../config/api.js'
 import { toastMessages, toastTitles } from '../../utils/toastMessages.js'
+import { toastStore } from '../../stores/toast.store.js'
 
 const CATEGORIAS = [
   { value: 'moradia', label: 'Moradia' },
@@ -116,96 +118,85 @@ const DEFAULT_FORM = {
   pago: false
 }
 
-export default {
-  name: 'ExpenseModal',
-  components: { ModalBase },
-  props: {
-    visible: { type: Boolean, default: false },
-    editingData: { type: Object, default: null }
-  },
-  emits: ['close', 'saved'],
-  data() {
-    return {
-      form: { ...DEFAULT_FORM },
-      loading: false,
-      error: null,
-      categorias: CATEGORIAS
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  editingData: { type: Object, default: null }
+})
+
+const emit = defineEmits(['close', 'saved'])
+
+const form = ref({ ...DEFAULT_FORM })
+const loading = ref(false)
+const error = ref(null)
+const categorias = ref(CATEGORIAS)
+const inputValorRef = ref(null)
+
+const editingId = computed(() => props.editingData?.id || null)
+const isValid = computed(() => form.value.valor && form.value.valor > 0 && form.value.categoria && form.value.data_competencia)
+
+watch(() => props.visible, (val) => {
+  if (val) {
+    error.value = null
+    if (props.editingData) {
+      form.value = {
+        valor: parseFloat(props.editingData.valor),
+        categoria: props.editingData.categoria,
+        descricao: props.editingData.descricao || '',
+        data: new Date().toISOString().split('T')[0],
+        data_competencia: props.editingData.data_competencia || '',
+        data_pagamento: props.editingData.data_pagamento || '',
+        pago: props.editingData.pago || false
+      }
+    } else {
+      form.value = { ...DEFAULT_FORM }
     }
-  },
-  computed: {
-    editingId() {
-      return this.editingData?.id || null
-    },
-    isValid() {
-      return this.form.valor && this.form.valor > 0 && this.form.categoria && this.form.data_competencia
-    }
-  },
-  watch: {
-    visible(val) {
-      if (val) {
-        this.error = null
-        if (this.editingData) {
-          this.form = {
-            valor: parseFloat(this.editingData.valor),
-            categoria: this.editingData.categoria,
-            descricao: this.editingData.descricao || '',
-            data: new Date().toISOString().split('T')[0],
-            data_competencia: this.editingData.data_competencia || '',
-            data_pagamento: this.editingData.data_pagamento || '',
-            pago: this.editingData.pago || false
-          }
-        } else {
-          this.form = { ...DEFAULT_FORM }
-        }
-        this.$nextTick(() => {
-          this.$refs.inputValor?.focus()
-        })
+    nextTick(() => {
+      inputValorRef.value?.focus()
+    })
+  }
+})
+
+function onClose() {
+  emit('close')
+}
+
+async function onSubmit() {
+  if (!isValid.value) return
+  loading.value = true
+  error.value = null
+
+  try {
+    const payload = { ...form.value, data: form.value.data_competencia || form.value.data }
+
+    if (editingId.value) {
+      const response = await apiRequest(API_ENDPOINTS.GASTO_DETAIL(editingId.value), {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      })
+      toastStore.success(toastMessages.expense.updated, { title: toastTitles.success })
+      if (response?.alerta_meta) {
+        const variant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
+        toastStore[variant](response.alerta_meta.mensagem, { title: 'Meta de Despesas' })
+      }
+    } else {
+      const response = await apiRequest(API_ENDPOINTS.GASTOS_LIST, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      toastStore.success(toastMessages.expense.created, { title: toastTitles.success })
+      if (response?.alerta_meta) {
+        const variant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
+        toastStore[variant](response.alerta_meta.mensagem, { title: 'Meta de Despesas' })
       }
     }
-  },
-  methods: {
-    onClose() {
-      this.$emit('close')
-    },
-    async onSubmit() {
-      if (!this.isValid) return
-      this.loading = true
-      this.error = null
 
-      try {
-        const payload = { ...this.form, data: this.form.data_competencia || this.form.data }
-
-        if (this.editingId) {
-          const response = await apiRequest(API_ENDPOINTS.GASTO_DETAIL(this.editingId), {
-            method: 'PUT',
-            body: JSON.stringify(payload)
-          })
-          this.$toast.success(toastMessages.expense.updated, { title: toastTitles.success })
-          if (response?.alerta_meta) {
-            const variant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
-            this.$toast[variant](response.alerta_meta.mensagem, { title: 'Meta de Despesas' })
-          }
-        } else {
-          const response = await apiRequest(API_ENDPOINTS.GASTOS_LIST, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-          })
-          this.$toast.success(toastMessages.expense.created, { title: toastTitles.success })
-          if (response?.alerta_meta) {
-            const variant = response.alerta_meta.status === 'critical' ? 'error' : 'warning'
-            this.$toast[variant](response.alerta_meta.mensagem, { title: 'Meta de Despesas' })
-          }
-        }
-
-        this.$emit('saved')
-        this.onClose()
-      } catch (err) {
-        this.error = err.message || toastMessages.expense.saveError
-        this.$toast.error(toastMessages.expense.saveError, { title: toastTitles.error })
-      } finally {
-        this.loading = false
-      }
-    }
+    emit('saved')
+    onClose()
+  } catch (err) {
+    error.value = err.message || toastMessages.expense.saveError
+    toastStore.error(toastMessages.expense.saveError, { title: toastTitles.error })
+  } finally {
+    loading.value = false
   }
 }
 </script>

@@ -93,158 +93,149 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
 import BaseCard from './BaseCard.vue'
 import RevenueModal from './modals/RevenueModal.vue'
 import ConfirmModal from './modals/ConfirmModal.vue'
 import EmptyState from './EmptyState.vue'
 import { fetchReceitas, deleteReceita } from '../config/api.js'
 import { toastMessages, toastTitles } from '../utils/toastMessages.js'
+import { toastStore } from '../stores/toast.store.js'
 
-export default {
-  name: 'ReceitasView',
-  components: {
-    BaseCard,
-    RevenueModal,
-    ConfirmModal,
-    EmptyState,
-  },
-  props: {
-    initialEditData: {
-      type: Object,
-      default: null
-    }
-  },
-  data() {
-    return {
-      receitas: [],
-      loading: false,
-      showModal: false,
-      revenueEditingData: null,
-      pagination: {
-        page: 1,
-        pages: 1,
-        pageSize: 20,
-        total: 0,
-        next: null,
-        previous: null,
-      },
-      confirmVisible: false,
-      confirmTitle: '',
-      confirmMessage: '',
-      confirmDanger: false,
-      confirmAcceptLabel: 'Confirmar',
-      confirmRejectLabel: 'Cancelar',
-      confirmOnAccept: null
-    }
-  },
-  watch: {
-    initialEditData: {
-      handler(newVal) {
-        if (newVal) {
-          this.revenueEditingData = { id: null, ...newVal }
-          this.showModal = true
-        }
-      }
-    }
-  },
-  computed: {
-    totalReceitas() {
-      return this.receitas.reduce((soma, r) => soma + parseFloat(r.valor || 0), 0)
-    }
-  },
-  mounted() {
-    this.carregarReceitas()
-  },
-  methods: {
-    async carregarReceitas(page = 1) {
-      try {
-        this.loading = true
-        const res = await fetchReceitas(page, this.pagination.pageSize)
-        this.receitas = res.receitas || []
-        this.pagination.page = res.page || 1
-        this.pagination.pages = res.pages || 1
-        this.pagination.total = res.total || 0
-        this.pagination.next = res.next || null
-        this.pagination.previous = res.previous || null
-      } catch (error) {
-        console.error('Erro ao carregar receitas:', error)
-      } finally {
-        this.loading = false
-      }
-    },
-    goToPageReceitas(page) {
-      if (page >= 1 && page <= this.pagination.pages) {
-        this.carregarReceitas(page)
-      }
-    },
-    abrirModal() {
-      this.revenueEditingData = null
-      this.showModal = true
-    },
-    abrirEdicao(receita) {
-      this.revenueEditingData = receita
-      this.showModal = true
-    },
-    fecharModal() {
-      this.showModal = false
-      this.revenueEditingData = null
-    },
-    async onRevenueSaved() {
-      await this.carregarReceitas()
-    },
-    podeEditarReceita(receita) {
-      // Simples: todas as receitas são editáveis pelo usuário logado
-      // (receitas não têm family filter complexo como gastos)
-      return true
-    },
-    excluirReceita(id) {
-      this.confirmTitle = 'Excluir Receita'
-      this.confirmMessage = 'Tem certeza que deseja excluir esta receita?'
-      this.confirmDanger = true
-      this.confirmAcceptLabel = 'Sim, excluir'
-      this.confirmRejectLabel = 'Cancelar'
-      this.confirmOnAccept = async () => {
-        try {
-          await deleteReceita(id)
-          this.receitas = this.receitas.filter(r => r.id !== id)
-          this.$toast.success(toastMessages.revenue.deleted, { title: toastTitles.success })
-        } catch (error) {
-          if (error.message?.includes('404') || error.message?.includes('não encontrada')) {
-            this.receitas = this.receitas.filter(r => r.id !== id)
-            this.$toast.success(toastMessages.revenue.deleted, { title: toastTitles.success })
-          } else {
-            console.error('Erro ao excluir receita:', error)
-            this.$toast.error(toastMessages.generic.actionError, { title: toastTitles.error })
-          }
-        }
-      }
-      this.confirmVisible = true
-    },
+const props = defineProps({
+  initialEditData: {
+    type: Object,
+    default: null
+  }
+})
 
-    async onConfirmAccept() {
-      this.confirmVisible = false
-      if (this.confirmOnAccept) {
-        await this.confirmOnAccept()
-        this.confirmOnAccept = null
+const receitas = ref([])
+const loading = ref(false)
+const showModal = ref(false)
+const revenueEditingData = ref(null)
+const pagination = ref({
+  page: 1,
+  pages: 1,
+  pageSize: 20,
+  total: 0,
+  next: null,
+  previous: null,
+})
+const confirmVisible = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmDanger = ref(false)
+const confirmAcceptLabel = ref('Confirmar')
+const confirmRejectLabel = ref('Cancelar')
+let confirmOnAccept = null
+
+watch(() => props.initialEditData, (newVal) => {
+  if (newVal) {
+    revenueEditingData.value = { id: null, ...newVal }
+    showModal.value = true
+  }
+})
+
+const totalReceitas = computed(() => receitas.value.reduce((soma, r) => soma + parseFloat(r.valor || 0), 0))
+
+onMounted(() => {
+  carregarReceitas()
+})
+
+async function carregarReceitas(page = 1) {
+  try {
+    loading.value = true
+    const res = await fetchReceitas(page, pagination.value.pageSize)
+    receitas.value = res.receitas || []
+    pagination.value.page = res.page || 1
+    pagination.value.pages = res.pages || 1
+    pagination.value.total = res.total || 0
+    pagination.value.next = res.next || null
+    pagination.value.previous = res.previous || null
+  } catch (err) {
+    console.error('Erro ao carregar receitas:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+function goToPageReceitas(page) {
+  if (page >= 1 && page <= pagination.value.pages) {
+    carregarReceitas(page)
+  }
+}
+
+function abrirModal() {
+  revenueEditingData.value = null
+  showModal.value = true
+}
+
+function abrirEdicao(receita) {
+  revenueEditingData.value = receita
+  showModal.value = true
+}
+
+function fecharModal() {
+  showModal.value = false
+  revenueEditingData.value = null
+}
+
+async function onRevenueSaved() {
+  await carregarReceitas()
+}
+
+function podeEditarReceita(receita) {
+  return true
+}
+
+function excluirReceita(id) {
+  confirmTitle.value = 'Excluir Receita'
+  confirmMessage.value = 'Tem certeza que deseja excluir esta receita?'
+  confirmDanger.value = true
+  confirmAcceptLabel.value = 'Sim, excluir'
+  confirmRejectLabel.value = 'Cancelar'
+  confirmOnAccept = async () => {
+    try {
+      await deleteReceita(id)
+      receitas.value = receitas.value.filter(r => r.id !== id)
+      toastStore.success(toastMessages.revenue.deleted, { title: toastTitles.success })
+    } catch (err) {
+      if (err.message?.includes('404') || err.message?.includes('não encontrada')) {
+        receitas.value = receitas.value.filter(r => r.id !== id)
+        toastStore.success(toastMessages.revenue.deleted, { title: toastTitles.success })
+      } else {
+        console.error('Erro ao excluir receita:', err)
+        toastStore.error(toastMessages.generic.actionError, { title: toastTitles.error })
       }
-    },
-    formatarValor(valor) {
-      return parseFloat(valor).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
-    },
-    formatarData(dataStr) {
-      if (!dataStr) return ''
-      const data = new Date(dataStr + 'T00:00:00')
-      return data.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      })
     }
   }
+  confirmVisible.value = true
+}
+
+async function onConfirmAccept() {
+  confirmVisible.value = false
+  if (confirmOnAccept) {
+    await confirmOnAccept()
+    confirmOnAccept = null
+  }
+}
+
+function formatarValor(valor) {
+  return parseFloat(valor).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  })
+}
+
+function formatarData(dataStr) {
+  if (!dataStr) return ''
+  const data = new Date(dataStr + 'T00:00:00')
+  return data.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
 }
 </script>
 

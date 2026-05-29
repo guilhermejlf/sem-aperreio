@@ -154,104 +154,87 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StatementFilters',
+<script setup>
+import { ref, computed, watch } from 'vue'
 
-  props: {
-    modelValue: {
-      type: Object,
-      required: true
-    },
-    categorias: {
-      type: Array,
-      default: () => []
-    },
-    mesesLabels: {
-      type: Array,
-      default: () => ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-    }
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    required: true
   },
-
-  emits: ['update:modelValue', 'change', 'export'],
-
-  data() {
-    return {
-      showSheet: false,
-      filters: { ...this.modelValue }
-    }
+  categorias: {
+    type: Array,
+    default: () => []
   },
-
-  computed: {
-    anosDisponiveis() {
-      const atual = new Date().getFullYear()
-      return [atual, atual - 1, atual - 2]
-    },
-
-    activeFilters() {
-      const list = []
-      if (this.modelValue.mes) list.push({ key: 'mes', label: this.mesesLabels[this.modelValue.mes - 1] })
-      if (this.modelValue.ano) list.push({ key: 'ano', label: String(this.modelValue.ano) })
-      if (this.modelValue.categoria) {
-        const cat = this.categorias.find(c => c.value === this.modelValue.categoria)
-        list.push({ key: 'categoria', label: cat?.label || this.modelValue.categoria })
-      }
-      if (this.modelValue.tipo) list.push({ key: 'tipo', label: this.modelValue.tipo === 'receitas' ? 'Receitas' : 'Despesas' })
-      if (this.modelValue.pago !== '') list.push({ key: 'pago', label: this.modelValue.pago === 'true' ? 'Pagos' : 'Pendentes' })
-      return list
-    },
-
-    activeCount() {
-      return this.activeFilters.length
-    },
-
-    currentPeriod() {
-      const mes = this.modelValue.mes
-      const ano = this.modelValue.ano
-      if (mes && ano) return `${this.mesesLabels[mes - 1]} ${ano}`
-      if (mes) return this.mesesLabels[mes - 1]
-      if (ano) return String(ano)
-      return 'Todos'
-    }
-  },
-
-  watch: {
-    modelValue: {
-      handler(val) {
-        this.filters = { ...val }
-      },
-      deep: true
-    }
-  },
-
-  methods: {
-    onChange() {
-      this.$emit('update:modelValue', { ...this.filters })
-      this.$emit('change')
-    },
-
-    applyFilters() {
-      this.$emit('update:modelValue', { ...this.filters })
-      this.$emit('change')
-      this.showSheet = false
-    },
-
-    limparFiltros() {
-      this.filters = { mes: '', ano: '', categoria: '', tipo: '', pago: '' }
-      this.$emit('update:modelValue', { ...this.filters })
-      this.$emit('change')
-    },
-
-    clearFilter(key) {
-      this.filters[key] = key === 'pago' ? '' : ''
-      this.onChange()
-    },
-
-    exportar(formato) {
-      this.$emit('export', formato)
-      this.showSheet = false
-    }
+  mesesLabels: {
+    type: Array,
+    default: () => ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
   }
+})
+
+const emit = defineEmits(['update:modelValue', 'change', 'export'])
+
+const showSheet = ref(false)
+const filters = ref({ ...props.modelValue })
+
+const anosDisponiveis = computed(() => {
+  const atual = new Date().getFullYear()
+  return [atual, atual - 1, atual - 2]
+})
+
+const activeFilters = computed(() => {
+  const list = []
+  if (props.modelValue.mes) list.push({ key: 'mes', label: props.mesesLabels[props.modelValue.mes - 1] })
+  if (props.modelValue.ano) list.push({ key: 'ano', label: String(props.modelValue.ano) })
+  if (props.modelValue.categoria) {
+    const cat = props.categorias.find(c => c.value === props.modelValue.categoria)
+    list.push({ key: 'categoria', label: cat?.label || props.modelValue.categoria })
+  }
+  if (props.modelValue.tipo) list.push({ key: 'tipo', label: props.modelValue.tipo === 'receitas' ? 'Receitas' : 'Despesas' })
+  if (props.modelValue.pago !== '') list.push({ key: 'pago', label: props.modelValue.pago === 'true' ? 'Pagos' : 'Pendentes' })
+  return list
+})
+
+const activeCount = computed(() => activeFilters.value.length)
+
+const currentPeriod = computed(() => {
+  const mes = props.modelValue.mes
+  const ano = props.modelValue.ano
+  if (mes && ano) return `${props.mesesLabels[mes - 1]} ${ano}`
+  if (mes) return props.mesesLabels[mes - 1]
+  if (ano) return String(ano)
+  return 'Todos'
+})
+
+watch(() => props.modelValue, (val) => {
+  filters.value = { ...val }
+}, { deep: true })
+
+function onChange() {
+  emit('update:modelValue', { ...filters.value })
+  emit('change')
+}
+
+function applyFilters() {
+  emit('update:modelValue', { ...filters.value })
+  emit('change')
+  showSheet.value = false
+}
+
+function limparFiltros() {
+  filters.value = { mes: '', ano: '', categoria: '', tipo: '', pago: '' }
+  emit('update:modelValue', { ...filters.value })
+  emit('change')
+}
+
+function clearFilter(key) {
+  filters.value[key] = ''
+  onChange()
+}
+
+function exportar(formato) {
+  emit('export', formato)
+  showSheet.value = false
 }
 </script>
 
