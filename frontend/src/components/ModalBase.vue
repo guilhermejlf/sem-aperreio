@@ -27,7 +27,7 @@
           </div>
 
           <!-- Footer -->
-          <div v-if="$slots.footer" class="modal-footer">
+          <div v-if="slots.footer" class="modal-footer">
             <slot name="footer" />
           </div>
         </div>
@@ -36,53 +36,51 @@
   </Teleport>
 </template>
 
-<script>
-export default {
-  name: 'ModalBase',
-  props: {
-    visible: { type: Boolean, default: false },
-    title: { type: String, default: '' },
-    highlight: { type: String, default: '' },
-    subtitle: { type: String, default: '' },
-    size: { type: String, default: 'medium', validator: v => ['small', 'medium', 'large'].includes(v) }
-  },
-  emits: ['close'],
-  computed: {
-    titleBefore() {
-      if (!this.highlight) return this.title
-      const idx = this.title.indexOf(this.highlight)
-      if (idx === -1) return this.title
-      return this.title.slice(0, idx)
-    },
-    titleAfter() {
-      if (!this.highlight) return ''
-      const idx = this.title.indexOf(this.highlight)
-      if (idx === -1) return ''
-      return this.title.slice(idx + this.highlight.length)
-    }
-  },
-  methods: {
-    onClose() {
-      this.$emit('close')
-    }
-  },
-  mounted() {
-    document.addEventListener('keydown', this.handleEsc)
-  },
-  beforeUnmount() {
-    document.removeEventListener('keydown', this.handleEsc)
-  },
-  methods: {
-    handleEsc(e) {
-      if (e.key === 'Escape' && this.visible) {
-        this.onClose()
-      }
-    },
-    onClose() {
-      this.$emit('close')
-    }
+<script setup>
+import { computed, useSlots, onMounted, onBeforeUnmount } from 'vue'
+
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  title: { type: String, default: '' },
+  highlight: { type: String, default: '' },
+  subtitle: { type: String, default: '' },
+  size: { type: String, default: 'medium', validator: v => ['small', 'medium', 'large'].includes(v) }
+})
+
+const emit = defineEmits(['close'])
+const slots = useSlots()
+
+const titleBefore = computed(() => {
+  if (!props.highlight) return props.title
+  const idx = props.title.indexOf(props.highlight)
+  if (idx === -1) return props.title
+  return props.title.slice(0, idx)
+})
+
+const titleAfter = computed(() => {
+  if (!props.highlight) return ''
+  const idx = props.title.indexOf(props.highlight)
+  if (idx === -1) return ''
+  return props.title.slice(idx + props.highlight.length)
+})
+
+function onClose() {
+  emit('close')
+}
+
+function handleEsc(e) {
+  if (e.key === 'Escape' && props.visible) {
+    onClose()
   }
 }
+
+onMounted(() => {
+  document.addEventListener('keydown', handleEsc)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleEsc)
+})
 </script>
 
 <style scoped>

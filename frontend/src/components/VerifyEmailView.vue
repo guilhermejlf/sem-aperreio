@@ -23,41 +23,36 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue'
 import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 
-export default {
-  data() {
-    return {
-      loading: true,
-      error: null,
-      success: null
-    }
-  },
-  async mounted() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const token = urlParams.get('token')
+const loading = ref(true)
+const error = ref(null)
+const success = ref(null)
 
-    if (!token) {
-      this.error = 'Token de verificação não encontrado na URL.'
-      this.loading = false
-      return
-    }
+onMounted(async () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const token = urlParams.get('token')
 
-    try {
-      const data = await apiRequest(`${API_ENDPOINTS.AUTH_VERIFY_EMAIL}?token=${token}`)
-      this.success = data.mensagem || 'Seu email foi confirmado com sucesso!'
-    } catch (error) {
-      this.error = error.message || 'Erro ao confirmar email. O link pode ter expirado.'
-    } finally {
-      this.loading = false
-    }
-  },
-  methods: {
-    goToLogin() {
-      window.location.href = '/'
-    }
+  if (!token) {
+    error.value = 'Token de verificação não encontrado na URL.'
+    loading.value = false
+    return
   }
+
+  try {
+    const data = await apiRequest(`${API_ENDPOINTS.AUTH_VERIFY_EMAIL}?token=${token}`)
+    success.value = data.mensagem || 'Seu email foi confirmado com sucesso!'
+  } catch (err) {
+    error.value = err.message || 'Erro ao confirmar email. O link pode ter expirado.'
+  } finally {
+    loading.value = false
+  }
+})
+
+function goToLogin() {
+  window.location.href = '/'
 }
 </script>
 

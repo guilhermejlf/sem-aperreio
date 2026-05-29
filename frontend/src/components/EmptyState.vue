@@ -9,7 +9,7 @@
       <button
         v-if="actionLabel"
         class="empty-state-action"
-        @click="$emit('action')"
+        @click="emit('action')"
       >
         {{ actionLabel }}
       </button>
@@ -21,28 +21,23 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import BeneAvatar from './BeneAvatar.vue'
 
-export default {
-  name: 'EmptyState',
-  components: { BeneAvatar },
-  emits: ['action'],
-  props: {
-    title: { type: String, required: true },
-    description: { type: String, default: '' },
-    icon: { type: String, default: '' },
-    actionLabel: { type: String, default: '' },
-    variant: { type: String, default: 'default' },
-    showBene: { type: Boolean, default: false },
-    beneText: { type: String, default: '' },
-  },
-  computed: {
-    variantClass() {
-      return this.variant ? `empty-state--${this.variant}` : ''
-    },
-  },
-}
+const props = defineProps({
+  title: { type: String, required: true },
+  description: { type: String, default: '' },
+  icon: { type: String, default: '' },
+  actionLabel: { type: String, default: '' },
+  variant: { type: String, default: 'default' },
+  showBene: { type: Boolean, default: false },
+  beneText: { type: String, default: '' },
+})
+
+const emit = defineEmits(['action'])
+
+const variantClass = computed(() => props.variant ? `empty-state--${props.variant}` : '')
 </script>
 
 <style scoped>

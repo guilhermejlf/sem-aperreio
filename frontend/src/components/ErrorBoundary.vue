@@ -21,75 +21,71 @@
   <slot v-else></slot>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { captureError } from '../config/sentry.js'
 
-export default {
-  name: 'ErrorBoundary',
-  data() {
-    return {
-      hasError: false,
-      error: null,
-      errorInfo: null,
-    }
-  },
-  computed: {
-    displayMessage() {
-      if (this.error?.message?.includes('network') || this.error?.message?.includes('fetch')) {
-        return 'Parece que a conexão deu uma vacilada. Verifica se tu tá online e tenta de novo.'
-      }
-      if (this.error?.message?.includes('timeout')) {
-        return 'O servidor tá demorando mais que o normal. Bora esperar um pouquinho e tentar de novo?'
-      }
-      if (this.error?.message?.includes('chunk') || this.error?.message?.includes('loading')) {
-        return 'Um pedacinho do app não carregou direito. Atualiza a página que resolve.'
-      }
-      return 'Algo inesperado aconteceu, mas já estamos cuidando disso.'
-    },
-    canGoHome() {
-      return this.$route && this.$route.path !== '/'
-    }
-  },
-  errorCaptured(err, instance, info) {
-    this.hasError = true
-    this.error = err
-    this.errorInfo = info
+const hasError = ref(false)
+const error = ref(null)
+const errorInfo = ref(null)
 
-    // Log to console
-    console.error('[ErrorBoundary] Captured error:', err, info)
+const router = useRouter()
+const route = useRoute()
 
-    // Send to Sentry
-    captureError(err, {
-      component: instance?.$options?.name || 'unknown',
-      errorInfo: info,
-      route: this.$route?.path,
-    })
+const displayMessage = computed(() => {
+  if (error.value?.message?.includes('network') || error.value?.message?.includes('fetch')) {
+    return 'Parece que a conexão deu uma vacilada. Verifica se tu tá online e tenta de novo.'
+  }
+  if (error.value?.message?.includes('timeout')) {
+    return 'O servidor tá demorando mais que o normal. Bora esperar um pouquinho e tentar de novo?'
+  }
+  if (error.value?.message?.includes('chunk') || error.value?.message?.includes('loading')) {
+    return 'Um pedacinho do app não carregou direito. Atualiza a página que resolve.'
+  }
+  return 'Algo inesperado aconteceu, mas já estamos cuidando disso.'
+})
 
-    return false
-  },
-  methods: {
-    handleRetry() {
-      const isChunkError = this.error?.message?.includes('chunk') || this.error?.message?.includes('loading')
-      if (isChunkError) {
-        // Chunk errors precisam de reload para baixar o novo chunk
-        window.location.reload()
-        return
-      }
-      this.hasError = false
-      this.error = null
-      this.errorInfo = null
-      this.$emit('retry')
-    },
-    goHome() {
-      this.hasError = false
-      this.error = null
-      this.errorInfo = null
-      if (this.$router) {
-        this.$router.push('/')
-      } else {
-        window.location.href = '/'
-      }
-    }
+const canGoHome = computed(() => route && route.path !== '/')
+
+const emit = defineEmits(['retry'])
+
+function errorCaptured(err, instance, info) {
+  hasError.value = true
+  error.value = err
+  errorInfo.value = info
+
+  console.error('[ErrorBoundary] Captured error:', err, info)
+
+  captureError(err, {
+    component: instance?.$options?.name || 'unknown',
+    errorInfo: info,
+    route: route?.path,
+  })
+
+  return false
+}
+
+function handleRetry() {
+  const isChunkError = error.value?.message?.includes('chunk') || error.value?.message?.includes('loading')
+  if (isChunkError) {
+    window.location.reload()
+    return
+  }
+  hasError.value = false
+  error.value = null
+  errorInfo.value = null
+  emit('retry')
+}
+
+function goHome() {
+  hasError.value = false
+  error.value = null
+  errorInfo.value = null
+  if (router) {
+    router.push('/')
+  } else {
+    window.location.href = '/'
   }
 }
 </script>

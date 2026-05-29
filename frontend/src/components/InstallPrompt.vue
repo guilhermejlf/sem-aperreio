@@ -14,48 +14,45 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'InstallPrompt',
-  data() {
-    return {
-      showPrompt: false,
-      deferredPrompt: null
-    }
-  },
-  mounted() {
-    // Só mostra se ainda não foi instalado e se o evento beforeinstallprompt existe
-    const isInstalled = window.matchMedia('(display-mode: standalone)').matches
-    const isDismissed = localStorage.getItem('install-prompt-dismissed')
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-    if (!isInstalled && !isDismissed) {
-      window.addEventListener('beforeinstallprompt', this.handleBeforeInstall)
-    }
-  },
-  beforeUnmount() {
-    window.removeEventListener('beforeinstallprompt', this.handleBeforeInstall)
-  },
-  methods: {
-    handleBeforeInstall(e) {
-      e.preventDefault()
-      this.deferredPrompt = e
-      this.showPrompt = true
-    },
-    async install() {
-      if (!this.deferredPrompt) return
-      this.deferredPrompt.prompt()
-      const { outcome } = await this.deferredPrompt.userChoice
-      if (outcome === 'accepted') {
-        this.showPrompt = false
-      }
-      this.deferredPrompt = null
-    },
-    dismiss() {
-      this.showPrompt = false
-      localStorage.setItem('install-prompt-dismissed', Date.now().toString())
-    }
-  }
+const showPrompt = ref(false)
+const deferredPrompt = ref(null)
+
+function handleBeforeInstall(e) {
+  e.preventDefault()
+  deferredPrompt.value = e
+  showPrompt.value = true
 }
+
+async function install() {
+  if (!deferredPrompt.value) return
+  deferredPrompt.value.prompt()
+  const { outcome } = await deferredPrompt.value.userChoice
+  if (outcome === 'accepted') {
+    showPrompt.value = false
+  }
+  deferredPrompt.value = null
+}
+
+function dismiss() {
+  showPrompt.value = false
+  localStorage.setItem('install-prompt-dismissed', Date.now().toString())
+}
+
+onMounted(() => {
+  const isInstalled = window.matchMedia('(display-mode: standalone)').matches
+  const isDismissed = localStorage.getItem('install-prompt-dismissed')
+
+  if (!isInstalled && !isDismissed) {
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall)
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
+})
 </script>
 
 <style scoped>
