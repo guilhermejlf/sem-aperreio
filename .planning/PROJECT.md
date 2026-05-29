@@ -90,7 +90,7 @@ Sistema completo de controle de gastos domésticos com autenticação JWT, grupo
 
 ### Known Issues / Tech Debt
 
-- Options API no Vue → **Migração em andamento 2026-05-29** — Fase 1+2+3: 14 componentes leaf migrados (AppLoading, BeneAvatar, SkeletonGeneric, StatementGroup, SkeletonSettings, SkeletonProfile, SkeletonDashboard, StatementEmptyState, BeneInsight, BottomNav, OfflineFallback, ConfirmModal, StatementTimeline, StatementSkeleton). usePagination composable criado. Restam ~35 componentes.
+- Options API no Vue → **Migração em andamento 2026-05-29** — Fase 1+2+3+4: 19 componentes migrados (AppLoading, BeneAvatar, SkeletonGeneric, StatementGroup, SkeletonSettings, SkeletonProfile, SkeletonDashboard, StatementEmptyState, BeneInsight, BottomNav, OfflineFallback, ConfirmModal, StatementTimeline, StatementSkeleton, EmptyState, VerifyEmailView, InstallPrompt, ErrorBoundary, ModalBase). usePagination composable criado. Restam ~30 componentes.
 - Modelo ML treinado on-demand — cache Redis implementado
 - ~~Paginação parcial~~ → **Resolvido em 2026-05-28** — Paginação completa implementada (20 itens/página, metadados count/page/pages/next/previous) em gastos, receitas e extrato
 - ~~ExtratoView.vue concentrado~~ → **Resolvido em 2026-05-28** — Extraído ExportFAB.vue, pagination mixin e formatCurrency.js. De 363 para 226 linhas (-38%)
