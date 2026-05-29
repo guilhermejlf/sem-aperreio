@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import prever_gasto, gastos, gasto_detail, dashboard, receitas, receita_detail, exportar_csv, exportar_xlsx, exportar_pdf, listar_metas, criar_meta, atualizar_meta, deletar_meta, extrato
 from .views_auth import (
     RegisterView, LoginView, RefreshView, UserView,
-    VerifyEmailView, PasswordResetRequestView, PasswordResetConfirmView
+    VerifyEmailView, ResendVerificationView, PasswordResetRequestView, PasswordResetConfirmView
 )
 from .views_family import FamilyViewSet
 from .views_profile import ProfileView, PasswordChangeView
