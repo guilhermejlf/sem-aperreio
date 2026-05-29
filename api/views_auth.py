@@ -57,7 +57,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.check_password(password):
             raise serializers.ValidationError("Credenciais inválidas.", code='authorization')
 
-        # Email verification disabled for testing
+        # Verificar email
+        try:
+            profile = user.profile
+            if not profile.email_verified:
+                raise serializers.ValidationError(
+                    "Confirme seu email antes de entrar. Verifique sua caixa de entrada.",
+                    code='email_not_verified'
+                )
+        except UserProfile.DoesNotExist:
+            pass
+
         attrs['username'] = user.username
         return super().validate(attrs)
 
@@ -101,6 +111,53 @@ class VerifyEmailView(APIView):
             return Response({"mensagem": "Email confirmado com sucesso! Você já pode fazer login."})
         except UserProfile.DoesNotExist:
             return Response({"erro": "Token inválido."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResendVerificationView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        identifier = request.data.get('identifier') or request.data.get('email')
+        if not identifier:
+            return Response({"erro": "Informe seu email ou usuário."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if '@' in identifier:
+                user = User.objects.get(email=identifier)
+            else:
+                user = User.objects.get(username=identifier)
+        except User.DoesNotExist:
+            return Response({"mensagem": "Se o usuário existir, você receberá um email de verificação."})
+
+        try:
+            profile = user.profile
+            if profile.email_verified:
+                return Response({"mensagem": "Este email já foi confirmado. Você pode fazer login."})
+
+            # Gerar novo token
+            token = secrets.token_urlsafe(32)
+            profile.verification_token = token
+            profile.verification_token_expires = timezone.now() + timedelta(hours=48)
+            profile.save()
+
+            from django.conf import settings
+            verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+            from .tasks import send_email
+            try:
+                send_email(
+                    subject="Confirme seu email - Sem Aperreio",
+                    to_email=user.email,
+                    template_name="email_verification",
+                    context={"user": user, "verify_url": verify_url}
+                )
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Falha ao reenviar email de verificação para {user.email}: {e}")
+
+            return Response({"mensagem": "Email de verificação reenviado! Verifique sua caixa de entrada."})
+        except UserProfile.DoesNotExist:
+            return Response({"mensagem": "Se o usuário existir, você receberá um email de verificação."})
 
 
 class PasswordResetRequestView(APIView):

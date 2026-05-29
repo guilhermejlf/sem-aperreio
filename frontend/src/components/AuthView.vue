@@ -6,22 +6,48 @@
         <p class="auth-tagline">Seu Bené deixa sua vida financeira sem aperreio 😄</p>
       </div>
 
-      <div class="auth-tabs">
-        <button :class="['auth-tab', { active: activeTab === 'login' }]" @click="activeTab = 'login'">Entrar</button>
-        <button :class="['auth-tab', { active: activeTab === 'register' }]" @click="activeTab = 'register'">Criar Conta</button>
+      <!-- TELA PÓS-REGISTRO: Verifique seu email -->
+      <div v-if="registeredEmail" class="verification-pending">
+        <div class="verification-icon">
+          <i class="pi pi-envelope"></i>
+        </div>
+        <h2 class="verification-title">Quase lá! 📧</h2>
+        <p class="verification-text">
+          Enviamos um link de confirmação para <strong>{{ registeredEmail }}</strong>.
+        </p>
+        <p class="verification-hint">
+          Clique no link do email para ativar sua conta. Depois é só fazer login!
+        </p>
+        <div class="verification-actions">
+          <button class="btn-resend" @click="resendVerification" :disabled="resendLoading">
+            <i class="pi pi-refresh"></i>
+            {{ resendLoading ? 'Enviando...' : resendSent ? 'Email reenviado!' : 'Reenviar email' }}
+          </button>
+          <button class="btn-login" @click="goToLogin">
+            <i class="pi pi-sign-in"></i>
+            Já confirmou? Fazer login
+          </button>
+        </div>
       </div>
 
-      <div class="auth-form-container">
-        <LoginForm v-if="activeTab === 'login'" @success="handleAuth" />
-        <RegisterForm v-else @auth-success="handleAuth" />
-      </div>
+      <template v-else>
+        <div class="auth-tabs">
+          <button :class="['auth-tab', { active: activeTab === 'login' }]" @click="activeTab = 'login'">Entrar</button>
+          <button :class="['auth-tab', { active: activeTab === 'register' }]" @click="activeTab = 'register'">Criar Conta</button>
+        </div>
 
-      <div v-if="activeTab === 'login'" class="auth-footer">
-        <a href="#" class="forgot-link" @click.prevent="showForgotModal = true">
-          <i class="pi pi-lock forgot-icon"></i>
-          Esqueci minha senha
-        </a>
-      </div>
+        <div class="auth-form-container">
+          <LoginForm v-if="activeTab === 'login'" @success="handleAuth" />
+          <RegisterForm v-else @registered="handleRegistered" />
+        </div>
+
+        <div v-if="activeTab === 'login'" class="auth-footer">
+          <a href="#" class="forgot-link" @click.prevent="showForgotModal = true">
+            <i class="pi pi-lock forgot-icon"></i>
+            Esqueci minha senha
+          </a>
+        </div>
+      </template>
 
       <div class="auth-bene">
         <img src="../assets/bene-avatar.png" alt="Seu Bené" class="bene-avatar" />
@@ -41,14 +67,46 @@ import { ref } from 'vue'
 import LoginForm from './LoginForm.vue'
 import RegisterForm from './RegisterForm.vue'
 import ForgotPasswordModal from './ForgotPasswordModal.vue'
+import { API_ENDPOINTS, apiRequest } from '../config/api.js'
+import { toastStore } from '../stores/toast.store.js'
 
 const activeTab = ref('login')
 const showForgotModal = ref(false)
+const registeredEmail = ref('')
+const resendLoading = ref(false)
+const resendSent = ref(false)
 
 const emit = defineEmits(['authenticated'])
 
 function handleAuth() {
   emit('authenticated')
+}
+
+function handleRegistered({ email }) {
+  registeredEmail.value = email
+}
+
+async function resendVerification() {
+  if (!registeredEmail.value || resendLoading.value) return
+  resendLoading.value = true
+  try {
+    const data = await apiRequest(API_ENDPOINTS.AUTH_RESEND_VERIFICATION, {
+      method: 'POST',
+      body: JSON.stringify({ email: registeredEmail.value })
+    })
+    resendSent.value = true
+    toastStore.success(data.mensagem || 'Email de verificação reenviado!')
+  } catch (err) {
+    toastStore.error(err.message || 'Erro ao reenviar email. Tente novamente.')
+  } finally {
+    resendLoading.value = false
+  }
+}
+
+function goToLogin() {
+  registeredEmail.value = ''
+  resendSent.value = false
+  activeTab.value = 'login'
 }
 </script>
 
@@ -193,6 +251,96 @@ function handleAuth() {
 .bene-name {
   color: #60A637;
   font-weight: 500;
+}
+
+.verification-pending {
+  text-align: center;
+  padding: 24px 0;
+  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.verification-icon {
+  font-size: 48px;
+  color: #60A637;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.verification-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.verification-text {
+  color: rgba(148,163,184,0.9);
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.verification-text strong {
+  color: #60A637;
+}
+
+.verification-hint {
+  color: rgba(148,163,184,0.6);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.verification-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-resend,
+.btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  width: 100%;
+}
+
+.btn-resend {
+  background: rgba(96,166,55,0.1);
+  color: #60A637;
+  border: 1px solid rgba(96,166,55,0.2);
+}
+
+.btn-resend:hover:not(:disabled) {
+  background: rgba(96,166,55,0.15);
+}
+
+.btn-resend:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-login {
+  background: transparent;
+  color: rgba(148,163,184,0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.btn-login:hover {
+  background: rgba(255,255,255,0.03);
+  color: white;
 }
 
 @media (max-width: 480px) {

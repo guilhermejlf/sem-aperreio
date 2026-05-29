@@ -37,6 +37,19 @@
 
     <div v-if="error" class="form-error">{{ error }}</div>
 
+    <div v-if="emailNotVerified" class="resend-section">
+      <p class="resend-text">Precisa de um novo link?</p>
+      <button
+        type="button"
+        class="btn-resend-link"
+        @click="resendVerification"
+        :disabled="resendLoading"
+      >
+        <i :class="resendLoading ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'"></i>
+        {{ resendSent ? 'Email reenviado!' : 'Reenviar email de verificação' }}
+      </button>
+    </div>
+
     <Button 
       type="submit"
       :label="loading ? 'Entrando...' : 'Entrar'"
@@ -59,10 +72,14 @@ const password = ref('')
 const showPassword = ref(false)
 const loading = ref(false)
 const error = ref(null)
+const emailNotVerified = ref(false)
+const resendLoading = ref(false)
+const resendSent = ref(false)
 
 async function handleLogin() {
   loading.value = true
   error.value = null
+  emailNotVerified.value = false
 
   try {
     const data = await apiRequest(API_ENDPOINTS.AUTH_LOGIN, {
@@ -83,15 +100,33 @@ async function handleLogin() {
   } catch (err) {
     const msg = err.message || ''
     if (msg.includes('Confirme seu email')) {
-      toastStore.warning('Confirme seu email antes de entrar. Verifique sua caixa de entrada.')
+      emailNotVerified.value = true
+      error.value = 'Confirme seu email antes de entrar.'
     } else if (msg.includes('Credenciais inválidas')) {
-      toastStore.error('Usuário/email ou senha incorretos.')
+      error.value = 'Usuário/email ou senha incorretos.'
     } else {
-      toastStore.error(msg || 'Erro ao fazer login. Tente novamente.')
+      error.value = msg || 'Erro ao fazer login. Tente novamente.'
     }
     console.error('Login error:', err)
   } finally {
     loading.value = false
+  }
+}
+
+async function resendVerification() {
+  if (!identifier.value || resendLoading.value) return
+  resendLoading.value = true
+  try {
+    const data = await apiRequest(API_ENDPOINTS.AUTH_RESEND_VERIFICATION, {
+      method: 'POST',
+      body: JSON.stringify({ identifier: identifier.value })
+    })
+    resendSent.value = true
+    toastStore.success(data.mensagem || 'Email de verificação reenviado!')
+  } catch (err) {
+    toastStore.error(err.message || 'Erro ao reenviar email. Tente novamente.')
+  } finally {
+    resendLoading.value = false
   }
 }
 </script>
@@ -196,6 +231,41 @@ async function handleLogin() {
 }
 
 .btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resend-section {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.resend-text {
+  color: rgba(148,163,184,0.7);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.btn-resend-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #60A637;
+  background: rgba(96,166,55,0.08);
+  border: 1px solid rgba(96,166,55,0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-resend-link:hover:not(:disabled) {
+  background: rgba(96,166,55,0.12);
+}
+
+.btn-resend-link:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

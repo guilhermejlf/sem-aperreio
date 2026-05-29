@@ -19,6 +19,7 @@ urlpatterns = [
     path("auth/refresh/", RefreshView.as_view(), name="refresh"),
     path("auth/user/", UserView.as_view(), name="user"),
     path("auth/verify-email/", VerifyEmailView.as_view(), name="verify_email"),
+    path("auth/resend-verification/", ResendVerificationView.as_view(), name="resend_verification"),
     path("auth/password-reset/", PasswordResetRequestView.as_view(), name="password_reset"),
     path("auth/password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
     path("profile/", ProfileView.as_view(), name="profile"),

@@ -123,6 +123,8 @@ import Button from 'primevue/button'
 import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 import { toastStore } from '../stores/toast.store.js'
 
+const emit = defineEmits(['registered'])
+
 const first_name = ref('')
 const email = ref('')
 const username = ref('')
@@ -208,7 +210,7 @@ async function handleRegister() {
       })
     })
 
-    toastStore.success('Conta criada! Verifique seu email para ativar sua conta 😄')
+    emit('registered', { email: email.value })
   } catch (err) {
     toastStore.error(err.message || 'Erro ao criar conta. Tente novamente.')
     console.error('Register error:', err)
