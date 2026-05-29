@@ -86,8 +86,10 @@
   </ModalBase>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch } from 'vue'
 import ModalBase from '../ModalBase.vue'
+import { formatarValor } from '../../utils/formatCurrency.js'
 
 const CATEGORIA_OPTIONS = {
   moradia: 'Moradia',
@@ -107,117 +109,96 @@ const MES_NOMES = [
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ]
 
-export default {
-  name: 'GoalModal',
-  components: { ModalBase },
-  props: {
-    visible: { type: Boolean, default: false },
-    meta: { type: Object, default: null },
-    categoriasUsadas: { type: Array, default: () => [] }
-  },
-  emits: ['save', 'cancel'],
-  data() {
-    return {
-      etapa: 'form',
-      valorInput: '',
-      erro: '',
-      metaLocal: {},
-      categoriaSelecionada: '',
-      mesSelecionado: new Date().getMonth() + 1,
-      anoSelecionado: new Date().getFullYear(),
-      loading: false
-    }
-  },
-  computed: {
-    titulo() {
-      if (this.metaLocal.modo === 'criar') return 'Definir Meta Geral'
-      if (this.metaLocal.modo === 'criar_categoria') return 'Adicionar Meta de Categoria'
-      return 'Editar Meta'
-    },
-    subtitulo() {
-      if (this.metaLocal.modo === 'criar') return 'Bora organizar esse mês e chegar lá!'
-      if (this.metaLocal.modo === 'criar_categoria') return 'Defina um limite para essa categoria.'
-      return `Ajustando meta de ${this.metaLocal.categoria_nome || 'Geral'}.`
-    },
-    valorNumerico() {
-      const v = parseFloat(this.valorInput)
-      return isNaN(v) ? 0 : v
-    },
-    valido() {
-      return this.valorNumerico > 0 && (this.metaLocal.modo !== 'criar_categoria' || this.categoriaSelecionada)
-    },
-    categoriasDisponiveis() {
-      const usadas = new Set(this.categoriasUsadas || [])
-      return Object.fromEntries(
-        Object.entries(CATEGORIA_OPTIONS).filter(([key]) => !usadas.has(key))
-      )
-    },
-    mesesNomes() {
-      return MES_NOMES
-    },
-    anosDisponiveis() {
-      const atual = new Date().getFullYear()
-      return [atual, atual - 1, atual - 2]
-    }
-  },
-  watch: {
-    visible: {
-      immediate: true,
-      handler(val) {
-        if (val) {
-          this.etapa = 'form'
-          this.erro = ''
-          this.metaLocal = { ...this.meta, valor_meta_original: this.meta?.valor_meta || 0 }
-          this.valorInput = this.meta?.valor_meta ? String(this.meta.valor_meta) : ''
-          this.categoriaSelecionada = this.meta?.categoria || ''
-          this.mesSelecionado = this.meta?.mes || new Date().getMonth() + 1
-          this.anoSelecionado = this.meta?.ano || new Date().getFullYear()
-        }
-      }
-    },
-    categoriaSelecionada(val) {
-      this.metaLocal.categoria = val
-    }
-  },
-  methods: {
-    formatarValor(valor) {
-      return parseFloat(valor || 0).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
-    },
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  meta: { type: Object, default: null },
+  categoriasUsadas: { type: Array, default: () => [] }
+})
 
-    onCancel() {
-      this.$emit('cancel')
-    },
+const emit = defineEmits(['save', 'cancel'])
 
-    onContinue() {
-      if (!this.valido) {
-        this.erro = 'Informe um valor maior que zero'
-        return
-      }
+const etapa = ref('form')
+const valorInput = ref('')
+const erro = ref('')
+const metaLocal = ref({})
+const categoriaSelecionada = ref('')
+const mesSelecionado = ref(new Date().getMonth() + 1)
+const anoSelecionado = ref(new Date().getFullYear())
+const loading = ref(false)
 
-      // Se editando meta existente e já há gastos, mostrar confirmação
-      if (this.metaLocal.id && this.metaLocal.gasto_realizado > 0 && this.valorNumerico !== parseFloat(this.metaLocal.valor_meta_original)) {
-        this.etapa = 'confirmar'
-        return
-      }
+const titulo = computed(() => {
+  if (metaLocal.value.modo === 'criar') return 'Definir Meta Geral'
+  if (metaLocal.value.modo === 'criar_categoria') return 'Adicionar Meta de Categoria'
+  return 'Editar Meta'
+})
+const subtitulo = computed(() => {
+  if (metaLocal.value.modo === 'criar') return 'Bora organizar esse mês e chegar lá!'
+  if (metaLocal.value.modo === 'criar_categoria') return 'Defina um limite para essa categoria.'
+  return `Ajustando meta de ${metaLocal.value.categoria_nome || 'Geral'}.`
+})
+const valorNumerico = computed(() => {
+  const v = parseFloat(valorInput.value)
+  return isNaN(v) ? 0 : v
+})
+const valido = computed(() =>
+  valorNumerico.value > 0 && (metaLocal.value.modo !== 'criar_categoria' || categoriaSelecionada.value)
+)
+const categoriasDisponiveis = computed(() => {
+  const usadas = new Set(props.categoriasUsadas || [])
+  return Object.fromEntries(
+    Object.entries(CATEGORIA_OPTIONS).filter(([key]) => !usadas.has(key))
+  )
+})
+const mesesNomes = computed(() => MES_NOMES)
+const anosDisponiveis = computed(() => {
+  const atual = new Date().getFullYear()
+  return [atual, atual - 1, atual - 2]
+})
 
-      this.onConfirmar()
-    },
-
-    onConfirmar() {
-      const payload = {
-        ...this.metaLocal,
-        valor_meta: this.valorNumerico
-      }
-      if (this.metaLocal.modo === 'criar' || this.metaLocal.modo === 'criar_categoria') {
-        payload.mes = this.mesSelecionado
-        payload.ano = this.anoSelecionado
-      }
-      this.$emit('save', payload)
-    }
+watch(() => props.visible, (val) => {
+  if (val) {
+    etapa.value = 'form'
+    erro.value = ''
+    metaLocal.value = { ...props.meta, valor_meta_original: props.meta?.valor_meta || 0 }
+    valorInput.value = props.meta?.valor_meta ? String(props.meta.valor_meta) : ''
+    categoriaSelecionada.value = props.meta?.categoria || ''
+    mesSelecionado.value = props.meta?.mes || new Date().getMonth() + 1
+    anoSelecionado.value = props.meta?.ano || new Date().getFullYear()
   }
+}, { immediate: true })
+
+watch(categoriaSelecionada, (val) => {
+  metaLocal.value.categoria = val
+})
+
+function onCancel() {
+  emit('cancel')
+}
+
+function onContinue() {
+  if (!valido.value) {
+    erro.value = 'Informe um valor maior que zero'
+    return
+  }
+
+  if (metaLocal.value.id && metaLocal.value.gasto_realizado > 0 && valorNumerico.value !== parseFloat(metaLocal.value.valor_meta_original)) {
+    etapa.value = 'confirmar'
+    return
+  }
+
+  onConfirmar()
+}
+
+function onConfirmar() {
+  const payload = {
+    ...metaLocal.value,
+    valor_meta: valorNumerico.value
+  }
+  if (metaLocal.value.modo === 'criar' || metaLocal.value.modo === 'criar_categoria') {
+    payload.mes = mesSelecionado.value
+    payload.ano = anoSelecionado.value
+  }
+  emit('save', payload)
 }
 </script>
 

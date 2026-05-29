@@ -18,7 +18,7 @@
             min="0.01"
             class="form-input input-field"
             placeholder="0,00"
-            ref="inputValor"
+            ref="inputValorRef"
           />
         </div>
       </div>
@@ -59,10 +59,12 @@
   </ModalBase>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, nextTick } from 'vue'
 import ModalBase from '../ModalBase.vue'
 import { addReceita, updateReceita } from '../../config/api.js'
 import { toastMessages, toastTitles } from '../../utils/toastMessages.js'
+import { toastStore } from '../../stores/toast.store.js'
 
 const DEFAULT_FORM = {
   valor: null,
@@ -70,83 +72,72 @@ const DEFAULT_FORM = {
   data: new Date().toISOString().split('T')[0]
 }
 
-export default {
-  name: 'RevenueModal',
-  components: { ModalBase },
-  props: {
-    visible: { type: Boolean, default: false },
-    editingData: { type: Object, default: null }
-  },
-  emits: ['close', 'saved'],
-  data() {
-    return {
-      form: { ...DEFAULT_FORM },
-      loading: false,
-      error: null
-    }
-  },
-  computed: {
-    editingId() {
-      return this.editingData?.id || null
-    },
-    isValid() {
-      return this.form.valor && this.form.valor > 0 && this.form.data
-    }
-  },
-  watch: {
-    visible(val) {
-      if (val) {
-        this.error = null
-        if (this.editingData) {
-          this.form = {
-            valor: parseFloat(this.editingData.valor),
-            descricao: this.editingData.descricao || '',
-            data: this.editingData.data
-          }
-        } else {
-          this.form = { ...DEFAULT_FORM }
-        }
-        this.$nextTick(() => {
-          this.$refs.inputValor?.focus()
-        })
-      }
-    }
-  },
-  methods: {
-    onClose() {
-      this.$emit('close')
-    },
-    async onSubmit() {
-      if (!this.isValid) return
-      this.loading = true
-      this.error = null
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  editingData: { type: Object, default: null }
+})
 
-      try {
-        if (this.editingId) {
-          await updateReceita(this.editingId, {
-            valor: this.form.valor,
-            descricao: this.form.descricao,
-            data: this.form.data
-          })
-          this.$toast.success(toastMessages.revenue.updated, { title: toastTitles.success })
-        } else {
-          await addReceita({
-            valor: this.form.valor,
-            descricao: this.form.descricao,
-            data: this.form.data
-          })
-          this.$toast.success(toastMessages.revenue.created, { title: toastTitles.success })
-        }
+const emit = defineEmits(['close', 'saved'])
 
-        this.$emit('saved')
-        this.onClose()
-      } catch (err) {
-        this.error = err.message || toastMessages.revenue.saveError
-        this.$toast.error(toastMessages.revenue.saveError, { title: toastTitles.error })
-      } finally {
-        this.loading = false
+const form = ref({ ...DEFAULT_FORM })
+const loading = ref(false)
+const error = ref(null)
+const inputValorRef = ref(null)
+
+const editingId = computed(() => props.editingData?.id || null)
+const isValid = computed(() => form.value.valor && form.value.valor > 0 && form.value.data)
+
+watch(() => props.visible, (val) => {
+  if (val) {
+    error.value = null
+    if (props.editingData) {
+      form.value = {
+        valor: parseFloat(props.editingData.valor),
+        descricao: props.editingData.descricao || '',
+        data: props.editingData.data
       }
+    } else {
+      form.value = { ...DEFAULT_FORM }
     }
+    nextTick(() => {
+      inputValorRef.value?.focus()
+    })
+  }
+})
+
+function onClose() {
+  emit('close')
+}
+
+async function onSubmit() {
+  if (!isValid.value) return
+  loading.value = true
+  error.value = null
+
+  try {
+    if (editingId.value) {
+      await updateReceita(editingId.value, {
+        valor: form.value.valor,
+        descricao: form.value.descricao,
+        data: form.value.data
+      })
+      toastStore.success(toastMessages.revenue.updated, { title: toastTitles.success })
+    } else {
+      await addReceita({
+        valor: form.value.valor,
+        descricao: form.value.descricao,
+        data: form.value.data
+      })
+      toastStore.success(toastMessages.revenue.created, { title: toastTitles.success })
+    }
+
+    emit('saved')
+    onClose()
+  } catch (err) {
+    error.value = err.message || toastMessages.revenue.saveError
+    toastStore.error(toastMessages.revenue.saveError, { title: toastTitles.error })
+  } finally {
+    loading.value = false
   }
 }
 </script>

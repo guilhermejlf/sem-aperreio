@@ -117,130 +117,103 @@
   </form>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue'
 import Button from 'primevue/button'
-import { API_ENDPOINTS, apiRequest, setTokens } from '../config/api.js'
+import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 import { toastStore } from '../stores/toast.store.js'
 
-export default {
-  components: {
-    Button
-  },
+const first_name = ref('')
+const email = ref('')
+const username = ref('')
+const password = ref('')
+const password_confirm = ref('')
+const showPassword = ref(false)
+const showPasswordConfirm = ref(false)
+const loading = ref(false)
+const error = ref(null)
+const success = ref(null)
 
-  data() {
-    return {
-      first_name: '',
-      email: '',
-      username: '',
-      password: '',
-      password_confirm: '',
-      showPassword: false,
-      showPasswordConfirm: false,
-      loading: false,
-      error: null,
-      success: null
-    }
-  },
+const hasMinLength = computed(() => password.value.length >= 8)
+const hasUppercase = computed(() => /[A-Z]/.test(password.value))
+const hasLowercase = computed(() => /[a-z]/.test(password.value))
+const hasNumber = computed(() => /[0-9]/.test(password.value))
+const hasSpecial = computed(() => /[@!#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password.value))
+const strengthScore = computed(() => {
+  let score = 0
+  if (hasMinLength.value) score++
+  if (hasUppercase.value) score++
+  if (hasLowercase.value) score++
+  if (hasNumber.value) score++
+  if (hasSpecial.value) score++
+  return score
+})
+const strengthPercent = computed(() => (strengthScore.value / 5) * 100)
+const strengthColor = computed(() => {
+  const colors = ['#ef4444', '#f97316', '#eab308', '#60A637', '#60A637']
+  return colors[strengthScore.value - 1] || '#ef4444'
+})
+const strengthLabel = computed(() => {
+  const labels = ['Senha fraca 👀', 'Tá melhorando 🙂', 'Quase lá 😄', 'Agora ficou boa 😄', 'Agora ficou segura 😄']
+  return labels[strengthScore.value - 1] || 'Senha fraca 👀'
+})
+const formValido = computed(() =>
+  first_name.value &&
+  email.value &&
+  username.value &&
+  password.value &&
+  hasMinLength.value &&
+  hasUppercase.value &&
+  hasLowercase.value &&
+  hasNumber.value &&
+  hasSpecial.value &&
+  password.value === password_confirm.value
+)
 
-  computed: {
-    hasMinLength() {
-      return this.password.length >= 8
-    },
-    hasUppercase() {
-      return /[A-Z]/.test(this.password)
-    },
-    hasLowercase() {
-      return /[a-z]/.test(this.password)
-    },
-    hasNumber() {
-      return /[0-9]/.test(this.password)
-    },
-    hasSpecial() {
-      return /[@!#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(this.password)
-    },
-    strengthScore() {
-      let score = 0
-      if (this.hasMinLength) score++
-      if (this.hasUppercase) score++
-      if (this.hasLowercase) score++
-      if (this.hasNumber) score++
-      if (this.hasSpecial) score++
-      return score
-    },
-    strengthPercent() {
-      return (this.strengthScore / 5) * 100
-    },
-    strengthColor() {
-      const colors = ['#ef4444', '#f97316', '#eab308', '#60A637', '#60A637']
-      return colors[this.strengthScore - 1] || '#ef4444'
-    },
-    strengthLabel() {
-      const labels = ['Senha fraca 👀', 'Tá melhorando 🙂', 'Quase lá 😄', 'Agora ficou boa 😄', 'Agora ficou segura 😄']
-      return labels[this.strengthScore - 1] || 'Senha fraca 👀'
-    },
-    formValido() {
-      return this.first_name && 
-             this.email && 
-             this.username && 
-             this.password && 
-             this.hasMinLength &&
-             this.hasUppercase &&
-             this.hasLowercase &&
-             this.hasNumber &&
-             this.hasSpecial &&
-             this.password === this.password_confirm
-    }
-  },
+function validarLocal() {
+  if (!first_name.value) return 'Informe seu nome'
+  if (!email.value) return 'Informe seu e-mail'
+  if (!username.value) return 'Informe um nome de usuário'
+  if (!password.value) return 'Informe uma senha'
+  if (!hasMinLength.value) return 'A senha deve ter pelo menos 8 caracteres'
+  if (!hasUppercase.value) return 'A senha deve conter uma letra maiúscula'
+  if (!hasLowercase.value) return 'A senha deve conter uma letra minúscula'
+  if (!hasNumber.value) return 'A senha deve conter um número'
+  if (!hasSpecial.value) return 'A senha deve conter um caractere especial'
+  if (password.value !== password_confirm.value) return 'As senhas não coincidem'
+  return null
+}
 
-  methods: {
-    validarLocal() {
-      if (!this.first_name) return 'Informe seu nome'
-      if (!this.email) return 'Informe seu e-mail'
-      if (!this.username) return 'Informe um nome de usuário'
-      if (!this.password) return 'Informe uma senha'
-      if (!this.hasMinLength) return 'A senha deve ter pelo menos 8 caracteres'
-      if (!this.hasUppercase) return 'A senha deve conter uma letra maiúscula'
-      if (!this.hasLowercase) return 'A senha deve conter uma letra minúscula'
-      if (!this.hasNumber) return 'A senha deve conter um número'
-      if (!this.hasSpecial) return 'A senha deve conter um caractere especial'
-      if (this.password !== this.password_confirm) return 'As senhas não coincidem'
-      return null
-    },
+async function handleRegister() {
+  loading.value = true
+  error.value = null
+  success.value = null
 
-    async handleRegister() {
-      this.loading = true
-      this.error = null
-      this.success = null
+  const erroValidacao = validarLocal()
+  if (erroValidacao) {
+    toastStore.warning(erroValidacao)
+    loading.value = false
+    return
+  }
 
-      const erroValidacao = this.validarLocal()
-      if (erroValidacao) {
-        toastStore.warning(erroValidacao)
-        this.loading = false
-        return
-      }
+  try {
+    await apiRequest(API_ENDPOINTS.AUTH_REGISTER, {
+      method: 'POST',
+      body: JSON.stringify({
+        first_name: first_name.value,
+        email: email.value,
+        username: username.value,
+        password: password.value,
+        password2: password_confirm.value
+      })
+    })
 
-      try {
-        // Cadastro
-        await apiRequest(API_ENDPOINTS.AUTH_REGISTER, {
-          method: 'POST',
-          body: JSON.stringify({
-            first_name: this.first_name,
-            email: this.email,
-            username: this.username,
-            password: this.password,
-            password2: this.password_confirm
-          })
-        })
-
-        toastStore.success('Conta criada! Verifique seu email para ativar sua conta 😄')
-        // Não faz login automático — usuário precisa verificar email
-      } catch (error) {
-        toastStore.error(error.message || 'Erro ao criar conta. Tente novamente.')
-        console.error('Register error:', error)
-      } finally {
-        this.loading = false
-      }
-    }
+    toastStore.success('Conta criada! Verifique seu email para ativar sua conta 😄')
+  } catch (err) {
+    toastStore.error(err.message || 'Erro ao criar conta. Tente novamente.')
+    console.error('Register error:', err)
+  } finally {
+    loading.value = false
   }
 }
 </script>

@@ -73,7 +73,8 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue'
 import StatementTimeline from './statement/StatementTimeline.vue'
 import StatementSummary from './statement/StatementSummary.vue'
 import StatementFilters from './statement/StatementFilters.vue'
@@ -83,100 +84,79 @@ import ExportFAB from './ExportFAB.vue'
 import { fetchExtrato, downloadExport } from '../config/api.js'
 import { toastMessages, toastTitles } from '../utils/toastMessages.js'
 import { formatarValor } from '../utils/formatCurrency.js'
-import { paginationMixin } from '../mixins/pagination.js'
+import { usePagination } from '../composables/usePagination.js'
+import { toastStore } from '../stores/toast.store.js'
 
-export default {
-  name: 'ExtratoView',
+const emit = defineEmits(['add-transaction'])
 
-  components: {
-    StatementTimeline,
-    StatementSummary,
-    StatementFilters,
-    StatementEmptyState,
-    StatementSkeleton,
-    ExportFAB,
-  },
+const { pagination, goToPage, applyPagination } = usePagination()
 
-  mixins: [paginationMixin],
+const loading = ref(false)
+const itens = ref([])
+const resumo = ref(null)
+const filters = ref({
+  mes: '',
+  ano: '',
+  categoria: '',
+  tipo: '',
+  pago: ''
+})
+const categorias = ref([
+  { value: 'moradia', label: 'Moradia' },
+  { value: 'mercado', label: 'Mercado' },
+  { value: 'restaurantes', label: 'Restaurantes / Delivery' },
+  { value: 'transporte', label: 'Transporte' },
+  { value: 'saude', label: 'Saúde' },
+  { value: 'educacao', label: 'Educação' },
+  { value: 'lazer', label: 'Lazer' },
+  { value: 'contas', label: 'Contas e serviços' },
+  { value: 'compras', label: 'Compras' },
+  { value: 'outros', label: 'Outros' }
+])
+const mesesLabels = ref(['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'])
 
-  emits: ['add-transaction'],
+async function carregarExtrato(page = 1) {
+  loading.value = true
+  try {
+    const params = {}
+    if (filters.value.mes) params.mes = filters.value.mes
+    if (filters.value.ano) params.ano = filters.value.ano
+    if (filters.value.categoria) params.categoria = filters.value.categoria
+    if (filters.value.tipo) params.tipo = filters.value.tipo
+    if (filters.value.pago !== '') params.pago = filters.value.pago
 
-  data() {
-    const hoje = new Date()
-    return {
-      loading: false,
-      itens: [],
-      resumo: null,
-      filters: {
-        mes: '',
-        ano: '',
-        categoria: '',
-        tipo: '',
-        pago: ''
-      },
-      categorias: [
-        { value: 'moradia', label: 'Moradia' },
-        { value: 'mercado', label: 'Mercado' },
-        { value: 'restaurantes', label: 'Restaurantes / Delivery' },
-        { value: 'transporte', label: 'Transporte' },
-        { value: 'saude', label: 'Saúde' },
-        { value: 'educacao', label: 'Educação' },
-        { value: 'lazer', label: 'Lazer' },
-        { value: 'contas', label: 'Contas e serviços' },
-        { value: 'compras', label: 'Compras' },
-        { value: 'outros', label: 'Outros' }
-      ],
-      mesesLabels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-    }
-  },
-
-  mounted() {
-    this.carregarExtrato()
-  },
-
-  methods: {
-    formatarValor,
-
-    async carregarExtrato(page = 1) {
-      this.loading = true
-      try {
-        const params = {}
-        if (this.filters.mes) params.mes = this.filters.mes
-        if (this.filters.ano) params.ano = this.filters.ano
-        if (this.filters.categoria) params.categoria = this.filters.categoria
-        if (this.filters.tipo) params.tipo = this.filters.tipo
-        if (this.filters.pago !== '') params.pago = this.filters.pago
-
-        const data = await fetchExtrato(params, page, this.pagination.pageSize)
-        this.itens = data.itens || []
-        this.resumo = data.resumo || null
-        this.applyPagination(data)
-      } catch (error) {
-        console.error('Erro ao carregar extrato:', error)
-        this.$toast.error(toastMessages.export.loadError, { title: toastTitles.error })
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async exportar(formato) {
-      try {
-        const params = {}
-        if (this.filters.mes) params.mes = this.filters.mes
-        if (this.filters.ano) params.ano = this.filters.ano
-        if (this.filters.categoria) params.categoria = this.filters.categoria
-        if (this.filters.tipo) params.tipo = this.filters.tipo
-        if (this.filters.pago !== '') params.pago = this.filters.pago
-
-        await downloadExport(formato, params)
-        this.$toast.success(toastMessages.export.downloaded(formato), { title: toastTitles.success })
-      } catch (error) {
-        console.error('Erro ao exportar:', error)
-        this.$toast.error(toastMessages.export.exportError, { title: toastTitles.error })
-      }
-    },
+    const data = await fetchExtrato(params, page, pagination.value.pageSize)
+    itens.value = data.itens || []
+    resumo.value = data.resumo || null
+    applyPagination(data)
+  } catch (err) {
+    console.error('Erro ao carregar extrato:', err)
+    toastStore.error(toastMessages.export.loadError, { title: toastTitles.error })
+  } finally {
+    loading.value = false
   }
 }
+
+async function exportar(formato) {
+  try {
+    const params = {}
+    if (filters.value.mes) params.mes = filters.value.mes
+    if (filters.value.ano) params.ano = filters.value.ano
+    if (filters.value.categoria) params.categoria = filters.value.categoria
+    if (filters.value.tipo) params.tipo = filters.value.tipo
+    if (filters.value.pago !== '') params.pago = filters.value.pago
+
+    await downloadExport(formato, params)
+    toastStore.success(toastMessages.export.downloaded(formato), { title: toastTitles.success })
+  } catch (err) {
+    console.error('Erro ao exportar:', err)
+    toastStore.error(toastMessages.export.exportError, { title: toastTitles.error })
+  }
+}
+
+onMounted(() => {
+  carregarExtrato()
+})
 </script>
 
 <style scoped>
