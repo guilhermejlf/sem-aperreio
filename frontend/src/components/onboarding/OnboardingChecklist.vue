@@ -21,10 +21,12 @@
       <div
         v-for="item in items"
         :key="item.key"
-        :class="['checklist-item', { done: item.done }]"
+        :class="['checklist-item', { done: item.done, clickable: !item.done }]"
+        @click="!item.done && emit('navigate', item.key)"
       >
         <div class="check-circle">
           <i v-if="item.done" class="pi pi-check"></i>
+          <i v-else class="pi pi-arrow-right" style="font-size: 8px; color: rgba(148,163,184,0.4);"></i>
         </div>
         <span class="check-label">{{ item.label }}</span>
       </div>
@@ -53,7 +55,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['dismiss'])
+const emit = defineEmits(['dismiss', 'navigate'])
 
 const items = computed(() => [
   { key: 'group', label: 'Criar ou entrar em um grupo familiar', done: props.status.group_created },
@@ -161,9 +163,20 @@ const allDone = computed(() => completedCount.value === 4)
   transition: all 0.2s ease;
 }
 
+.checklist-item.clickable {
+  cursor: pointer;
+}
+
+.checklist-item.clickable:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(2px);
+}
+
 .checklist-item.done {
   background: rgba(96, 166, 55, 0.06);
   border-color: rgba(96, 166, 55, 0.12);
+  cursor: default;
 }
 
 .check-circle {

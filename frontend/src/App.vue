@@ -141,6 +141,7 @@
             v-if="showOnboardingChecklist && !onboardingStatus.completed"
             :status="onboardingStatus"
             @dismiss="dismissChecklist"
+            @navigate="handleNavigateFromChecklist"
           />
           <DashboardCharts />
         </div>
@@ -694,6 +695,24 @@ async function handleResetOnboarding() {
     toastStore.success('Onboarding reiniciado! 😄')
   } catch (err) {
     console.warn('Erro ao resetar onboarding:', err)
+  }
+}
+
+function handleNavigateFromChecklist(key) {
+  switch (key) {
+    case 'group':
+      activeTab.value = 'grupo'
+      break
+    case 'expense':
+      activeTab.value = 'gastos'
+      showAddModal.value = true
+      break
+    case 'revenue':
+      activeTab.value = 'receitas'
+      break
+    case 'goal':
+      activeTab.value = 'metas'
+      break
   }
 }
 
