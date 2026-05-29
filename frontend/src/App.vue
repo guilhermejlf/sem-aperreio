@@ -331,7 +331,8 @@
   </ErrorBoundary>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import { defineAsyncComponent } from 'vue'
 import Button from 'primevue/button'
 import AuthView from './components/AuthView.vue'
@@ -352,8 +353,6 @@ import SkeletonGeneric from './components/SkeletonGeneric.vue'
 import OfflineFallback from './components/OfflineFallback.vue'
 import InstallPrompt from './components/InstallPrompt.vue'
 import ErrorBoundary from './components/ErrorBoundary.vue'
-import { initPerformanceMonitoring } from './utils/performance.js'
-import { initPwaObservability } from './utils/pwaObservability.js'
 
 const asyncView = (loader, loading, delay = 200) => defineAsyncComponent({
   loader,
@@ -361,7 +360,6 @@ const asyncView = (loader, loading, delay = 200) => defineAsyncComponent({
   delay,
 })
 
-// Lazy-loaded views (code splitting) with skeleton fallbacks
 const DashboardCharts = asyncView(() => import('./components/DashboardCharts.vue'), SkeletonDashboard)
 const FamilyView = asyncView(() => import('./components/FamilyView.vue'), SkeletonGeneric)
 const ReceitasView = asyncView(() => import('./components/ReceitasView.vue'), SkeletonGeneric)
@@ -373,407 +371,332 @@ const SettingsView = asyncView(() => import('./components/SettingsView.vue'), Sk
 
 import logo from './assets/logo.png'
 import { toastMessages, toastTitles } from './utils/toastMessages.js'
+import { toastStore } from './stores/toast.store.js'
 import {
   API_ENDPOINTS,
-  API_BASE_URL,
   apiRequest,
   isAuthenticated,
   clearTokens,
   getFamily
 } from './config/api.js'
 
-export default {
-  components: {
-    Button,
-    DashboardCharts,
-    AuthView,
-    FamilyView,
-    ReceitasView,
-    BudgetView,
-    ExtratoView,
-    BaseCard,
-    AIAssistant,
-    PasswordResetView,
-    VerifyEmailView,
-    BeneFloatingPresence,
-    ProfileView,
-    SettingsView,
-    ExpenseModal,
-    ConfirmModal,
-    BottomNav,
-    EmptyState,
-    ToastProvider,
-    OfflineFallback,
-    InstallPrompt
-  },
+const isAuth = ref(false)
+const activeTab = ref('dashboard')
+const currentFamily = ref(null)
+const currentUser = ref(null)
+const showFamilyDrawer = ref(false)
+const showUserMenu = ref(false)
+const gastos = ref([])
+const gastoFilter = ref('todos')
+const loading = ref(false)
+const error = ref(null)
+const gastosPagination = ref({
+  page: 1,
+  pages: 1,
+  pageSize: 20,
+  total: 0,
+  next: null,
+  previous: null,
+})
+const showAddModal = ref(false)
+const expenseEditingData = ref(null)
+const confirmVisible = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmDanger = ref(false)
+const confirmAcceptLabel = ref('Confirmar')
+const confirmRejectLabel = ref('Cancelar')
+let confirmOnAccept = null
+const pendingIncomeEdit = ref(null)
+const aiAssistant = ref(null)
 
-  data() {
-    return {
-      logo,
-      isAuth: false,
-      activeTab: 'dashboard',
-      currentFamily: null,
-      currentUser: null,
-      showFamilyDrawer: false,
-      showUserMenu: false,
-      gastos: [],
-      gastoFilter: 'todos', // 'todos' | 'grupo' | 'meus'
-      loading: false,
-      error: null,
-      gastosPagination: {
-        page: 1,
-        pages: 1,
-        pageSize: 20,
-        total: 0,
-        next: null,
-        previous: null,
-      },
-      showAddModal: false,
-      expenseEditingData: null,
-      confirmVisible: false,
-      confirmTitle: '',
-      confirmMessage: '',
-      confirmDanger: false,
-      confirmAcceptLabel: 'Confirmar',
-      confirmRejectLabel: 'Cancelar',
-      confirmOnAccept: null,
-      pendingIncomeEdit: null,
-      categorias: [
-        { value: 'moradia', label: 'Moradia' },
-        { value: 'mercado', label: 'Mercado' },
-        { value: 'restaurantes', label: 'Restaurantes / Delivery' },
-        { value: 'transporte', label: 'Transporte' },
-        { value: 'saude', label: 'Saúde' },
-        { value: 'educacao', label: 'Educação' },
-        { value: 'lazer', label: 'Lazer' },
-        { value: 'contas', label: 'Contas e serviços' },
-        { value: 'compras', label: 'Compras' },
-        { value: 'outros', label: 'Outros' }
-      ]
+const categorias = ref([
+  { value: 'moradia', label: 'Moradia' },
+  { value: 'mercado', label: 'Mercado' },
+  { value: 'restaurantes', label: 'Restaurantes / Delivery' },
+  { value: 'transporte', label: 'Transporte' },
+  { value: 'saude', label: 'Saúde' },
+  { value: 'educacao', label: 'Educação' },
+  { value: 'lazer', label: 'Lazer' },
+  { value: 'contas', label: 'Contas e serviços' },
+  { value: 'compras', label: 'Compras' },
+  { value: 'outros', label: 'Outros' }
+])
+
+const currentPath = computed(() => window.location.pathname)
+const gastosDoMes = computed(() => {
+  const mesAtual = new Date().getMonth() + 1
+  const anoAtual = new Date().getFullYear()
+  return gastos.value.filter(g => {
+    const dataGasto = new Date(g.data)
+    return dataGasto.getMonth() + 1 === mesAtual &&
+           dataGasto.getFullYear() === anoAtual
+  })
+})
+const totalMes = computed(() => gastosDoMes.value.reduce((soma, g) => soma + parseFloat(g.valor), 0))
+const gastosGrupo = computed(() => gastos.value.filter(g => g.is_group))
+const gastosMeus = computed(() => {
+  const myId = currentUser.value?.id
+  return gastos.value.filter(g => g.user === myId)
+})
+const gastosFiltrados = computed(() => {
+  if (gastoFilter.value === 'grupo') return gastosGrupo.value
+  if (gastoFilter.value === 'meus') return gastosMeus.value
+  return gastos.value
+})
+
+onMounted(async () => {
+  isAuth.value = isAuthenticated()
+  if (isAuth.value) {
+    await fetchUser()
+    await fetchFamily()
+    carregarGastos()
+  }
+})
+
+async function carregarGastos(page = 1) {
+  try {
+    loading.value = true
+    error.value = null
+    const url = `${API_ENDPOINTS.GASTOS_LIST}?page=${page}&page_size=${gastosPagination.value.pageSize}`
+    const data = await apiRequest(url)
+    gastos.value = data.gastos || []
+    gastosPagination.value.page = data.page || 1
+    gastosPagination.value.pages = data.pages || 1
+    gastosPagination.value.total = data.total || 0
+    gastosPagination.value.next = data.next || null
+    gastosPagination.value.previous = data.previous || null
+  } catch (err) {
+    error.value = 'Erro ao carregar despesas: ' + err.message
+    console.error('Erro ao carregar despesas:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+function goToPageGastos(page) {
+  if (page >= 1 && page <= gastosPagination.value.pages) {
+    carregarGastos(page)
+  }
+}
+
+function abrirEdicao(gasto) {
+  expenseEditingData.value = gasto
+  showAddModal.value = true
+}
+
+function fecharModal() {
+  showAddModal.value = false
+  expenseEditingData.value = null
+}
+
+async function onExpenseSaved() {
+  await carregarGastos()
+}
+
+function formatarData(dataStr) {
+  try {
+    let processedDate = dataStr
+    if (typeof dataStr === 'string') {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
+        processedDate = dataStr + 'T12:00:00'
+      } else if (!dataStr.includes('T')) {
+        const partes = dataStr.split('/')
+        if (partes.length === 3) {
+          processedDate = `${partes[2]}-${partes[1]}-${partes[0]}T12:00:00`
+        }
+      }
     }
-  },
+    const data = new Date(processedDate)
+    if (isNaN(data.getTime())) return 'Data inválida'
+    return data.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch (err) {
+    console.error('Erro ao formatar data:', err, 'Input:', dataStr)
+    return 'Data inválida'
+  }
+}
 
-  computed: {
-    currentPath() {
-      return window.location.pathname
-    },
-    gastosDoMes() {
-      const mesAtual = new Date().getMonth() + 1
-      const anoAtual = new Date().getFullYear()
-      
-      return this.gastos.filter(g => {
-        const dataGasto = new Date(g.data)
-        return dataGasto.getMonth() + 1 === mesAtual && 
-               dataGasto.getFullYear() === anoAtual
-      })
-    },
+function formatarValor(valor) {
+  return parseFloat(valor).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  })
+}
 
-    totalMes() {
-      return this.gastosDoMes
-        .reduce((soma, g) => soma + parseFloat(g.valor), 0)
-    },
+function getCategoriaLabel(categoriaValue) {
+  const categoria = categorias.value.find(c => c.value === categoriaValue)
+  return categoria ? categoria.label : categoriaValue
+}
 
-    gastosGrupo() {
-      return this.gastos.filter(g => g.is_group)
-    },
-    gastosMeus() {
-      // Todos os gastos que EU criei (grupo ou individual)
-      const myId = this.currentUser?.id
-      return this.gastos.filter(g => g.user === myId)
-    },
-    gastosFiltrados() {
-      if (this.gastoFilter === 'grupo') return this.gastosGrupo
-      if (this.gastoFilter === 'meus') return this.gastosMeus
-      return this.gastos
-    }
-  },
+function podeEditarGasto(gasto) {
+  if (!currentUser.value) return false
+  if (Number(gasto.user) === Number(currentUser.value.id)) return true
+  if (currentFamily.value && currentFamily.value.user_role === 'admin') return true
+  return false
+}
 
-  async mounted() {
-    this.isAuth = isAuthenticated()
-    if (this.isAuth) {
-      await this.fetchUser()
-      await this.fetchFamily()
-      this.carregarGastos()
-    }
-    // bene state managed internally by BeneFloatingPresence
-  },
+function getCategoriaIcon(categoria) {
+  const icons = {
+    moradia: '🏠',
+    mercado: '🛒',
+    restaurantes: '🍔',
+    transporte: '🚗',
+    saude: '🏥',
+    educacao: '📚',
+    lazer: '🎮',
+    contas: '💡',
+    compras: '🛍️',
+    outros: '📦'
+  }
+  return icons[categoria] || '💳'
+}
 
-  methods: {
-    async carregarGastos(page = 1) {
-      try {
-        this.loading = true
-        this.error = null
-        const url = `${API_ENDPOINTS.GASTOS_LIST}?page=${page}&page_size=${this.gastosPagination.pageSize}`
-        const data = await apiRequest(url)
-        this.gastos = data.gastos || []
-        this.gastosPagination.page = data.page || 1
-        this.gastosPagination.pages = data.pages || 1
-        this.gastosPagination.total = data.total || 0
-        this.gastosPagination.next = data.next || null
-        this.gastosPagination.previous = data.previous || null
-      } catch (error) {
-        this.error = 'Erro ao carregar despesas: ' + error.message
-        console.error('Erro ao carregar despesas:', error)
-      } finally {
-        this.loading = false
+function formatarTempo(dataStr) {
+  try {
+    const data = new Date(dataStr)
+    if (isNaN(data.getTime())) return 'Data inválida'
+    const agora = new Date()
+    const diffMs = agora - data
+    const diffMin = Math.floor(diffMs / 60000)
+    const diffHoras = Math.floor(diffMs / 3600000)
+    const diffDias = Math.floor(diffMs / 86400000)
+    if (diffMin < 1) return 'agora'
+    if (diffMin < 60) return `${diffMin} min atrás`
+    if (diffHoras < 24) return `${diffHoras}h atrás`
+    if (diffDias < 7) return `${diffDias} dias atrás`
+    return data.toLocaleDateString('pt-BR')
+  } catch (err) {
+    console.error('Erro ao formatar tempo:', err)
+    return 'Data inválida'
+  }
+}
+
+function excluirGasto(id) {
+  confirmTitle.value = 'Excluir Despesa'
+  confirmMessage.value = 'Tem certeza que deseja excluir esta despesa?'
+  confirmDanger.value = true
+  confirmAcceptLabel.value = 'Excluir'
+  confirmRejectLabel.value = 'Cancelar'
+  confirmOnAccept = async () => {
+    try {
+      loading.value = true
+      error.value = null
+      await apiRequest(API_ENDPOINTS.GASTO_DETAIL(id), { method: 'DELETE' })
+      gastos.value = gastos.value.filter(g => g.id !== id)
+      toastStore.success(toastMessages.expense.deleted, { title: toastTitles.success })
+    } catch (err) {
+      if (err.message?.includes('404') || err.message?.includes('não encontrado')) {
+        gastos.value = gastos.value.filter(g => g.id !== id)
+        toastStore.success(toastMessages.expense.deleted, { title: toastTitles.success })
+      } else {
+        error.value = 'Erro ao excluir despesa: ' + err.message
+        console.error('Erro ao excluir despesa:', err)
+        toastStore.error(toastMessages.expense.deleteError, { title: toastTitles.error })
       }
-    },
-    goToPageGastos(page) {
-      if (page >= 1 && page <= this.gastosPagination.pages) {
-        this.carregarGastos(page)
-      }
-    },
-
-    abrirEdicao(gasto) {
-      this.expenseEditingData = gasto
-      this.showAddModal = true
-    },
-
-    fecharModal() {
-      this.showAddModal = false
-      this.expenseEditingData = null
-    },
-
-    async onExpenseSaved() {
-      await this.carregarGastos()
-    },
-
-    formatarData(dataStr) {
-      try {
-        let processedDate = dataStr
-        
-        // Tratar diferentes formatos de data
-        if (typeof dataStr === 'string') {
-          // Se for formato YYYY-MM-DD (ISO date)
-          if (/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) {
-            processedDate = dataStr + 'T12:00:00' // Adiciona hora para evitar timezone issues
-          }
-          // Se for formato ISO completo
-          else if (dataStr.includes('T')) {
-            // Mantém como está
-          }
-          // Se for outro formato, tenta converter
-          else {
-            const partes = dataStr.split('/')
-            if (partes.length === 3) {
-              // Formato DD/MM/YYYY -> YYYY-MM-DD
-              processedDate = `${partes[2]}-${partes[1]}-${partes[0]}T12:00:00`
-            }
-          }
-        }
-        
-        const data = new Date(processedDate)
-        
-        // Verificar se a data é válida
-        if (isNaN(data.getTime())) {
-          return 'Data inválida'
-        }
-        
-        // Formatar para brasileiro
-        return data.toLocaleDateString('pt-BR', {
-          day: '2-digit',
-          month: '2-digit', 
-          year: 'numeric'
-        })
-      } catch (error) {
-        console.error('Erro ao formatar data:', error, 'Input:', dataStr)
-        return 'Data inválida'
-      }
-    },
-
-    formatarValor(valor) {
-      return parseFloat(valor).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
-    },
-
-    getCategoriaLabel(categoriaValue) {
-      const categoria = this.categorias.find(c => c.value === categoriaValue)
-      return categoria ? categoria.label : categoriaValue
-    },
-
-    podeEditarGasto(gasto) {
-      // Se não tem usuário logado, não pode editar
-      if (!this.currentUser) return false
-      
-      // Se o gasto é do próprio usuário, pode editar
-      if (Number(gasto.user) === Number(this.currentUser.id)) return true
-      
-      // Se é admin do grupo, pode editar qualquer gasto do grupo
-      if (this.currentFamily && this.currentFamily.user_role === 'admin') return true
-      
-      return false
-    },
-
-    getCategoriaIcon(categoria) {
-      const icons = {
-        moradia: '🏠',
-        mercado: '🛒',
-        restaurantes: '🍔',
-        transporte: '🚗',
-        saude: '🏥',
-        educacao: '📚',
-        lazer: '🎮',
-        contas: '💡',
-        compras: '🛍️',
-        outros: '📦'
-      }
-      return icons[categoria] || '💳'
-    },
-
-    formatarTempo(dataStr) {
-      try {
-        const data = new Date(dataStr)
-        
-        // Verificar se a data é válida
-        if (isNaN(data.getTime())) {
-          return 'Data inválida'
-        }
-        
-        const agora = new Date()
-        const diffMs = agora - data
-        const diffMin = Math.floor(diffMs / 60000)
-        const diffHoras = Math.floor(diffMs / 3600000)
-        const diffDias = Math.floor(diffMs / 86400000)
-
-        if (diffMin < 1) return 'agora'
-        if (diffMin < 60) return `${diffMin} min atrás`
-        if (diffHoras < 24) return `${diffHoras}h atrás`
-        if (diffDias < 7) return `${diffDias} dias atrás`
-        
-        return data.toLocaleDateString('pt-BR')
-      } catch (error) {
-        console.error('Erro ao formatar tempo:', error)
-        return 'Data inválida'
-      }
-    },
-
-    excluirGasto(id) {
-      this.confirmTitle = 'Excluir Despesa'
-      this.confirmMessage = 'Tem certeza que deseja excluir esta despesa?'
-      this.confirmDanger = true
-      this.confirmAcceptLabel = 'Excluir'
-      this.confirmRejectLabel = 'Cancelar'
-      this.confirmOnAccept = async () => {
-        try {
-          this.loading = true
-          this.error = null
-          await apiRequest(API_ENDPOINTS.GASTO_DETAIL(id), { method: 'DELETE' })
-          this.gastos = this.gastos.filter(g => g.id !== id)
-          this.$toast.success(toastMessages.expense.deleted, { title: toastTitles.success })
-        } catch (error) {
-          if (error.message?.includes('404') || error.message?.includes('não encontrado')) {
-            this.gastos = this.gastos.filter(g => g.id !== id)
-            this.$toast.success(toastMessages.expense.deleted, { title: toastTitles.success })
-          } else {
-            this.error = 'Erro ao excluir despesa: ' + error.message
-            console.error('Erro ao excluir despesa:', error)
-            this.$toast.error(toastMessages.expense.deleteError, { title: toastTitles.error })
-          }
-        } finally {
-          this.loading = false
-        }
-      }
-      this.confirmVisible = true
-    },
-
-    async onConfirmAccept() {
-      this.confirmVisible = false
-      if (this.confirmOnAccept) {
-        await this.confirmOnAccept()
-        this.confirmOnAccept = null
-      }
-    },
-
-    async handleLoginSuccess() {
-      this.isAuth = true
-      await this.fetchUser()
-      await this.fetchFamily()
-      this.carregarGastos()
-    },
-
-    async fetchUser() {
-      try {
-        const data = await apiRequest(API_ENDPOINTS.AUTH_USER)
-        this.currentUser = data
-      } catch (error) {
-        console.warn('Não foi possível obter dados do usuário:', error)
-      }
-    },
-
-    async fetchFamily() {
-      try {
-        this.currentFamily = await getFamily()
-      } catch (error) {
-        console.warn('Não foi possível obter dados da família:', error)
-        this.currentFamily = null
-      }
-    },
-
-    handleBottomNavNavigate(tab) {
-      this.activeTab = tab
-    },
-
-    handleFamilyAction({ action }) {
-      if (action === 'created' || action === 'joined') {
-        this.fetchFamily()
-        this.carregarGastos()
-      } else if (action === 'left' || action === 'deleted') {
-        this.currentFamily = null
-        this.carregarGastos()
-      } else if (action === 'code-regenerated' || action === 'member-removed') {
-        this.fetchFamily()
-      }
-    },
-
-    openAIAssistant() {
-      this.$refs.aiAssistant?.open()
-    },
-
-    handleAIAssistantSaved() {
-      this.carregarGastos()
-    },
-
-    handleEditExpense(data) {
-      this.expenseEditingData = {
-        id: null,
-        valor: parseFloat(data.valor),
-        categoria: data.categoria || '',
-        descricao: data.descricao || '',
-        data_competencia: data.data || new Date().toISOString().split('T')[0],
-        data_pagamento: '',
-        pago: false
-      }
-      this.showAddModal = true
-    },
-
-    navigateTo(tab) {
-      this.activeTab = tab
-      this.showUserMenu = false
-    },
-
-    handleEditIncome(data) {
-      // Navegar para aba de receitas com dados pré-preenchidos
-      this.activeTab = 'receitas'
-      this.pendingIncomeEdit = {
-        valor: parseFloat(data.valor),
-        descricao: data.descricao || '',
-        data: data.data || new Date().toISOString().split('T')[0]
-      }
-    },
-
-    handleLogout() {
-      clearTokens()
-      this.isAuth = false
-      this.activeTab = 'dashboard'
-      this.gastos = []
-      this.currentFamily = null
-      this.currentUser = null
-      this.showFamilyDrawer = false
-      this.showUserMenu = false
+    } finally {
+      loading.value = false
     }
   }
+  confirmVisible.value = true
+}
+
+async function onConfirmAccept() {
+  confirmVisible.value = false
+  if (confirmOnAccept) {
+    await confirmOnAccept()
+    confirmOnAccept = null
+  }
+}
+
+async function handleLoginSuccess() {
+  isAuth.value = true
+  await fetchUser()
+  await fetchFamily()
+  carregarGastos()
+}
+
+async function fetchUser() {
+  try {
+    const data = await apiRequest(API_ENDPOINTS.AUTH_USER)
+    currentUser.value = data
+  } catch (err) {
+    console.warn('Não foi possível obter dados do usuário:', err)
+  }
+}
+
+async function fetchFamily() {
+  try {
+    currentFamily.value = await getFamily()
+  } catch (err) {
+    console.warn('Não foi possível obter dados da família:', err)
+    currentFamily.value = null
+  }
+}
+
+function handleBottomNavNavigate(tab) {
+  activeTab.value = tab
+}
+
+function handleFamilyAction({ action }) {
+  if (action === 'created' || action === 'joined') {
+    fetchFamily()
+    carregarGastos()
+  } else if (action === 'left' || action === 'deleted') {
+    currentFamily.value = null
+    carregarGastos()
+  } else if (action === 'code-regenerated' || action === 'member-removed') {
+    fetchFamily()
+  }
+}
+
+function openAIAssistant() {
+  aiAssistant.value?.open()
+}
+
+function handleAIAssistantSaved() {
+  carregarGastos()
+}
+
+function handleEditExpense(data) {
+  expenseEditingData.value = {
+    id: null,
+    valor: parseFloat(data.valor),
+    categoria: data.categoria || '',
+    descricao: data.descricao || '',
+    data_competencia: data.data || new Date().toISOString().split('T')[0],
+    data_pagamento: '',
+    pago: false
+  }
+  showAddModal.value = true
+}
+
+function navigateTo(tab) {
+  activeTab.value = tab
+  showUserMenu.value = false
+}
+
+function handleEditIncome(data) {
+  activeTab.value = 'receitas'
+  pendingIncomeEdit.value = {
+    valor: parseFloat(data.valor),
+    descricao: data.descricao || '',
+    data: data.data || new Date().toISOString().split('T')[0]
+  }
+}
+
+function handleLogout() {
+  clearTokens()
+  isAuth.value = false
+  activeTab.value = 'dashboard'
+  gastos.value = []
+  currentFamily.value = null
+  currentUser.value = null
+  showFamilyDrawer.value = false
+  showUserMenu.value = false
 }
 </script>
 
