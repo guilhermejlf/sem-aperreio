@@ -23,20 +23,15 @@
   </TransitionGroup>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import { gerarInsights } from '../utils/dashboardInsights.js'
 
-export default {
-  name: 'DashboardInsights',
-  props: {
-    data: { type: Object, default: null },
-  },
-  computed: {
-    insights() {
-      return gerarInsights(this.data)
-    },
-  },
-}
+const props = defineProps({
+  data: { type: Object, default: null },
+})
+
+const insights = computed(() => gerarInsights(props.data))
 </script>
 
 <style scoped>

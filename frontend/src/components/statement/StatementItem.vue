@@ -43,98 +43,72 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StatementItem',
+<script setup>
+import { computed } from 'vue'
+import { formatarValor } from '../../utils/formatCurrency.js'
 
-  props: {
-    item: {
-      type: Object,
-      required: true
-    },
-    categorias: {
-      type: Array,
-      default: () => []
-    }
+const props = defineProps({
+  item: {
+    type: Object,
+    required: true
   },
-
-  computed: {
-    isReceita() {
-      return this.item.tipo === 'receita'
-    },
-
-    icon() {
-      if (this.isReceita) return '💰'
-      const icons = {
-        moradia: '🏠',
-        mercado: '🛒',
-        restaurantes: '🍔',
-        transporte: '🚗',
-        saude: '🏥',
-        educacao: '📚',
-        lazer: '🎮',
-        contas: '💡',
-        compras: '🛍️',
-        outros: '📦'
-      }
-      return icons[this.item.categoria] || '💳'
-    },
-
-    title() {
-      return this.item.descricao || this.categoriaLabel || 'Receita'
-    },
-
-    categoriaLabel() {
-      const c = this.categorias.find(c => c.value === this.item.categoria)
-      return c ? c.label : this.item.categoria
-    },
-
-    dataContextual() {
-      if (!this.item.data) return ''
-      try {
-        const data = new Date(this.item.data + 'T12:00:00')
-        if (isNaN(data.getTime())) return ''
-        return data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-      } catch {
-        return ''
-      }
-    },
-
-    valor() {
-      return parseFloat(this.item.valor || 0)
-    },
-
-    valuePrefix() {
-      return this.isReceita ? '+' : '-'
-    },
-
-    valueClass() {
-      return this.isReceita ? 'value--receita' : 'value--gasto'
-    },
-
-    statusLabel() {
-      if (this.isReceita) return null
-      return this.item.pago ? 'Pago' : 'Pendente'
-    },
-
-    statusClass() {
-      return this.item.pago ? 'status--pago' : 'status--pendente'
-    },
-
-    membroNome() {
-      return this.item.membro_nome || this.item.user_name || null
-    }
-  },
-
-  methods: {
-    formatarValor(valor) {
-      return parseFloat(valor || 0).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      })
-    }
+  categorias: {
+    type: Array,
+    default: () => []
   }
-}
+})
+
+const isReceita = computed(() => props.item.tipo === 'receita')
+
+const icon = computed(() => {
+  if (isReceita.value) return '💰'
+  const icons = {
+    moradia: '🏠',
+    mercado: '🛒',
+    restaurantes: '🍔',
+    transporte: '🚗',
+    saude: '🏥',
+    educacao: '📚',
+    lazer: '🎮',
+    contas: '💡',
+    compras: '🛍️',
+    outros: '📦'
+  }
+  return icons[props.item.categoria] || '💳'
+})
+
+const title = computed(() => props.item.descricao || categoriaLabel.value || 'Receita')
+
+const categoriaLabel = computed(() => {
+  const c = props.categorias.find(c => c.value === props.item.categoria)
+  return c ? c.label : props.item.categoria
+})
+
+const dataContextual = computed(() => {
+  if (!props.item.data) return ''
+  try {
+    const data = new Date(props.item.data + 'T12:00:00')
+    if (isNaN(data.getTime())) return ''
+    return data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return ''
+  }
+})
+
+const valor = computed(() => parseFloat(props.item.valor || 0))
+
+const valuePrefix = computed(() => isReceita.value ? '+' : '-')
+
+const valueClass = computed(() => isReceita.value ? 'value--receita' : 'value--gasto')
+
+const statusLabel = computed(() => {
+  if (isReceita.value) return null
+  return props.item.pago ? 'Pago' : 'Pendente'
+})
+
+const statusClass = computed(() => props.item.pago ? 'status--pago' : 'status--pendente')
+
+const membroNome = computed(() => props.item.membro_nome || props.item.user_name || null)
 </script>
 
 <style scoped>

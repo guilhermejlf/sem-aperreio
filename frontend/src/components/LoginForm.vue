@@ -46,61 +46,52 @@
   </form>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import Button from 'primevue/button'
 import { API_ENDPOINTS, apiRequest, setTokens } from '../config/api.js'
 import { toastStore } from '../stores/toast.store.js'
 
-export default {
-  components: {
-    Button
-  },
+const emit = defineEmits(['success'])
 
-  data() {
-    return {
-      identifier: '',
-      password: '',
-      showPassword: false,
-      loading: false,
-      error: null
+const identifier = ref('')
+const password = ref('')
+const showPassword = ref(false)
+const loading = ref(false)
+const error = ref(null)
+
+async function handleLogin() {
+  loading.value = true
+  error.value = null
+
+  try {
+    const data = await apiRequest(API_ENDPOINTS.AUTH_LOGIN, {
+      method: 'POST',
+      body: JSON.stringify({
+        identifier: identifier.value,
+        password: password.value
+      })
+    })
+
+    if (data.access && data.refresh) {
+      setTokens(data.access, data.refresh)
+      toastStore.success('Bem-vindo de volta! 😄')
+      emit('success')
+    } else {
+      toastStore.error('Resposta inesperada do servidor')
     }
-  },
-
-  methods: {
-    async handleLogin() {
-      this.loading = true
-      this.error = null
-
-      try {
-        const data = await apiRequest(API_ENDPOINTS.AUTH_LOGIN, {
-          method: 'POST',
-          body: JSON.stringify({
-            identifier: this.identifier,
-            password: this.password
-          })
-        })
-
-        if (data.access && data.refresh) {
-          setTokens(data.access, data.refresh)
-          toastStore.success('Bem-vindo de volta! 😄')
-          this.$emit('success')
-        } else {
-          toastStore.error('Resposta inesperada do servidor')
-        }
-      } catch (error) {
-        const msg = error.message || ''
-        if (msg.includes('Confirme seu email')) {
-          toastStore.warning('Confirme seu email antes de entrar. Verifique sua caixa de entrada.')
-        } else if (msg.includes('Credenciais inválidas')) {
-          toastStore.error('Usuário/email ou senha incorretos.')
-        } else {
-          toastStore.error(msg || 'Erro ao fazer login. Tente novamente.')
-        }
-        console.error('Login error:', error)
-      } finally {
-        this.loading = false
-      }
+  } catch (err) {
+    const msg = err.message || ''
+    if (msg.includes('Confirme seu email')) {
+      toastStore.warning('Confirme seu email antes de entrar. Verifique sua caixa de entrada.')
+    } else if (msg.includes('Credenciais inválidas')) {
+      toastStore.error('Usuário/email ou senha incorretos.')
+    } else {
+      toastStore.error(msg || 'Erro ao fazer login. Tente novamente.')
     }
+    console.error('Login error:', err)
+  } finally {
+    loading.value = false
   }
 }
 </script>

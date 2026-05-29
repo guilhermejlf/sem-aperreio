@@ -5,7 +5,7 @@
     highlight="senha"
     subtitle="Informe seu email e enviaremos um link para redefinir sua senha."
     size="small"
-    @close="$emit('close')"
+    @close="emit('close')"
   >
     <div v-if="success" class="modal-success">
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -32,7 +32,7 @@
     </form>
 
     <template #footer>
-      <button class="btn-secondary" @click="$emit('close')">Cancelar</button>
+      <button class="btn-secondary" @click="emit('close')">Cancelar</button>
       <button
         v-if="!success"
         class="btn-primary"
@@ -45,39 +45,33 @@
   </ModalBase>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import ModalBase from './ModalBase.vue'
 import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 
-export default {
-  components: { ModalBase },
-  emits: ['close'],
-  data() {
-    return {
-      email: '',
-      loading: false,
-      error: null,
-      success: null
-    }
-  },
-  methods: {
-    async handleSubmit() {
-      this.loading = true
-      this.error = null
-      this.success = null
+const emit = defineEmits(['close'])
 
-      try {
-        const data = await apiRequest(API_ENDPOINTS.AUTH_PASSWORD_RESET, {
-          method: 'POST',
-          body: JSON.stringify({ email: this.email })
-        })
-        this.success = data.mensagem || 'Se o email estiver cadastrado, você receberá um link de redefinição.'
-      } catch (error) {
-        this.error = error.message || 'Erro ao solicitar redefinição. Tente novamente.'
-      } finally {
-        this.loading = false
-      }
-    }
+const email = ref('')
+const loading = ref(false)
+const error = ref(null)
+const success = ref(null)
+
+async function handleSubmit() {
+  loading.value = true
+  error.value = null
+  success.value = null
+
+  try {
+    const data = await apiRequest(API_ENDPOINTS.AUTH_PASSWORD_RESET, {
+      method: 'POST',
+      body: JSON.stringify({ email: email.value })
+    })
+    success.value = data.mensagem || 'Se o email estiver cadastrado, você receberá um link de redefinição.'
+  } catch (err) {
+    error.value = err.message || 'Erro ao solicitar redefinição. Tente novamente.'
+  } finally {
+    loading.value = false
   }
 }
 </script>
