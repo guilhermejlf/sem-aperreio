@@ -86,12 +86,34 @@ import { toastMessages, toastTitles } from '../utils/toastMessages.js'
 import { formatarValor } from '../utils/formatCurrency.js'
 import { usePagination } from '../composables/usePagination.js'
 import { toastStore } from '../stores/toast.store.js'
+import ContextualTooltip from './onboarding/ContextualTooltip.vue'
+import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 
 const emit = defineEmits(['add-transaction'])
 
 const { pagination, goToPage, applyPagination } = usePagination()
 
 const loading = ref(false)
+const showStatementTooltip = ref(false)
+
+async function fetchOnboarding() {
+  try {
+    const data = await apiRequest(API_ENDPOINTS.ONBOARDING)
+    showStatementTooltip.value = !data.seen_statement_tooltip
+  } catch (err) {
+    showStatementTooltip.value = false
+  }
+}
+
+async function dismissStatementTooltip() {
+  showStatementTooltip.value = false
+  try {
+    await apiRequest(API_ENDPOINTS.ONBOARDING, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'dismiss_tooltip', tooltip: 'statement' })
+    })
+  } catch (e) {}
+}
 const itens = ref([])
 const resumo = ref(null)
 const filters = ref({

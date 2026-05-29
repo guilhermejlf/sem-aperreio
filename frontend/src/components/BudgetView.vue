@@ -1,5 +1,10 @@
 <template>
   <div class="budget-view">
+    <ContextualTooltip
+      v-if="showBudgetTooltip"
+      text="Defina limites de gastos e receba alertas antes de ultrapassar o orçamento."
+      @dismiss="dismissBudgetTooltip"
+    />
     <!-- Seletor de Período -->
     <div class="period-selector">
       <select v-model="periodo.mes" class="period-select">
@@ -149,6 +154,8 @@ import ConfirmModal from './modals/ConfirmModal.vue'
 import EmptyState from './EmptyState.vue'
 import { toastMessages, toastTitles } from '../utils/toastMessages.js'
 import { toastStore } from '../stores/toast.store.js'
+import ContextualTooltip from './onboarding/ContextualTooltip.vue'
+import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 
 const MES_NOMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',

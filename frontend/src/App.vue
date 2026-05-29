@@ -300,7 +300,7 @@
       <!-- CONFIGURACOES TAB -->
       <div v-if="activeTab === 'configuracoes'" class="tab-content">
         <div class="gastos-container">
-          <SettingsView />
+          <SettingsView @reset-onboarding="handleResetOnboarding" />
         </div>
       </div>
 
@@ -678,6 +678,22 @@ async function dismissChecklist() {
     onboardingStatus.value.completed = true
   } catch (err) {
     console.warn('Erro ao completar onboarding:', err)
+  }
+}
+
+async function handleResetOnboarding() {
+  try {
+    await apiRequest(API_ENDPOINTS.ONBOARDING, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'reset' })
+    })
+    onboardingStatus.value.completed = false
+    showOnboardingChecklist.value = true
+    showWelcomeModal.value = true
+    activeTab.value = 'dashboard'
+    toastStore.success('Onboarding reiniciado! 😄')
+  } catch (err) {
+    console.warn('Erro ao resetar onboarding:', err)
   }
 }
 

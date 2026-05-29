@@ -1,5 +1,10 @@
 <template>
   <div class="family-page">
+    <ContextualTooltip
+      v-if="showFamilyTooltip"
+      text="Convide familiares para compartilhar despesas e acompanhar o orçamento juntos."
+      @dismiss="dismissFamilyTooltip"
+    />
     <!-- Loading -->
     <div v-if="loading" class="family-loading">
       <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
@@ -189,6 +194,8 @@ import EmptyState from './EmptyState.vue'
 import ConfirmModal from './modals/ConfirmModal.vue'
 import { toastMessages, toastTitles } from '../utils/toastMessages.js'
 import { toastStore } from '../stores/toast.store.js'
+import ContextualTooltip from './onboarding/ContextualTooltip.vue'
+import { API_ENDPOINTS, apiRequest } from '../config/api.js'
 import {
   createFamily,
   joinFamily,
@@ -223,6 +230,26 @@ const confirmDanger = ref(false)
 const confirmAcceptLabel = ref('Confirmar')
 const confirmRejectLabel = ref('Cancelar')
 let confirmOnAccept = null
+const showFamilyTooltip = ref(false)
+
+async function fetchOnboarding() {
+  try {
+    const data = await apiRequest(API_ENDPOINTS.ONBOARDING)
+    showFamilyTooltip.value = !data.seen_family_tooltip
+  } catch (err) {
+    showFamilyTooltip.value = false
+  }
+}
+
+async function dismissFamilyTooltip() {
+  showFamilyTooltip.value = false
+  try {
+    await apiRequest(API_ENDPOINTS.ONBOARDING, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'dismiss_tooltip', tooltip: 'family' })
+    })
+  } catch (e) {}
+}
 
 const familyData = computed(() => props.family || null)
 const members = computed(() => familyData.value?.members || [])
@@ -245,6 +272,10 @@ const expirationText = computed(() => {
   if (now > expires) return 'Código expirado'
   const diffDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24))
   return diffDays <= 1 ? 'Expira em menos de 24h' : `Expira em ${diffDays} dias`
+})
+
+onMounted(() => {
+  fetchOnboarding()
 })
 
 watch(() => props.family, (newVal) => {

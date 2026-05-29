@@ -118,6 +118,21 @@
         </div>
       </div>
 
+      <!-- Card: Onboarding -->
+      <div class="settings-card">
+        <h2 class="card-title">
+          <i class="pi pi-compass card-icon"></i>
+          Onboarding
+        </h2>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Ver onboarding novamente</span>
+            <span class="setting-desc">Reabre o welcome e o checklist</span>
+          </div>
+          <button class="btn-reset" @click="$emit('reset-onboarding')">Reiniciar</button>
+        </div>
+      </div>
+
       <!-- Card: Experiência -->
       <div class="settings-card">
         <h2 class="card-title">
@@ -150,6 +165,7 @@ import { settingsStore } from '../stores/settings.store.js'
 import { toastStore } from '../stores/toast.store.js'
 import SettingsToggle from './SettingsToggle.vue'
 
+const emit = defineEmits(['reset-onboarding'])
 const settings = settingsStore
 
 const frequencies = [
@@ -330,5 +346,20 @@ watch(settings, () => {
     width: 100%;
     justify-content: flex-start;
   }
+}
+.btn-reset {
+  background: rgba(96, 166, 55, 0.1);
+  color: #60A637;
+  border: 1px solid rgba(96, 166, 55, 0.2);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reset:hover {
+  background: rgba(96, 166, 55, 0.15);
 }
 </style>

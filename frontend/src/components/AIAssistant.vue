@@ -12,6 +12,11 @@
     <!-- Drawer -->
     <Transition name="slide">
       <div v-if="visible" class="ai-drawer" :class="{ 'ai-drawer--mobile': isMobile }">
+        <ContextualTooltip
+          v-if="showBeneTooltip"
+          text="Posso registrar gastos e receitas por mensagem 😄"
+          @dismiss="dismissBeneTooltip"
+        />
         <!-- Header -->
         <div class="ai-header">
           <div class="ai-header-info">
@@ -177,8 +182,9 @@
 
 <script setup>
 import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import BeneAvatar from './BeneAvatar.vue'
+import ContextualTooltip from './onboarding/ContextualTooltip.vue'
 import { API_ENDPOINTS, apiRequest } from '../config/api.js'
+import BeneAvatar from './BeneAvatar.vue'
 
 const props = defineProps({
   hideFab: {
@@ -190,6 +196,26 @@ const props = defineProps({
 const emit = defineEmits(['saved', 'edit-expense', 'edit-income'])
 
 const visible = ref(false)
+const showBeneTooltip = ref(false)
+
+async function fetchOnboarding() {
+  try {
+    const data = await apiRequest(API_ENDPOINTS.ONBOARDING)
+    showBeneTooltip.value = !data.seen_bene_tooltip
+  } catch (err) {
+    showBeneTooltip.value = false
+  }
+}
+
+async function dismissBeneTooltip() {
+  showBeneTooltip.value = false
+  try {
+    await apiRequest(API_ENDPOINTS.ONBOARDING, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'dismiss_tooltip', tooltip: 'bene' })
+    })
+  } catch (e) {}
+}
 const input = ref('')
 const loading = ref(false)
 const messages = ref([])
@@ -222,6 +248,7 @@ function handleResize() {
 
 function open() {
   visible.value = true
+  fetchOnboarding()
   nextTick(() => {
     inputRef.value?.focus()
     scrollToBottom()
