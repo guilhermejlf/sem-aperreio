@@ -10,8 +10,7 @@
   </div>
 </template>
 
-<script>
-export default { name: 'SkeletonSettings' }
+<script setup>
 </script>
 
 <style scoped>

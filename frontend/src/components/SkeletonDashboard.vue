@@ -28,8 +28,7 @@
   </div>
 </template>
 
-<script>
-export default { name: 'SkeletonDashboard' }
+<script setup>
 </script>
 
 <style scoped>

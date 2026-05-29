@@ -11,8 +11,7 @@
   </div>
 </template>
 
-<script>
-export default { name: 'SkeletonProfile' }
+<script setup>
 </script>
 
 <style scoped>

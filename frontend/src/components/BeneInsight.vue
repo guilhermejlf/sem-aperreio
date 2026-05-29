@@ -9,24 +9,21 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'BeneInsight',
-  props: {
-    message: { type: String, required: true },
-    variant: {
-      type: String,
-      default: 'neutral',
-      validator: (v) => ['info', 'success', 'warning', 'neutral'].includes(v),
-    },
-    visible: { type: Boolean, default: true },
+<script setup>
+const props = defineProps({
+  message: { type: String, required: true },
+  variant: {
+    type: String,
+    default: 'neutral',
+    validator: (v) => ['info', 'success', 'warning', 'neutral'].includes(v),
   },
-  emits: ['click'],
-  methods: {
-    handleClick() {
-      this.$emit('click')
-    },
-  },
+  visible: { type: Boolean, default: true },
+})
+
+const emit = defineEmits(['click'])
+
+function handleClick() {
+  emit('click')
 }
 </script>
 
