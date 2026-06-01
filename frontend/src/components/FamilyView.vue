@@ -187,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import Toast from 'primevue/toast'
 import BaseCard from './BaseCard.vue'
 import EmptyState from './EmptyState.vue'
