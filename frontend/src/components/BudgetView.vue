@@ -209,8 +209,30 @@ const categoriasUsadas = computed(() => {
   return cats.map(m => m.categoria)
 })
 
+const showBudgetTooltip = ref(false)
+
+async function fetchOnboarding() {
+  try {
+    const data = await apiRequest(API_ENDPOINTS.ONBOARDING)
+    showBudgetTooltip.value = !data.seen_budget_tooltip
+  } catch (err) {
+    showBudgetTooltip.value = false
+  }
+}
+
+async function dismissBudgetTooltip() {
+  showBudgetTooltip.value = false
+  try {
+    await apiRequest(API_ENDPOINTS.ONBOARDING, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'dismiss_tooltip', tooltip: 'budget' })
+    })
+  } catch (e) {}
+}
+
 onMounted(() => {
   carregarMetas()
+  fetchOnboarding()
 })
 
 watch(periodo, () => {

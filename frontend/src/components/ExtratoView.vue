@@ -178,6 +178,7 @@ async function exportar(formato) {
 
 onMounted(() => {
   carregarExtrato()
+  fetchOnboarding()
 })
 </script>
 
