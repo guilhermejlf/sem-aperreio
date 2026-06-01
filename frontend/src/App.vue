@@ -705,7 +705,6 @@ function handleNavigateFromChecklist(key) {
       break
     case 'expense':
       activeTab.value = 'gastos'
-      showAddModal.value = true
       break
     case 'revenue':
       activeTab.value = 'receitas'
