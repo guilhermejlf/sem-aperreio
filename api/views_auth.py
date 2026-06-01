@@ -256,7 +256,7 @@ class OnboardingStatusView(APIView):
 
     def get(self, request):
         user = request.user
-        profile = user.profile
+        profile, _ = UserProfile.objects.get_or_create(user=user)
 
         group_created = hasattr(user, 'membership') and user.membership is not None
         first_expense = user.gastos.exists()
@@ -281,7 +281,7 @@ class OnboardingStatusView(APIView):
 
     def post(self, request):
         user = request.user
-        profile = user.profile
+        profile, _ = UserProfile.objects.get_or_create(user=user)
         action = request.data.get('action')
 
         if action == 'complete':
