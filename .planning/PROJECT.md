@@ -42,6 +42,10 @@ Familiares conseguem registrar e visualizar todos os gastos do lar em um só lug
 - ✓ **EXP-02**: Exportação para PDF — v1.1
 - ✓ **UI-01**: Header glassmorphism sticky com logo, navegação centrada e menu de usuário
 
+### Validated (v3.3a — shipped 2026-06-01)
+
+- ✓ **ONBOARD-01**: Onboarding guiado para novos usuários — WelcomeModal, OnboardingChecklist interativo, tooltips contextuais (Família, Metas, Extrato, Bené), persistência via backend (UserProfile), opção de reiniciar nas configurações
+
 ### Validated (v3.2 — shipped 2026-05-15)
 
 - ✓ **DASH-04**: Hierarquia visual com 3 níveis de protagonismo (saldo/insights vs comportamento vs terciários)
@@ -149,6 +153,7 @@ This document evolves at phase transitions and milestone boundaries.
 | Endpoint + cron-job.org para tasks | Celery worker não roda no Railway free tier; endpoint com secret é suficiente | ✓ Good |
 | Fallback parser IA (regex) | OpenAI pode estar indisponível ou sem créditos; regex cobre 80% dos casos | ✓ Good |
 | Drawer lateral para chat IA | Modal bloqueia interação; drawer permite acesso ao dashboard enquanto conversa | ✓ Good |
+| Onboarding progressivo (checklist + tooltips) | Novo usuário precisa de orientação sem bloqueio forçado; checklist interativo com navegação direta mantém controle do usuário | ✓ Good — persistência via UserProfile + localStorage para flexibilidade |
 
 ## Current Milestone: v3.3 Statement Premium — SHIPPED (2026-05-26)
 
@@ -161,7 +166,7 @@ This document evolves at phase transitions and milestone boundaries.
 
 **Active backlog (future milestones):**
 - [ ] **BANK-01**: Integração bancária (Open Banking) — avaliar viabilidade regulatória
-- [ ] **ONBOARD-01**: Onboarding guiado para novos usuários
+- [x] **ONBOARD-01**: Onboarding guiado para novos usuários — **Concluído 2026-06-01**
 - [x] **COMP-01**: Migração Vue Options API → Composition API — **Concluído 2026-05-29**
 - [ ] **AUTH-01**: Auth Polish — melhorias visuais no login/registro
 
@@ -172,4 +177,4 @@ This document evolves at phase transitions and milestone boundaries.
 - v3.3 shipped: extrato premium com timeline e design system
 
 ---
-*Last updated: 2026-05-29 — Migração Composition API concluída (42 componentes, Fases 1–11). Tech debt reavaliado. v3.3 Statement Premium SHIPPED.*
+*Last updated: 2026-06-01 — Onboarding guiado implementado (ONBOARD-01): WelcomeModal, checklist interativo com navegação, tooltips contextuais em 4 abas, persistência via UserProfile, reinício via Settings. Build passando, commit pushado.*

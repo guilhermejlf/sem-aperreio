@@ -6,17 +6,19 @@
 
 
 
-**Milestone:** v3.3 Statement Premium — EM PROGRESSO (2026-05-26)
+**Milestone:** v3.3a Onboarding Experience — COMPLETE (2026-06-01)
 
-**Phase:** 18.4 — KPI Layout Simplification (mobile)
+**Phase:** ONBOARD-01 — Guided Onboarding for New Users
 
-**Plan:** `.planning/ROADMAP-v2.0.md`
+**Plan:** `.planning/ROADMAP-v2.0.md` + `.planning/PROJECT.md`
 
-**Status:** Phase 18 + 18.1 + 18.4 COMPLETE (extrato premium mobile)
+**Status:** Onboarding completo — WelcomeModal, OnboardingChecklist interativo, tooltips contextuais (Família/Metas/Extrato/Bené), persistência backend (UserProfile), reinício via Settings
+
+**Phase 18.4:** KPI Layout Simplification (mobile) — COMPLETE (2026-05-26)
 
 **Phase 17.2:** Production Activation Closure — COMPLETE (2026-05-25)
 
-**Last activity:** 2026-05-26 — Simplificação dos KPIs mobile: grid sem scroll, saldo em destaque, labels menores
+**Last activity:** 2026-06-01 — Onboarding guiado: checklist com navegação direta para ações, tooltips em 4 abas, botão fechar no card, persistência localStorage + backend
 
 
 
@@ -24,7 +26,7 @@
 
 
 
-See: `.planning/PROJECT.md` (updated 2026-05-15)
+See: `.planning/PROJECT.md` (updated 2026-06-01)
 
 See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
@@ -88,13 +90,25 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 
 - v3.1 Auth Polish — After v2.0
 
-- v3.3 Onboarding Experience — Backlog
+- ✅ v3.3a Onboarding Experience — **Concluído 2026-06-01**
 
 
 
 ## Recent Commits
 
 
+
+- `a5676e2` feat: botao fechar no card de onboarding visivel sempre, persistencia via localStorage — 2026-06-01
+
+- `ac20d0b` fix: padroniza checklist onboarding - todos os itens apenas navegam para a pagina — 2026-06-01
+
+- `54c6819` fix: get_or_create UserProfile (previne crash para usuários sem profile) — 2026-06-01
+
+- `ffab90a` fix: tooltip functions no BudgetView e ExtratoView — 2026-06-01
+
+- `cfd3a5b` fix: onMounted import no FamilyView — 2026-06-01
+
+- `b784c78` feat: checklist clicável + navegação direta para ações — 2026-06-01
 
 - `503f914` fix(sentry): reverter event_level e remover endpoints temporarios — 2026-05-25
 
@@ -157,6 +171,8 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - [x] Phase 17.1: Hardening — release tracking, noise filtering, source maps, CI/CD validated, .gitignore cleanup ✅
 
 - [x] Phase 17.2: Production Activation Closure — DSNs configurados, ingest validado, docs sync ✅
+
+- [x] **ONBOARD-01**: Onboarding guiado — WelcomeModal, checklist interativo, tooltips contextuais, persistência backend, reinício via Settings ✅
 
 
 
@@ -225,4 +241,14 @@ See: `.planning/MILESTONES.md` (v1.0 + v3.0 + v3.2 retrospective)
 - .gitignore: test-results, coverage, playwright-report, .sentryclirc
 
 - CI/CD validado: working-directory correto no workflow, npm ci + build passando
+
+- **Onboarding (ONBOARD-01) — Concluído 2026-06-01:**
+  - WelcomeModal com 2 botões ("Começar" / "Explorar sozinho")
+  - OnboardingChecklist com 4 itens clicáveis: grupo familiar, despesa, receita, meta
+  - Tooltips contextuais em 4 abas: FamilyView, BudgetView, ExtratoView, AIAssistant (Bené)
+  - Persistência via UserProfile (`onboarding_completed`, `seen_*_tooltip` flags)
+  - Backend: `OnboardingStatusView` com GET/POST, `get_or_create` para profile seguro
+  - Botão fechar (X) sempre visível no checklist — persistido em localStorage
+  - Reinício de onboarding via SettingsView → chama action `reset`
+  - Empty states amigáveis nas 4 views principais durante onboarding
 
