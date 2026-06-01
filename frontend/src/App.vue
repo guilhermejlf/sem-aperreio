@@ -654,7 +654,8 @@ async function fetchOnboardingStatus() {
   try {
     const data = await apiRequest(API_ENDPOINTS.ONBOARDING)
     onboardingStatus.value = data
-    showOnboardingChecklist.value = !data.completed
+    const manuallyClosed = localStorage.getItem('onboarding-checklist-closed')
+    showOnboardingChecklist.value = !data.completed && manuallyClosed !== 'true'
   } catch (err) {
     console.warn('Erro ao buscar onboarding:', err)
   }
@@ -671,6 +672,10 @@ function startOnboarding() {
 
 async function dismissChecklist() {
   showOnboardingChecklist.value = false
+  if (onboardingStatus.value.completed) {
+    return
+  }
+  localStorage.setItem('onboarding-checklist-closed', 'true')
   try {
     await apiRequest(API_ENDPOINTS.ONBOARDING, {
       method: 'POST',
@@ -688,6 +693,7 @@ async function handleResetOnboarding() {
       method: 'POST',
       body: JSON.stringify({ action: 'reset' })
     })
+    localStorage.removeItem('onboarding-checklist-closed')
     onboardingStatus.value.completed = false
     showOnboardingChecklist.value = true
     showWelcomeModal.value = true

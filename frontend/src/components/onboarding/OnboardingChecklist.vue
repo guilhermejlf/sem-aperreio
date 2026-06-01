@@ -7,7 +7,7 @@
           Complete os primeiros passos para desbloquear todo o potencial.
         </p>
       </div>
-      <button v-if="allDone" class="btn-dismiss" @click="emit('dismiss')">
+      <button class="btn-dismiss" @click="emit('dismiss')" title="Fechar">
         <i class="pi pi-times"></i>
       </button>
     </div>
