@@ -345,7 +345,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { defineAsyncComponent } from 'vue'
 import Button from 'primevue/button'
 import AuthView from './components/AuthView.vue'
@@ -478,6 +478,13 @@ onMounted(async () => {
     await fetchUser()
     await fetchFamily()
     carregarGastos()
+    await fetchOnboardingStatus()
+  }
+})
+
+watch(activeTab, async (tab) => {
+  if (tab === 'dashboard' && isAuth.value) {
+    await fetchOnboardingStatus()
   }
 })
 
@@ -645,7 +652,8 @@ async function handleLoginSuccess() {
   await fetchFamily()
   carregarGastos()
   await fetchOnboardingStatus()
-  if (!onboardingStatus.value.completed) {
+  const hasAnythingCreated = onboardingStatus.value.first_expense || onboardingStatus.value.first_revenue || onboardingStatus.value.first_goal || onboardingStatus.value.group_created
+  if (!hasAnythingCreated && !onboardingStatus.value.completed) {
     showWelcomeModal.value = true
   }
 }
@@ -655,7 +663,8 @@ async function fetchOnboardingStatus() {
     const data = await apiRequest(API_ENDPOINTS.ONBOARDING)
     onboardingStatus.value = data
     const manuallyClosed = localStorage.getItem('onboarding-checklist-closed')
-    showOnboardingChecklist.value = !data.completed && manuallyClosed !== 'true'
+    const hasAnythingCreated = data.first_expense || data.first_revenue || data.first_goal || data.group_created
+    showOnboardingChecklist.value = !hasAnythingCreated && !data.completed && manuallyClosed !== 'true'
   } catch (err) {
     console.warn('Erro ao buscar onboarding:', err)
   }
