@@ -26,42 +26,73 @@
     <!-- Conteúdo do Dashboard -->
     <template v-else-if="dashboardData">
 
-      <!-- BLOCO 1 — SITUAÇÃO FINANCEIRA -->
-      <div class="block-title">Situação Financeira</div>
-      <div class="stats-grid bloco-situacao">
-        <!-- Saldo (DESTAQUE) -->
-        <div class="stat-card saldo-destaque" :class="[saldoClasse, { 'risco': saldoInsuficiente }]">
-          <div class="stat-icon-saldo">{{ saldoInsuficiente ? '⚠️' : saldoIcone }}</div>
-          <div class="stat-content">
-            <p class="saldo-label">Saldo disponível</p>
+      <!-- BLOCO 1 — RESUMO FINANCEIRO -->
+      <div class="resumo-financeiro">
+        <div class="saldo-card" :class="[saldoClasse, { 'risco': saldoInsuficiente }]">
+          <div class="saldo-card-inner">
+            <div class="saldo-header">
+              <span class="saldo-icone">$</span>
+              <span class="saldo-label">Saldo disponível</span>
+            </div>
             <h2 class="saldo-valor">{{ formatarValor(dashboardData.saldo || 0) }}</h2>
-            <small v-if="saldoInsuficiente" class="saldo-aviso">Saldo pode não cobrir as contas pendentes</small>
-            <small v-else>Receitas - Contas pagas</small>
+            <div v-if="saldoInsuficiente" class="saldo-aviso">⚠️ Saldo pode não cobrir as contas pendentes</div>
+            <div v-else class="saldo-badges">
+              <span v-if="saldoBadgeNegativo" class="saldo-badge saldo-badge-negativo">{{ saldoBadgeNegativo }}</span>
+              <span v-else-if="saldoContextoPositivo" class="saldo-badge">{{ saldoContextoPositivo }}</span>
+              <span v-else-if="saldoContextoNegativo" class="saldo-badge saldo-badge-negativo">{{ saldoContextoNegativo }}</span>
+            </div>
+            <div class="saldo-breakdown">
+              <span class="breakdown-receitas">Receitas {{ formatarValor(dashboardData.total_receitas || 0) }}</span>
+              <span class="breakdown-sep">•</span>
+              <span class="breakdown-despesas">Despesas {{ formatarValor(dashboardData.total_mes || 0) }}</span>
+            </div>
           </div>
         </div>
 
-        <div class="stat-card mini receita">
-          <div class="stat-icon">📈</div>
-          <div class="stat-content">
-            <h3>{{ formatarValor(dashboardData.total_receitas || 0) }}</h3>
-            <p>Receitas no mês</p>
+        <div class="pizza-card">
+          <h3 class="pizza-title">Despesas por categoria</h3>
+          <div v-if="categoriaDominante && rankingCategorias.length > 1" class="pizza-chart-wrapper">
+            <div class="chart-wrapper-pizza">
+              <canvas ref="categoriaChartRef"></canvas>
+            </div>
+          </div>
+          <div v-else-if="categoriaDominante" class="categoria-unica">
+            <div class="categoria-unica-label">Categoria dominante</div>
+            <div class="categoria-unica-nome">{{ categoriaDominante.nome }}</div>
+            <div class="categoria-unica-valor">{{ formatarValor(categoriaDominante.total) }}</div>
+            <div class="categoria-unica-pct">{{ ((categoriaDominante.total / (dashboardData.total_mes || 1)) * 100).toFixed(0) }}% dos gastos registrados</div>
+          </div>
+          <div v-else class="pizza-vazia">
+            <span>Sem gastos por categoria neste período</span>
+          </div>
+          <div v-if="categoriaDominante" class="pizza-insight-card">
+            <span class="pizza-insight-icon">🏆</span>
+            <span class="pizza-insight-text">
+              <strong>{{ categoriaDominante.nome }}</strong> representa <strong>{{ categoriaDominante.percentual }}%</strong> dos gastos
+            </span>
           </div>
         </div>
 
-        <div class="stat-card mini gasto-pago">
-          <div class="stat-icon">💸</div>
-          <div class="stat-content">
-            <h3>{{ formatarValor(dashboardData.total_gastos_pagos || 0) }}</h3>
-            <p>Contas pagas</p>
+        <div class="resumo-row-secundaria">
+          <div class="resumo-card-mini receita-card">
+            <div class="resumo-card-header">
+              <span class="resumo-card-icon">📈</span>
+              <span class="resumo-card-label">Receitas</span>
+            </div>
+            <h3 class="resumo-mini-valor">{{ formatarValor(dashboardData.total_receitas || 0) }}</h3>
+            <p v-if="receitasMetaTexto" class="resumo-mini-meta">
+              <span class="meta-dot dot-receita"></span>{{ receitasMetaTexto }}
+            </p>
           </div>
-        </div>
-
-        <div class="stat-card mini gasto-pendente" v-if="(dashboardData.total_a_pagar || 0) > 0">
-          <div class="stat-icon">⏳</div>
-          <div class="stat-content">
-            <h3>{{ formatarValor(dashboardData.total_a_pagar || 0) }}</h3>
-            <p>Ainda a pagar</p>
-            <small>{{ dashboardData.quantidade_pendentes || 0 }} conta{{ (dashboardData.quantidade_pendentes || 0) === 1 ? '' : 's' }}</small>
+          <div class="resumo-card-mini despesa-card">
+            <div class="resumo-card-header">
+              <span class="resumo-card-icon">📉</span>
+              <span class="resumo-card-label">Despesas</span>
+            </div>
+            <h3 class="resumo-mini-valor">{{ formatarValor(dashboardData.total_mes || 0) }}</h3>
+            <p v-if="despesasMetaTexto" class="resumo-mini-meta">
+              <span class="meta-dot dot-despesa"></span>{{ despesasMetaTexto }}
+            </p>
           </div>
         </div>
       </div>
@@ -72,38 +103,49 @@
         <p>{{ dashboardData.previsao_mensagem }}</p>
       </div>
 
-      <!-- Contextual Insights -->
-      <div class="insights-wrapper">
-        <DashboardInsights :data="dashboardData" />
-      </div>
+      <!-- Seção do Meio: 2 colunas -->
+      <div class="dashboard-mid-grid">
+        <div class="mid-card mid-card-insights">
+          <h3 class="mid-card-title">Insights do período</h3>
+          <DashboardInsights :data="dashboardData" />
+        </div>
 
-      <!-- BLOCO 2 — COMPORTAMENTO -->
-      <div class="block-title">Comportamento</div>
-      <div class="stats-grid bloco-comportamento">
-        <div class="stat-card mini primary">
-          <div class="stat-icon">💰</div>
-          <div class="stat-content">
-            <h3>{{ formatarValor(dashboardData.total_mes || 0) }}</h3>
-            <p>Total de despesas no mês</p>
-            <small>{{ dashboardData.quantidade_gastos || 0 }} registros</small>
+        <div class="mid-card mid-card-comportamento">
+          <h3 class="mid-card-title">Comportamento financeiro</h3>
+          <div class="stats-grid bloco-comportamento">
+            <div class="stat-card mini primary">
+              <div class="stat-icon">💰</div>
+              <div class="stat-content">
+                <h3>{{ formatarValor(dashboardData.total_mes || 0) }}</h3>
+                <p>Total de despesas no mês</p>
+                <small>{{ dashboardData.quantidade_gastos || 0 }} registros</small>
+              </div>
+            </div>
+
+            <div class="stat-card mini warning" v-if="categoriaDominante">
+              <div class="stat-icon">🏆</div>
+              <div class="stat-content">
+                <h3>{{ categoriaDominante.nome }}</h3>
+                <p>Seu maior foco de despesas</p>
+                <small>{{ categoriaDominante.percentual }}% das despesas</small>
+              </div>
+            </div>
+
+            <div :class="['stat-card', 'mini', 'comparativo', variacaoClasse]" v-if="mostrarComparacao">
+              <div class="stat-icon">{{ variacaoIcone }}</div>
+              <div class="stat-content">
+                <h3>{{ formatarVariacao(dashboardData.variacao_percentual) }}</h3>
+                <p>Comparado ao mês passado</p>
+                <small>{{ formatarValor(Math.abs(dashboardData.variacao_absoluta)) }}</small>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="stat-card mini warning" v-if="categoriaDominante">
-          <div class="stat-icon">🏆</div>
-          <div class="stat-content">
-            <h3>{{ categoriaDominante.nome }}</h3>
-            <p>Seu maior foco de despesas</p>
-            <small>{{ categoriaDominante.percentual }}% das despesas</small>
-          </div>
-        </div>
-
-        <div :class="['stat-card', 'mini', 'comparativo', variacaoClasse]" v-if="mostrarComparacao">
-          <div class="stat-icon">{{ variacaoIcone }}</div>
-          <div class="stat-content">
-            <h3>{{ formatarVariacao(dashboardData.variacao_percentual) }}</h3>
-            <p>Comparado ao mês passado</p>
-            <small>{{ formatarValor(Math.abs(dashboardData.variacao_absoluta)) }}</small>
+        <div class="mid-card mid-card-evolucao">
+          <h3 class="mid-card-title">Evolução mensal</h3>
+          <div class="chart-wrapper-evolucao">
+            <canvas ref="evolucaoChartRef"></canvas>
           </div>
         </div>
       </div>
@@ -126,31 +168,6 @@
           </div>
           <div class="budget-mini-values">
             {{ formatarValor(meta.gasto_realizado) }} / {{ formatarValor(meta.valor_meta) }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Gráficos -->
-      <div class="charts-grid">
-        <div class="chart-container">
-          <h3>Despesas por Categoria</h3>
-          <div class="chart-wrapper">
-            <canvas ref="categoriaChartRef"></canvas>
-          </div>
-          <div v-if="categoriaDominante" class="chart-mini-insight">
-            <i class="pi pi-chart-pie" />
-            <span>
-              <strong>{{ categoriaDominante.nome }}</strong> representa
-              <strong>{{ ((categoriaDominante.total / (dashboardData.total_gastos || 1)) * 100).toFixed(0) }}%</strong>
-              dos gastos
-            </span>
-          </div>
-        </div>
-
-        <div class="chart-container chart-evolucao">
-          <h3>Evolução Mensal</h3>
-          <div class="chart-wrapper">
-            <canvas ref="evolucaoChartRef"></canvas>
           </div>
         </div>
       </div>
@@ -203,10 +220,6 @@ const saldoClasse = computed(() => {
   if (!dashboardData.value || dashboardData.value.saldo === undefined) return 'neutral'
   return dashboardData.value.saldo >= 0 ? 'positive' : 'negative'
 })
-const saldoIcone = computed(() => {
-  if (!dashboardData.value || dashboardData.value.saldo === undefined) return '⚖️'
-  return dashboardData.value.saldo >= 0 ? '🟢' : '🔴'
-})
 const saldoInsuficiente = computed(() => {
   if (!dashboardData.value) return false
   const saldo = dashboardData.value.saldo || 0
@@ -227,6 +240,106 @@ const metasPorCategoria = computed(() => {
   if (!dashboardData.value || !dashboardData.value.metas) return []
   const metas = dashboardData.value.metas.por_categoria || []
   return [...metas].sort((a, b) => b.percentual_usado - a.percentual_usado)
+})
+
+const rankingCategorias = computed(() => {
+  return dashboardData.value?.ranking_categorias || []
+})
+
+const saldoPctDisponivel = computed(() => {
+  if (!dashboardData.value) return ''
+  const saldo = dashboardData.value.saldo || 0
+  const receitas = dashboardData.value.total_receitas || 0
+  if (receitas > 0) {
+    return ((saldo / receitas) * 100).toFixed(0)
+  }
+  return ''
+})
+
+const saldoBadgeNegativo = computed(() => {
+  if (!dashboardData.value) return ''
+  const saldo = dashboardData.value.saldo || 0
+  if (saldo >= 0) return ''
+  const receitas = dashboardData.value.total_receitas || 0
+  const despesas = dashboardData.value.total_mes || 0
+  if (receitas > 0 && despesas > receitas) {
+    return 'Despesas acima das receitas'
+  }
+  return 'Saldo comprometido'
+})
+
+const saldoContextoPositivo = computed(() => {
+  if (!dashboardData.value) return ''
+  const saldo = dashboardData.value.saldo || 0
+  if (saldo < 0) return ''
+  const receitas = dashboardData.value.total_receitas || 0
+  if (receitas > 0) {
+    const pct = ((saldo / receitas) * 100).toFixed(0)
+    return `${pct}% da receita permanece disponível`
+  }
+  return 'Você encerra o período com saldo positivo'
+})
+
+const saldoContextoNegativo = computed(() => {
+  if (!dashboardData.value) return ''
+  const saldo = dashboardData.value.saldo || 0
+  if (saldo >= 0) return ''
+  const receitas = dashboardData.value.total_receitas || 0
+  const despesas = dashboardData.value.total_mes || 0
+  if (receitas > 0) {
+    const pct = ((Math.abs(saldo) / receitas) * 100).toFixed(0)
+    return `${pct}% da receita foi comprometida`
+  }
+  if (despesas > 0) {
+    return 'Despesas superaram as receitas neste período'
+  }
+  return ''
+})
+
+const saldoMetaTexto = computed(() => {
+  if (!dashboardData.value) return ''
+  const saldo = dashboardData.value.saldo || 0
+  const receitas = dashboardData.value.total_receitas || 0
+  const despesas = dashboardData.value.total_mes || 0
+
+  if (receitas > 0 && despesas > 0) {
+    return `Receitas ${formatarValor(receitas)} • Despesas ${formatarValor(despesas)}`
+  }
+
+  return saldo >= 0 ? 'Saldo positivo neste período' : 'Saldo negativo neste período'
+})
+
+const receitasMetaTexto = computed(() => {
+  if (!dashboardData.value) return ''
+  const receitas = dashboardData.value.total_receitas || 0
+  const anterior = dashboardData.value.total_receitas_anterior
+  if (receitas > 0 && anterior > 0) {
+    const diff = ((receitas - anterior) / anterior) * 100
+    const sinal = diff >= 0 ? '↑' : '↓'
+    return `${sinal} ${Math.abs(diff).toFixed(0)}% vs período anterior`
+  }
+  return ''
+})
+
+const despesasMetaTexto = computed(() => {
+  if (!dashboardData.value) return ''
+  const despesas = dashboardData.value.total_mes || 0
+  const receitas = dashboardData.value.total_receitas || 0
+  const partes = []
+
+  if (receitas > 0 && despesas > 0) {
+    const pct = ((despesas / receitas) * 100).toFixed(0)
+    partes.push(`${pct}% da receita comprometida`)
+  }
+
+  const variacao = dashboardData.value.variacao_percentual
+  const abs = Math.abs(dashboardData.value.variacao_absoluta || 0)
+  if (abs > 0.01 && variacao !== undefined) {
+    const sinal = variacao <= 0 ? '↓' : '↑'
+    partes.push(`${sinal} ${Math.abs(variacao).toFixed(0)}% vs período anterior`)
+  }
+
+  return partes.join(' • ')
 })
 
 onMounted(() => {
@@ -390,13 +503,19 @@ function initEvolucaoChart() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+          padding: { top: 4, bottom: 4, left: 4, right: 4 }
+        },
         plugins: {
           legend: {
             position: 'top',
+            align: 'end',
             labels: {
               color: '#e5e7eb',
-              font: { size: 12 },
-              usePointStyle: true
+              font: { size: 11 },
+              usePointStyle: true,
+              boxWidth: 8,
+              padding: 10
             }
           },
           tooltip: {
@@ -410,15 +529,21 @@ function initEvolucaoChart() {
         scales: {
           y: {
             beginAtZero: true,
-            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+            grid: { color: 'rgba(255, 255, 255, 0.08)' },
             ticks: {
               color: '#9ca3af',
+              font: { size: 10 },
               callback: (value) => formatarValor(value)
-            }
+            },
+            border: { display: false }
           },
           x: {
-            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-            ticks: { color: '#9ca3af' }
+            grid: { display: false },
+            ticks: {
+              color: '#9ca3af',
+              font: { size: 10 }
+            },
+            border: { display: false }
           }
         }
       }
@@ -442,7 +567,21 @@ function formatarVariacao(valor) {
 </script>
 
 <style scoped>
+/* ── Tokens globais do dashboard ── */
 .dashboard {
+  --dashboard-gap: 16px;
+  --card-padding-lg: 20px;
+  --card-padding-md: 16px;
+  --card-padding-sm: 12px;
+  --label-font-size: 0.8rem;
+  --label-font-weight: 600;
+  --label-letter-spacing: 0.06em;
+  --label-color: rgba(148, 163, 184, 0.8);
+  --label-margin-bottom: 4px;
+  --aux-font-size: 0.78rem;
+  --aux-line-height: 1.4;
+  --aux-color: rgba(148, 163, 184, 0.65);
+
   max-width: 1200px;
   margin: 0 auto;
   background: radial-gradient(ellipse at 50% 0%, rgba(30, 41, 59, 0.4) 0%, transparent 60%);
@@ -450,11 +589,11 @@ function formatarVariacao(valor) {
 
 /* Títulos de bloco */
 .block-title {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(148, 163, 184, 0.75);
+  letter-spacing: var(--label-letter-spacing);
+  color: var(--label-color);
   margin: 32px 0 14px 0;
   padding-left: 4px;
 }
@@ -468,86 +607,184 @@ function formatarVariacao(valor) {
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  gap: 16px;
+  gap: var(--dashboard-gap);
   margin-bottom: 20px;
 }
 
-/* BLOCO 1: Situação Financeira */
-.bloco-situacao {
-  grid-template-columns: 1.5fr repeat(3, 1fr);
+/* BLOCO 1: Resumo Financeiro */
+.resumo-financeiro {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  grid-template-rows: auto auto;
+  gap: var(--dashboard-gap);
+  margin-bottom: var(--dashboard-gap);
   align-items: stretch;
 }
 
-/* Saldo Destaque — âncora visual do dashboard */
-.saldo-destaque {
-  grid-row: span 1;
+.saldo-card {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.pizza-card {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.resumo-row-secundaria {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--dashboard-gap);
+}
+
+/* Saldo Card — protagonista */
+.saldo-card {
   background: linear-gradient(135deg, #1e293b, #0f172a);
   border-radius: 22px;
-  padding: 28px;
+  padding: var(--card-padding-lg);
   display: flex;
   align-items: center;
-  gap: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.saldo-destaque:hover {
+.saldo-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
-.saldo-destaque.positive {
+.saldo-card.positive {
   border-left: 6px solid #10b981;
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), #1e293b);
 }
 
-.saldo-destaque.negative {
+.saldo-card.negative {
   border-left: 6px solid #ef4444;
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), #1e293b);
 }
 
-.saldo-destaque .stat-icon-saldo {
-  font-size: 3rem;
-  flex-shrink: 0;
+.saldo-card.neutral {
+  border-left: 6px solid rgba(148, 163, 184, 0.4);
 }
 
-.saldo-destaque .stat-content {
-  flex: 1;
+.saldo-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.saldo-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.saldo-icone {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .saldo-label {
-  margin: 0 0 6px 0;
-  color: #94a3b8;
-  font-size: 0.95rem;
-  font-weight: 500;
+  margin: 0 0 var(--label-margin-bottom) 0;
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--label-letter-spacing);
+  color: var(--label-color);
+  text-align: center;
 }
 
 .saldo-valor {
-  font-size: 2.4rem;
+  font-size: 2.8rem;
   font-weight: 800;
-  margin: 0 0 6px 0;
+  margin: 0;
   letter-spacing: -0.02em;
 }
 
-.saldo-destaque.positive .saldo-valor { color: #10b981; }
-.saldo-destaque.negative .saldo-valor { color: #ef4444; }
-.saldo-destaque.neutral .saldo-valor { color: #e5e7eb; }
+.saldo-card.positive .saldo-valor { color: #10b981; }
+.saldo-card.negative .saldo-valor { color: #ef4444; }
+.saldo-card.neutral .saldo-valor { color: #e5e7eb; }
 
-/* Estado de risco: saldo insuficiente para contas pendentes */
-.saldo-destaque.risco {
+.saldo-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.saldo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.saldo-badge-negativo {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.saldo-breakdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
+  margin-top: 4px;
+  width: 100%;
+}
+
+.breakdown-receitas {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.breakdown-despesas {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.breakdown-sep {
+  color: rgba(148, 163, 184, 0.5);
+}
+
+/* Estado de risco */
+.saldo-card.risco {
   border-left: 6px solid #f59e0b;
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), #1e293b);
   animation: pulse-risco 2s ease-in-out infinite;
 }
 
-.saldo-destaque.risco .saldo-valor {
+.saldo-card.risco .saldo-valor {
   color: #f59e0b;
 }
 
 .saldo-aviso {
-  color: #fbbf24 !important;
+  margin: 4px 0 0 0;
+  color: #fbbf24;
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
 @keyframes pulse-risco {
@@ -555,10 +792,195 @@ function formatarVariacao(valor) {
   50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
 }
 
-.saldo-destaque .stat-content small {
-  color: rgba(148, 163, 184, 0.7);
-  font-size: 0.85rem;
+/* Pizza Card */
+.pizza-card {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-radius: 22px;
+  padding: var(--card-padding-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  min-height: 0;
 }
+
+.pizza-title {
+  margin: 0 0 var(--label-margin-bottom) 0;
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--label-letter-spacing);
+  color: var(--label-color);
+  text-align: center;
+}
+
+.pizza-chart-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.chart-wrapper-pizza {
+  position: relative;
+  width: 100%;
+  height: 180px;
+}
+
+.chart-wrapper-pizza canvas {
+  max-width: 100% !important;
+}
+
+/* Categoria Única (sem gráfico) */
+.categoria-unica {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--card-padding-sm);
+}
+
+.categoria-unica-label {
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--label-letter-spacing);
+  color: var(--label-color);
+}
+
+.categoria-unica-nome {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #e5e7eb;
+}
+
+.categoria-unica-valor {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f59e0b;
+}
+
+.categoria-unica-pct {
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
+}
+
+.pizza-vazia {
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
+  text-align: center;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pizza-insight-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
+}
+
+.pizza-insight-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.pizza-insight-text {
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
+}
+
+.pizza-insight-text strong {
+  color: #e5e7eb;
+  font-weight: 600;
+}
+
+/* Linha 2: Receitas + Despesas (secundários) */
+.resumo-row-secundaria {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--dashboard-gap);
+}
+
+.resumo-card-mini {
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 16px;
+  padding: var(--card-padding-md);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resumo-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resumo-card-icon {
+  font-size: 1.1rem;
+  opacity: 0.7;
+}
+
+.resumo-card-label {
+  margin: 0 0 var(--label-margin-bottom) 0;
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--label-letter-spacing);
+  color: var(--label-color);
+  text-align: center;
+}
+
+.receita-card .resumo-card-label { color: #10b981; }
+.despesa-card .resumo-card-label { color: #ef4444; }
+
+.resumo-mini-valor {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #e5e7eb;
+}
+
+.resumo-mini-meta {
+  margin: 2px 0 0 0;
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dot-receita { background: #10b981; }
+.dot-despesa { background: #ef4444; }
+
+.receita-card { border-left: 3px solid rgba(16, 185, 129, 0.4); }
+.despesa-card { border-left: 3px solid rgba(239, 68, 68, 0.4); }
 
 /* Mini Cards (Comportamento — secundário) */
 .stat-card.mini {
@@ -578,7 +1000,7 @@ function formatarVariacao(valor) {
 }
 
 .stat-card.mini .stat-icon {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   opacity: 0.6;
   flex-shrink: 0;
 }
@@ -592,16 +1014,16 @@ function formatarVariacao(valor) {
 
 .stat-card.mini .stat-content p {
   margin: 0 0 4px 0;
-  color: rgba(148, 163, 184, 0.85);
-  font-size: 0.85rem;
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
   font-weight: 500;
-  line-height: 1.4;
 }
 
 .stat-card.mini .stat-content small {
-  color: rgba(117, 133, 153, 0.8);
-  font-size: 0.78rem;
-  line-height: 1.3;
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
 }
 
 /* Cores por tipo (secundário — mais sutis) */
@@ -641,10 +1063,10 @@ function formatarVariacao(valor) {
   border: 1px solid rgba(59, 130, 246, 0.12);
   border-radius: var(--radius-md);
   padding: 12px 16px;
-  margin: 0 auto 16px auto;
-  font-size: 0.9rem;
+  margin: 0 auto var(--dashboard-gap) auto;
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
   color: #93c5fd;
-  line-height: 1.5;
   max-width: 600px;
 }
 
@@ -669,14 +1091,14 @@ function formatarVariacao(valor) {
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 24px;
+  gap: var(--dashboard-gap);
   margin-top: 8px;
 }
 
 .chart-container {
   background: linear-gradient(135deg, #1e293b, #0f172a);
   border-radius: 16px;
-  padding: 24px;
+  padding: var(--card-padding-md);
   border: 1px solid rgba(255, 255, 255, 0.1);
   min-width: 0;
   overflow: hidden;
@@ -714,9 +1136,9 @@ function formatarVariacao(valor) {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 0.85rem;
-  color: #94a3b8;
-  line-height: 1.4;
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
 }
 
 .chart-mini-insight i {
@@ -728,6 +1150,107 @@ function formatarVariacao(valor) {
 .chart-mini-insight strong {
   color: #e5e7eb;
   font-weight: 600;
+}
+
+/* Dashboard Mid Grid (2 colunas) */
+.dashboard-mid-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  grid-auto-rows: auto;
+  gap: var(--dashboard-gap);
+  margin-bottom: var(--dashboard-gap);
+  align-items: stretch;
+}
+
+.mid-card {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mid-card-title,
+.mid-card-insights .mid-card-title,
+.mid-card-comportamento .mid-card-title,
+.mid-card-evolucao .mid-card-title {
+  margin: 0 0 var(--label-margin-bottom) 0;
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--label-letter-spacing);
+  color: var(--label-color);
+  text-align: center;
+}
+
+/* Insights — compacto, leitura rápida (~30% da coluna) */
+.mid-card-insights {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 6px 8px;
+  gap: 1px;
+}
+
+/* Comportamento — valorizado (~70% da coluna) */
+.mid-card-comportamento {
+  grid-column: 1;
+  grid-row: 2;
+  padding: 8px 10px;
+  gap: 4px;
+}
+
+.mid-card-comportamento .bloco-comportamento {
+  grid-template-columns: 1fr;
+  gap: 3px;
+}
+
+.mid-card-comportamento .stat-card.mini {
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.mid-card-comportamento .stat-card.mini .stat-icon {
+  font-size: 1.2rem;
+}
+
+.mid-card-comportamento .stat-card.mini .stat-content h3 {
+  font-size: 1.05rem;
+}
+
+.mid-card-comportamento .stat-card.mini .stat-content p {
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
+}
+
+.mid-card-comportamento .stat-card.mini .stat-content small {
+  font-size: var(--aux-font-size);
+  line-height: var(--aux-line-height);
+  color: var(--aux-color);
+}
+
+/* Evolução — reduzida e alinhada exatamente à coluna esquerda */
+.mid-card-evolucao {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  padding: 8px 10px;
+  gap: 2px;
+}
+
+.chart-wrapper-evolucao {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chart-wrapper-evolucao canvas {
+  max-width: 100% !important;
 }
 
 /* Period Selector */
@@ -778,9 +1301,30 @@ function formatarVariacao(valor) {
     padding: 12px;
   }
 
-  .bloco-situacao {
-    display: flex;
-    flex-direction: column;
+  .resumo-financeiro {
+    gap: 12px;
+  }
+
+  /* Mobile: coluna única */
+  .resumo-financeiro {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .saldo-card {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .pizza-card {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .resumo-row-secundaria {
+    grid-column: 1;
+    grid-row: auto;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
 
@@ -788,16 +1332,38 @@ function formatarVariacao(valor) {
     max-width: 100%;
   }
 
-  .saldo-destaque {
+  .saldo-card {
     width: 100%;
-    padding: 20px;
+    padding: 24px;
     border-radius: 18px;
     box-sizing: border-box;
   }
 
   .saldo-valor {
-    font-size: clamp(1.3rem, 5.5vw, 1.7rem);
+    font-size: clamp(1.8rem, 7vw, 2.2rem);
     white-space: nowrap;
+  }
+
+  .saldo-meta {
+    font-size: 0.85rem;
+  }
+
+  .pizza-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .chart-wrapper-pizza {
+    height: 200px;
+  }
+
+  .resumo-card-mini {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .resumo-mini-valor {
+    font-size: 1.15rem;
   }
 
   .stats-grid {
@@ -824,6 +1390,28 @@ function formatarVariacao(valor) {
     margin-top: 8px;
   }
 
+  .dashboard-mid-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 12px;
+  }
+
+  .mid-card-insights,
+  .mid-card-comportamento,
+  .mid-card-evolucao {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .mid-card {
+    padding: 16px;
+  }
+
+  .chart-wrapper-evolucao {
+    height: 240px;
+    flex: none;
+  }
+
   .period-selector {
     flex-direction: column;
     align-items: stretch;
@@ -838,7 +1426,7 @@ function formatarVariacao(valor) {
 .budget-mini-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  gap: var(--dashboard-gap);
   margin-bottom: 20px;
 }
 
